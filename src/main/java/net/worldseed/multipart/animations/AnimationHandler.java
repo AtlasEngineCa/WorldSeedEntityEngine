@@ -2,7 +2,7 @@ package net.worldseed.multipart.animations;
 
 import java.util.function.Consumer;
 
-public sealed interface AnimationHandler permits AnimationHandlerImpl {
+public interface AnimationHandler {
     void playRepeat(String animation);
     void stopRepeat(String animation);
     void playOnce(String animation, Consumer<Void> cb);

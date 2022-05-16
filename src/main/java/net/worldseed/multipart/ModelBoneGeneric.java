@@ -1,6 +1,6 @@
 package net.worldseed.multipart;
 
-import net.worldseed.multipart.animations.AnimationLoader;
+import net.worldseed.multipart.animations.AnimationLoader.AnimationType;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -77,7 +77,7 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
 
         for (ModelAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
-                if (currentAnimation.getType() == AnimationLoader.AnimationType.TRANSLATION) {
+                if (currentAnimation.getType() == AnimationType.TRANSLATION) {
                     var calculatedTransform = currentAnimation.getTransform(tick);
                     endPos = endPos.add(calculatedTransform);
                 }
@@ -96,7 +96,7 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
 
         for (ModelAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
-                if (currentAnimation.getType() == AnimationLoader.AnimationType.ROTATION) {
+                if (currentAnimation.getType() == AnimationType.ROTATION) {
                     Point calculatedTransform = currentAnimation.getTransform(tick);
                     netTransform = netTransform.add(calculatedTransform);
                 }
