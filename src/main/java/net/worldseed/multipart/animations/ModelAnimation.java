@@ -19,6 +19,7 @@ public class ModelAnimation {
     private static final Point TranslationMul = new Pos(-1, 1, 1);
 
     private final Map<Short, Point> interpolationCache;
+    private final String animationName;
 
     private boolean playing;
 
@@ -26,43 +27,17 @@ public class ModelAnimation {
         return type;
     }
 
+    public String getName() {
+        return this.animationName;
+    }
+
     public boolean isPlaying() {
         return playing;
     }
 
-    record StartEnd (Point s, Point e, double st, double et) {}
-    private StartEnd getStartEnd(double time, LinkedHashMap<Double, Point> transform) {
-        Point lastPoint = Pos.ZERO;
-        double lastTime = 0;
-
-        for (Double keyTime : transform.keySet()) {
-            if (keyTime > time) {
-                return new StartEnd(lastPoint, transform.get(keyTime), lastTime, keyTime);
-            }
-
-            lastPoint = transform.get(keyTime);
-            lastTime = keyTime;
-        }
-
-        return new StartEnd(lastPoint, lastPoint, lastTime, animationTime);
-    }
-
-    private Point interpolate(double time, LinkedHashMap<Double, Point> transform) {
-        StartEnd points = getStartEnd(time, transform);
-
-        double timeDiff = points.et - points.st;
-
-        if (timeDiff == 0)
-            return points.s;
-
-        double timePercent = (time - points.st) / timeDiff;
-
-        return points.e.sub(points.s).mul(timePercent).add(points.s);
-    }
-
     public Point calculateTransform(int tick, LinkedHashMap<Double, Point> transform) {
         double toInterpolate = tick * 50.0 / 1000;
-        return interpolate(toInterpolate, transform).mul(this.type == AnimationLoader.AnimationType.ROTATION ? RotationMul : TranslationMul);
+        return Interpolator.interpolate(toInterpolate, transform, animationTime).mul(this.type == AnimationLoader.AnimationType.ROTATION ? RotationMul : TranslationMul);
     }
 
     public Point getTransform(short tick) {
@@ -73,6 +48,7 @@ public class ModelAnimation {
     public ModelAnimation(String modelName, String animationName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime, float timeScalar) {
         this.type = animationType;
         this.animationTime = animationTime * timeScalar;
+        this.animationName = animationName;
 
         if (bone == null) {
             throw new IllegalArgumentException("Bone name cannot be null");
@@ -141,8 +117,9 @@ public class ModelAnimation {
         this.playing = false;
     }
 
-    public void play() {
+    public double play() {
         this.playing = true;
+        return animationTime*1000;
     }
 
     public void destroy() {

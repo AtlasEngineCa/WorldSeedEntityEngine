@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
-public abstract non-sealed class AnimationHandlerImpl implements AnimationHandler {
+public abstract class AnimationHandlerImpl implements AnimationHandler {
     private static final short refreshRateTicks = 1;
 
     public final Map<String, Double> animationTimes = new HashMap<>();
@@ -34,7 +34,7 @@ public abstract non-sealed class AnimationHandlerImpl implements AnimationHandle
     private Task drawBonesTask;
     private boolean updates = false;
 
-    // When true, force the entire animation to play out. No net.worldseed.multipart.animations can interrupt it.
+    // When true, force the entire animation to play out. No animations can interrupt it.
     private short tick;
     private short animationLength;
     private HashMap<String, Consumer<Void>> removeAfterPlaying = new HashMap<>();

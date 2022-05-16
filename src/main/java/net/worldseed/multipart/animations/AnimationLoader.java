@@ -12,8 +12,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import static net.worldseed.multipart.ModelEngine.getAnimationPath;
-
 public class AnimationLoader {
     protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final Map<String, JsonObject> loadedAnimations = new HashMap<>();
@@ -36,7 +34,7 @@ public class AnimationLoader {
         try {
             loadedAnimations1 = GSON
                 .fromJson(
-                    new InputStreamReader(new FileInputStream(getAnimationPath(toLoad))),
+                    new InputStreamReader(new FileInputStream(ModelEngine.getAnimationPath(toLoad))),
                     JsonObject.class
                 );
         } catch(FileNotFoundException e) {
