@@ -128,14 +128,13 @@ public class Main {
                 final long ramUsage = (runtime.totalMemory() - runtime.freeMemory()) / 1024 / 1024;
 
                 final Component header = Component.newline()
-                        .append(Component.newline()).append(Component.text("Players: " + players.size()))
-                        .append(Component.newline()).append(Component.newline())
                         .append(Component.text("RAM USAGE: " + ramUsage + " MB", NamedTextColor.GRAY).append(Component.newline())
                                 .append(Component.text("TICK TIME: " + MathUtils.round(tickMonitor.getTickTime(), 2) + "ms", NamedTextColor.GRAY))).append(Component.newline());
 
-                final Component footer = Component.newline().append(Component.text("Project: minestom.net").append(Component.newline())
-                                .append(Component.text("    Source: github.com/WorldSeedMMO/WorldSeedEntityEngine", TextColor.color(31, 142, 91))).append(Component.newline()))
-                        .append(Component.newline());
+                final Component footer = Component.newline()
+                        .append(Component.text("          WorldSeed Entity Engine          ")
+                                .color(TextColor.color(57, 200, 73))
+                        .append(Component.newline()));
 
                 Audiences.players().sendPlayerListHeaderAndFooter(header, footer);
             }, TaskSchedule.tick(10), TaskSchedule.tick(10));

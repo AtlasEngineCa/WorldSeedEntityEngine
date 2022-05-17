@@ -3,9 +3,10 @@ package net.worldseed.multipart;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.Instance;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 sealed public interface ModelBone permits ModelBoneGeneric {
-    Quaternion calculateFinalAngle(Quaternion q, short tick);
     Point applyTransform(Point p, short tick);
     Point getRotation(short tick);
     void draw(short tick);
@@ -17,6 +18,6 @@ sealed public interface ModelBone permits ModelBoneGeneric {
     void setState(String state);
     Point applyRotation(Point p, Point rotation, Point pivot);
     String getName();
-
     void destroy();
+    Quaternion calculateFinalAngle(Quaternion q, short tick);
 }
