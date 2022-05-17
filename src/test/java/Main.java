@@ -33,14 +33,15 @@ import org.apache.commons.io.FileUtils;
 import javax.naming.SizeLimitExceededException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Main {
-    private static final String BASE_PATH = "src/test/resources/";
-    private static final String ZIP_PATH = BASE_PATH + "resourcepack.zip";
-    private static final String MODEL_PATH = BASE_PATH + "models/";
+    private static final Path BASE_PATH = Path.of("src/test/resources");
+    private static final Path ZIP_PATH = BASE_PATH.resolve("resourcepack.zip");
+    private static final Path MODEL_PATH = BASE_PATH.resolve("models");
 
     public static void main(String[] args) throws IOException, SizeLimitExceededException, NoSuchAlgorithmException {
         MinecraftServer minecraftServer = MinecraftServer.init();
@@ -49,12 +50,12 @@ public class Main {
             FileUtils.deleteDirectory(new File(BASE_PATH + "resourcepack"));
         } catch (IllegalArgumentException ignored) { }
 
-        FileUtils.copyDirectory(new File(BASE_PATH + "resourcepack_template"), new File(BASE_PATH + "resourcepack"));
-        ModelParser.parse(BASE_PATH + "resourcepack/assets/wsee/", MODEL_PATH, BASE_PATH);
-        ModelEngine.loadMappings(new File(BASE_PATH + "model_mappings.json"), MODEL_PATH);
+        FileUtils.copyDirectory(BASE_PATH.resolve("resourcepack_template").toFile(), BASE_PATH.resolve("resourcepack").toFile());
+        ModelParser.parse(BASE_PATH.resolve("resourcepack/assets/wsee"), MODEL_PATH, BASE_PATH);
+        ModelEngine.loadMappings(BASE_PATH.resolve("model_mappings.json"), MODEL_PATH);
 
-        PackZip.ZipResourcePack(new File(BASE_PATH + "resourcepack"), ZIP_PATH);
-        File zipFile = new File(ZIP_PATH);
+        PackZip.ZipResourcePack(BASE_PATH.resolve("resourcepack"), ZIP_PATH);
+        File zipFile = ZIP_PATH.toFile();
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer lobby = instanceManager.createInstanceContainer(DimensionType.OVERWORLD);

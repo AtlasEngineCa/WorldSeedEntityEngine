@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public class ModelEngine {
@@ -22,15 +22,15 @@ public class ModelEngine {
     private final static HashMap<String, HashMap<String, ItemStack>> blockMappings = new HashMap<>();
     final static HashMap<String, Point> offsetMappings = new HashMap<>();
     final static HashMap<String, Point> diffMappings = new HashMap<>();
-    private static String modelPath;
+    private static Path modelPath;
 
     public enum RenderType {
         ZOMBIE,
         ARMOUR_STAND
     }
 
-    public static void loadMappings(File mappingsFile, String mpath) throws FileNotFoundException {
-        JsonObject map = GSON.fromJson(new InputStreamReader(new FileInputStream(mappingsFile)), JsonObject.class);
+    public static void loadMappings(Path mappingsFile, Path mpath) throws FileNotFoundException {
+        JsonObject map = GSON.fromJson(new InputStreamReader(new FileInputStream(mappingsFile.toFile())), JsonObject.class);
         modelPath = mpath;
 
         blockMappings.clear();

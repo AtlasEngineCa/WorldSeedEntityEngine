@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -15,19 +16,19 @@ public class PackZip {
         fileList = new ArrayList<>();
     }
 
-    public static void ZipResourcePack(File sourceFolder, String outputZipFile) {
+    public static void ZipResourcePack(Path sourceFolder, Path outputZipFile) {
         PackZip appZip = new PackZip();
-        appZip.generateFileList(sourceFolder, sourceFolder.getPath());
+        appZip.generateFileList(sourceFolder.toFile(), sourceFolder.toString());
         appZip.zipIt(outputZipFile, sourceFolder);
     }
 
-    public void zipIt(String zipFile, File sourceFolder) {
+    public void zipIt(Path zipFile, Path sourceFolder) {
         byte[] buffer = new byte[1024];
-        String source = sourceFolder.getPath();
+        String source = sourceFolder.toString();
         FileOutputStream fos = null;
         ZipOutputStream zos = null;
         try {
-            fos = new FileOutputStream(zipFile);
+            fos = new FileOutputStream(zipFile.toFile());
             zos = new ZipOutputStream(fos);
             FileInputStream in = null;
 
