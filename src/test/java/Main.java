@@ -47,7 +47,7 @@ public class Main {
         MinecraftServer minecraftServer = MinecraftServer.init();
 
         try {
-            FileUtils.deleteDirectory(new File(BASE_PATH + "resourcepack"));
+            FileUtils.deleteDirectory(BASE_PATH.resolve("resourcepack").toFile());
         } catch (IllegalArgumentException ignored) { }
 
         FileUtils.copyDirectory(BASE_PATH.resolve("resourcepack_template").toFile(), BASE_PATH.resolve("resourcepack").toFile());

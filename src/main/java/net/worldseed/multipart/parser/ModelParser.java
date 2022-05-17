@@ -55,13 +55,13 @@ public class ModelParser {
         leather_armour_file.add("textures", textures);
         leather_armour_file.add("overrides", predicatesToJson());
 
-        var output = new File(outputPath + "../minecraft/models/item/leather_horse_armor.json");
+        var output = outputPath.resolve("../minecraft/models/item/leather_horse_armor.json").toFile();
         output.getParentFile().mkdirs();
         try (var writer = new FileWriter(output)) {
             GSON.toJson(leather_armour_file, writer);
         }
 
-        var mappingsFile = new File(dataPath + "model_mappings.json");
+        var mappingsFile = dataPath.resolve("model_mappings.json").toFile();
         try (var writer = new FileWriter(mappingsFile)) {
             GSON.toJson(mappingsToJson(), writer);
         }
@@ -263,17 +263,17 @@ public class ModelParser {
             }
 
             String uuid = sb.toString();
-            String outputTexturePath = outputPath + "textures/mobs/" + modelName + "/" + state.name() + "/";
-            String outputModelPath = outputPath + "models/mobs/" + modelName + "/" + state.name() + "/";
+            Path outputTexturePath = outputPath.resolve("textures/mobs/" + modelName + "/" + state.name());
+            Path outputModelPath = outputPath.resolve("models/mobs/" + modelName + "/" + state.name());
 
-            new File(outputTexturePath).mkdirs();
-            new File(outputModelPath).mkdirs();
+            outputModelPath.toFile().mkdirs();
+            outputTexturePath.toFile().mkdirs();
 
             JsonObject modelTextureJson = new JsonObject();
             modelTextureJson.addProperty("0", "wsee:mobs/" + modelName + "/" + state.name() + "/" + uuid);
 
             BufferedImage stateTexture = state.multiplyColour(texture);
-            ImageIO.write(stateTexture, "png", new File(outputTexturePath + "/" + uuid + ".png"));
+            ImageIO.write(stateTexture, "png", outputTexturePath.resolve(uuid + ".png").toFile());
 
             for (Bone bone : bones) {
                 String boneName = bone.name;
@@ -395,7 +395,7 @@ public class ModelParser {
                 String fileName = modelData.getKey();
                 JsonObject modelJson = modelData.getValue();
 
-                File modelFile = new File(outputModelPath, fileName);
+                File modelFile = outputModelPath.resolve(fileName).toFile();
                 try (FileWriter fileWriter = new FileWriter(modelFile)) {
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     gson.toJson(modelJson, fileWriter);
