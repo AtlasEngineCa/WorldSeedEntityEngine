@@ -228,7 +228,6 @@ public class ModelParser {
             BufferedImage stateTexture = state.multiplyColour(texture);
             ImageIO.write(stateTexture, "png", new File(outputTexturePath + "/" + uuid + ".png"));
 
-            System.out.println();
             for (Bone bone : bones) {
                 String boneName = bone.name;
 
@@ -260,8 +259,6 @@ public class ModelParser {
 
                 cubeMid = new Pos((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
                 cubeDiff = new Pos(cubeMid.x() - cubeMinX, cubeMid.y() - cubeMinY, cubeMid.z() - cubeMinZ);
-
-                System.out.println(cubeMid + " " + boneName);
 
                 if (cubeMaxX > 47)
                     throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " max X");
