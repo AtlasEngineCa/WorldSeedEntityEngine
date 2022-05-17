@@ -72,7 +72,6 @@ public class ModelEngine {
     public static String getGeoPath(String id) {
         return modelPath + "/" + id + "/model.geo.json";
     }
-
     public static String getAnimationPath(String id) {
         return modelPath + "/" + id + "/model.animation.json";
     }

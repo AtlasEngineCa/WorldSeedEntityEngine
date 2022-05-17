@@ -19,16 +19,11 @@ public class ModelAnimation {
     private static final Point TranslationMul = new Pos(-1, 1, 1);
 
     private final Map<Short, Point> interpolationCache;
-    private final String animationName;
 
     private boolean playing;
 
     public AnimationLoader.AnimationType getType() {
         return type;
-    }
-
-    public String getName() {
-        return this.animationName;
     }
 
     public boolean isPlaying() {
@@ -45,10 +40,9 @@ public class ModelAnimation {
         return this.interpolationCache.get(tick);
     }
 
-    public ModelAnimation(String modelName, String animationName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime, float timeScalar) {
+    public ModelAnimation(String modelName, String animationName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime) {
         this.type = animationType;
-        this.animationTime = animationTime * timeScalar;
-        this.animationName = animationName;
+        this.animationTime = animationTime;
 
         if (bone == null) {
             throw new IllegalArgumentException("Bone name cannot be null");
@@ -66,7 +60,7 @@ public class ModelAnimation {
 
             try {
                 for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
-                    double time = Double.parseDouble(entry.getKey()) * timeScalar;
+                    double time = Double.parseDouble(entry.getKey());
                     Point point = ModelEngine.getPos(entry.getValue().getAsJsonArray()).orElse(Pos.ZERO);
 
                     transform.put(time, point);
@@ -81,7 +75,7 @@ public class ModelAnimation {
                 } catch (IllegalStateException e2) {
                     // json object, lerp_mode thing
                     for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
-                        time = Double.parseDouble(entry.getKey()) * timeScalar;
+                        time = Double.parseDouble(entry.getKey());
                         Point point = ModelEngine.getPos(entry.getValue().getAsJsonObject().get("post").getAsJsonArray()).orElse(Pos.ZERO);
 
                         transform.put(time, point);
@@ -117,9 +111,8 @@ public class ModelAnimation {
         this.playing = false;
     }
 
-    public double play() {
+    public void play() {
         this.playing = true;
-        return animationTime*1000;
     }
 
     public void destroy() {
