@@ -40,3 +40,6 @@ gradle-app.setting
 # IDEA files
 .idea/
 **/out/
+
+models
+resourcepack
