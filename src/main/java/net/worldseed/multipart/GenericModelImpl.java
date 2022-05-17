@@ -35,11 +35,11 @@ public abstract class GenericModelImpl implements GenericModel {
         return position;
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, Entity masterEntity) {
+    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity) {
         init(instance, position, renderType, masterEntity, null);
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, Entity masterEntity, LivingEntity nametagEntity) {
+    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity, LivingEntity nametagEntity) {
         JsonObject loadedModel = AnimationLoader.loadModel(getId());
         this.position = new Vec(position.x(), position.y(), position.z());
 
@@ -137,7 +137,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     @Override
     public Point getVFX(String name) {
-        var found = VFXBones.get(name);
+        ModelBoneVFX found = VFXBones.get(name);
         if (found == null) return null;
         return found.getPosition();
     }

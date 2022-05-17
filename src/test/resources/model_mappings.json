@@ -1,7 +1,7 @@
 {
   "gem_golem/foot_1": {
     "id": {
-      "normal": 85,
+      "normal": 87,
       "hit": 0
     },
     "offset": [
@@ -17,7 +17,7 @@
   },
   "gem_golem/foot_3": {
     "id": {
-      "normal": 87,
+      "normal": 89,
       "hit": 2
     },
     "offset": [
@@ -33,7 +33,7 @@
   },
   "gem_golem/foot_2": {
     "id": {
-      "normal": 86,
+      "normal": 88,
       "hit": 1
     },
     "offset": [
@@ -49,7 +49,7 @@
   },
   "gem_golem/gems7": {
     "id": {
-      "normal": 106,
+      "normal": 108,
       "hit": 21
     },
     "offset": [
@@ -65,7 +65,7 @@
   },
   "gem_golem/foot_4": {
     "id": {
-      "normal": 88,
+      "normal": 90,
       "hit": 3
     },
     "offset": [
@@ -81,8 +81,8 @@
   },
   "gem_golem/s1": {
     "id": {
-      "normal": 168,
-      "hit": 83
+      "normal": 171,
+      "hit": 84
     },
     "offset": [
       -1.3000000000000007,
@@ -97,8 +97,8 @@
   },
   "gem_golem/s2": {
     "id": {
-      "normal": 165,
-      "hit": 80
+      "normal": 168,
+      "hit": 81
     },
     "offset": [
       1.7499999999999982,
@@ -113,8 +113,8 @@
   },
   "gem_golem/s3": {
     "id": {
-      "normal": 162,
-      "hit": 77
+      "normal": 165,
+      "hit": 78
     },
     "offset": [
       1.7499999999999982,
@@ -129,8 +129,8 @@
   },
   "gem_golem/arm_right": {
     "id": {
-      "normal": 153,
-      "hit": 68
+      "normal": 156,
+      "hit": 69
     },
     "offset": [
       -13.244979999999998,
@@ -145,8 +145,8 @@
   },
   "gem_golem/s4": {
     "id": {
-      "normal": 159,
-      "hit": 74
+      "normal": 162,
+      "hit": 75
     },
     "offset": [
       -1.3000000000000007,
@@ -161,7 +161,7 @@
   },
   "gem_golem/arm_left": {
     "id": {
-      "normal": 152,
+      "normal": 154,
       "hit": 67
     },
     "offset": [
@@ -177,8 +177,8 @@
   },
   "gem_golem/face": {
     "id": {
-      "normal": 156,
-      "hit": 71
+      "normal": 159,
+      "hit": 72
     },
     "offset": [
       0.22499999999999964,
@@ -191,14 +191,30 @@
       9.4
     ]
   },
-  "gem_golem/hitbox_10": {
+  "gem_golem/nametag": {
     "id": {
-      "normal": 169,
-      "hit": 84
+      "normal": 173,
+      "hit": 86
     },
     "offset": [
       0.5,
-      -1.5,
+      27.5,
+      0.5
+    ],
+    "diff": [
+      8.5,
+      8.5,
+      8.5
+    ]
+  },
+  "gem_golem/hitbox_10": {
+    "id": {
+      "normal": 172,
+      "hit": 85
+    },
+    "offset": [
+      0.5,
+      1.25,
       0.5
     ],
     "diff": [
@@ -209,7 +225,7 @@
   },
   "gem_golem/gems4": {
     "id": {
-      "normal": 97,
+      "normal": 99,
       "hit": 12
     },
     "offset": [
@@ -223,9 +239,25 @@
       8.385
     ]
   },
+  "gem_golem/hit_vfx": {
+    "id": {
+      "normal": 155,
+      "hit": 68
+    },
+    "offset": [
+      15.244979999999998,
+      27.53264,
+      7.266500000000001
+    ],
+    "diff": [
+      8.5,
+      8.5,
+      8.5
+    ]
+  },
   "gem_golem/gems3": {
     "id": {
-      "normal": 115,
+      "normal": 117,
       "hit": 30
     },
     "offset": [
@@ -241,7 +273,7 @@
   },
   "gem_golem/gems6": {
     "id": {
-      "normal": 133,
+      "normal": 135,
       "hit": 48
     },
     "offset": [
@@ -257,7 +289,7 @@
   },
   "gem_golem/gems5": {
     "id": {
-      "normal": 151,
+      "normal": 153,
       "hit": 66
     },
     "offset": [
@@ -273,7 +305,7 @@
   },
   "gem_golem/gems2": {
     "id": {
-      "normal": 124,
+      "normal": 126,
       "hit": 39
     },
     "offset": [
@@ -289,7 +321,7 @@
   },
   "gem_golem/gems1": {
     "id": {
-      "normal": 142,
+      "normal": 144,
       "hit": 57
     },
     "offset": [

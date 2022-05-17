@@ -1,5 +1,6 @@
 package GemGolem;
 
+import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Point;
@@ -7,7 +8,9 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
@@ -26,8 +29,18 @@ public class GemGolemMob extends EntityCreature {
     public GemGolemMob(Instance instance, Pos pos) {
         super(EntityType.PUFFERFISH);
 
+        LivingEntity nametag = new LivingEntity(EntityType.ARMOR_STAND);
+        nametag.setCustomNameVisible(true);
+        nametag.setCustomName(Component.text("Gem Golem"));
+        nametag.setNoGravity(true);
+        nametag.setInvisible(true);
+        nametag.setInstance(instance, pos);
+
+        ArmorStandMeta meta = (ArmorStandMeta) nametag.getEntityMeta();
+        meta.setMarker(true);
+
         this.model = new GemGolemModel();
-        model.init(instance, pos, this);
+        model.init(instance, pos, this, nametag);
 
         this.animationHandler = new AnimationHandlerGemGolem(model);
         animationHandler.playRepeat("idle_extended");
@@ -36,7 +49,7 @@ public class GemGolemMob extends EntityCreature {
                 List.of(
                         new GemGolemActivateGoal(this, animationHandler),
                         new GemGolemMoveGoal(this, animationHandler),
-                        new GemGolemAttackGoal(this, animationHandler)
+                        new GemGolemAttackGoal(this, animationHandler, model)
                 ),
                 List.of(
                         new GemGolemTarget(this)
@@ -82,8 +95,11 @@ public class GemGolemMob extends EntityCreature {
     @Override
     public void remove() {
         super.remove();
-        this.model.destroy();
-        this.animationHandler.destroy();
+
+        this.animationHandler.playOnce("death", (cb) -> {
+            this.model.destroy();
+            this.animationHandler.destroy();
+        });
     }
 
     public void setSleeping(boolean b) {

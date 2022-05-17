@@ -34,8 +34,7 @@ non-sealed class ModelBoneVFX extends ModelBoneGeneric {
 
         this.position = endPos
                 .div(6.4, 6.4, 6.4)
-                .add(model.getPosition())
-                .add(model.getGlobalOffset());
+                .add(model.getPosition());
     }
 
     @Override

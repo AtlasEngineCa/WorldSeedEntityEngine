@@ -74,7 +74,6 @@ public class Main {
         {
             GlobalEventHandler handler = MinecraftServer.getGlobalEventHandler();
 
-            // Group events
             CombatEvent.hook(handler);
             PackEvent.hook(handler, zipFile);
 

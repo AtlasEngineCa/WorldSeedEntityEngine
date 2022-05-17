@@ -5,12 +5,14 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.SlimeMeta;
+import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 
 non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
-    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Entity forwardTo) {
+    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
 
         String[] spl = name.split("_");
@@ -22,7 +24,10 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
             SlimeMeta meta = (SlimeMeta) this.stand.getEntityMeta();
             meta.setSize(size);
 
-            this.stand.setTag(Tag.Integer("ForwardAttack"), forwardTo.getEntityId());
+            this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
+                event.setCancelled(true);
+                forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
+            }));
         }
     }
 
@@ -53,7 +58,6 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
             endPos
                 .div(6.4, 6.4, 6.4)
                 .add(model.getPosition())
-                .add(0, stand.getBoundingBox().maxY()/2, 0)
                 .add(model.getGlobalOffset()));
     }
 }
