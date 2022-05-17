@@ -27,8 +27,7 @@ public class GemGolemTarget extends TargetSelector {
         final Instance instance = getEntityCreature().getInstance();
         final Pos entityCreaturePosition = entityCreature.getPosition();
 
-        if (entityCreature.isDead()) return null;
-
+        if (entityCreature.isRemoved() || instance == null) return null;
         final Chunk currentChunk = instance.getChunkAt(entityCreaturePosition);
         if (currentChunk == null) {
             return null;
