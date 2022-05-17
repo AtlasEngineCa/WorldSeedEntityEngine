@@ -12,11 +12,6 @@ public class CombatEvent {
                 int damage = 1;
 
                 target.damage(DamageType.fromEntity(event.getEntity()), damage);
-                target.takeKnockback(
-                        0.5f,
-                        Math.sin(event.getEntity().getPosition().yaw() * (Math.PI / 180)),
-                        -Math.cos(event.getEntity().getPosition().yaw() * (Math.PI / 180))
-                );
             }
         });
     }

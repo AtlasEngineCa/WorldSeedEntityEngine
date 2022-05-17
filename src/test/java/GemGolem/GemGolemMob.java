@@ -90,7 +90,7 @@ public class GemGolemMob extends EntityCreature {
 
         if (stateTask != null && stateTask.isAlive()) stateTask.cancel();
         this.stateTask = MinecraftServer.getSchedulerManager()
-                .buildTask(() -> this.model.setState("normal")).delay(20, TimeUnit.CLIENT_TICK)
+                .buildTask(() -> this.model.setState("normal")).delay(10, TimeUnit.CLIENT_TICK)
                 .schedule();
         
         return super.damage(type, value);
@@ -102,7 +102,7 @@ public class GemGolemMob extends EntityCreature {
         this.animationHandler.playOnce("death", (cb) -> {
             this.model.destroy();
             this.animationHandler.destroy();
-            ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 2, position.z(), 2, 2, 2, 40);
+            ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 50);
             viewers.forEach(v -> v.sendPacket(packet));
         });
 
@@ -112,7 +112,6 @@ public class GemGolemMob extends EntityCreature {
     public void setSleeping(boolean sleeping) {
         this.sleeping = sleeping;
     }
-
     public boolean isSleeping() {
         return sleeping;
     }

@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 
 public abstract class AnimationHandlerImpl implements AnimationHandler {
     private static final short REFRESH_RATE_TICKS = 1;
+    public abstract Map<String, Integer> animationPriorities();
 
     private final Map<String, Set<ModelAnimation>> animations;
     public final Map<String, Double> animationTimes;
@@ -65,8 +66,6 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
             this.animationTimes = Map.copyOf(animationTimes);
         }
     }
-
-    public abstract Map<String, Integer> animationPriorities();
 
     private short getTick() {
         return (short) (animationLength - tick);
