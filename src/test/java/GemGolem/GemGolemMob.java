@@ -24,7 +24,7 @@ public class GemGolemMob extends EntityCreature {
     private final GemGolemModel model;
     private final AnimationHandler animationHandler;
     private Task stateTask;
-    private boolean sleeping;
+    private boolean sleeping = false;
 
     public GemGolemMob(Instance instance, Pos pos) {
         super(EntityType.PUFFERFISH);
