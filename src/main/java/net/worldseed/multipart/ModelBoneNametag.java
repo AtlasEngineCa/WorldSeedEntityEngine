@@ -2,12 +2,11 @@ package net.worldseed.multipart;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
 
 non-sealed class ModelBoneNametag extends ModelBoneGeneric {
-    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, Entity forwardTo, LivingEntity nametagEntity) {
+    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, LivingEntity nametagEntity) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {

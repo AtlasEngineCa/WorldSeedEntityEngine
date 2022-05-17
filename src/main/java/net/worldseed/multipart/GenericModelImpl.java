@@ -54,7 +54,7 @@ public abstract class GenericModelImpl implements GenericModel {
             ModelBone modelBonePart;
 
             if (name.equals("nametag") && nametagEntity != null) {
-                modelBonePart = new ModelBoneNametag(pivotPos, name, boneRotation, this, masterEntity, nametagEntity);
+                modelBonePart = new ModelBoneNametag(pivotPos, name, boneRotation, this, nametagEntity);
             } else if (name.contains("hitbox")) {
                 modelBonePart = new ModelBoneHitbox(pivotPos, name, boneRotation, this, masterEntity);
             } else if (name.contains("vfx")) {
