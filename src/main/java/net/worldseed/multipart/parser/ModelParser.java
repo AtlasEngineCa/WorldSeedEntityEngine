@@ -3,6 +3,7 @@ package net.worldseed.multipart.parser;
 import com.google.gson.*;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.ModelEngine;
 
 import javax.imageio.ImageIO;
@@ -239,14 +240,14 @@ public class ModelParser {
 
             List<Cube> cubes = new ArrayList<>();
             for (JsonElement cubeJson : bone.getAsJsonObject().get("cubes").getAsJsonArray()) {
-                Optional<Pos> origin = ModelEngine.getPos(cubeJson.getAsJsonObject().get("origin").getAsJsonArray());
-                Optional<Pos> size = ModelEngine.getPos(cubeJson.getAsJsonObject().get("size").getAsJsonArray());
+                Optional<Point> origin = ModelEngine.getPos(cubeJson.getAsJsonObject().get("origin").getAsJsonArray());
+                Optional<Point> size = ModelEngine.getPos(cubeJson.getAsJsonObject().get("size").getAsJsonArray());
 
-                Optional<Pos> pivot = Optional.empty();
+                Optional<Point> pivot = Optional.empty();
                 if (cubeJson.getAsJsonObject().has("pivot"))
                     pivot = ModelEngine.getPos(cubeJson.getAsJsonObject().get("pivot").getAsJsonArray());
 
-                Optional<Pos> rotation = Optional.empty();
+                Optional<Point> rotation = Optional.empty();
                 if (cubeJson.getAsJsonObject().has("rotation"))
                     rotation = ModelEngine.getPos(cubeJson.getAsJsonObject().get("rotation").getAsJsonArray());
 
@@ -288,7 +289,6 @@ public class ModelParser {
             BufferedImage stateTexture = state.multiplyColour(texture);
             ImageIO.write(stateTexture, "png", new File(outputTexturePath + "/" + uuid + ".png"));
 
-            System.out.println();
             for (Bone bone : bones) {
                 String boneName = bone.name;
 
@@ -314,10 +314,8 @@ public class ModelParser {
                     cubeMaxZ = Math.max(cubeMaxZ, cubeOrigin.z() + cubeSize.z());
                 }
 
-                final Point cubeMid = new Pos((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
-                final Point cubeDiff = new Pos(cubeMid.x() - cubeMinX + 16, cubeMid.y() - cubeMinY + 16, cubeMid.z() - cubeMinZ + 16);
-
-                System.out.println(cubeDiff + " " + boneName);
+                final Point cubeMid = new Vec((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
+                final Point cubeDiff = new Vec(cubeMid.x() - cubeMinX + 16, cubeMid.y() - cubeMinY + 16, cubeMid.z() - cubeMinZ + 16);
 
                 if (cubeMaxX > 47)
                     throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " max X");
@@ -333,14 +331,14 @@ public class ModelParser {
                     throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " min Z");
 
                 for (Cube cube : bone.cubes()) {
-                    Point cubePivot = new Pos(-(cube.pivot().x() + cubeMid.x()), cube.pivot.y() - cubeMid.y(), cube.pivot.z() - cubeMid.z());
+                    Point cubePivot = new Vec(-(cube.pivot().x() + cubeMid.x()), cube.pivot.y() - cubeMid.y(), cube.pivot.z() - cubeMid.z());
                     Point cubeSize = cube.size;
                     Point cubeOrigin = cube.origin;
 
-                    Point cubeFrom = new Pos(cubeOrigin.x() - cubeMid.x(), cubeOrigin.y() - cubeMid.y(), cubeOrigin.z() - cubeMid.z());
-                    Point cubeTo = new Pos(cubeFrom.x() + cubeSize.x(), cubeFrom.y() + cubeSize.y(), cubeFrom.z() + cubeSize.z());
+                    Point cubeFrom = new Vec(cubeOrigin.x() - cubeMid.x(), cubeOrigin.y() - cubeMid.y(), cubeOrigin.z() - cubeMid.z());
+                    Point cubeTo = new Vec(cubeFrom.x() + cubeSize.x(), cubeFrom.y() + cubeSize.y(), cubeFrom.z() + cubeSize.z());
 
-                    Point cubeRotation = new Pos(-cube.rotation.x(), -cube.rotation.y(), cube.rotation.z());
+                    Point cubeRotation = new Vec(-cube.rotation.x(), -cube.rotation.y(), cube.rotation.z());
                     HashMap<TextureFace, UV> uvs = new HashMap<>();
 
                     for (TextureFace face : cube.uv.keySet()) {
@@ -391,7 +389,7 @@ public class ModelParser {
                     itemIds.add(
                         new ItemId(modelName,
                         boneName,
-                        new Pos(cubeMinX + cubeDiff.x() - 8, cubeMinY + cubeDiff.y() - 8, cubeMinZ + cubeDiff.z() - 8),
+                        new Vec(cubeMinX + cubeDiff.x() - 8, cubeMinY + cubeDiff.y() - 8, cubeMinZ + cubeDiff.z() - 8),
                         cubeDiff,
                         index)
                     );

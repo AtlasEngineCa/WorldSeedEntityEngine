@@ -3,6 +3,7 @@ package net.worldseed.multipart.animations;
 import com.google.gson.JsonElement;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.ModelBone;
 import net.worldseed.multipart.ModelEngine;
 
@@ -15,8 +16,8 @@ public class ModelAnimation {
 
     private final AnimationLoader.AnimationType type;
 
-    private static final Point RotationMul = new Pos(-1, -1, 1);
-    private static final Point TranslationMul = new Pos(-1, 1, 1);
+    private static final Point RotationMul = new Vec(-1, -1, 1);
+    private static final Point TranslationMul = new Vec(-1, 1, 1);
 
     private final Map<Short, Point> interpolationCache;
 

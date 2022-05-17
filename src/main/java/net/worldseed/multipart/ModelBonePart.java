@@ -63,7 +63,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
         Quaternion q = calculateFinalAngle(new Quaternion(getRotation(tick)), tick);
         if (model.getGlobalRotation() != 0) {
-            Quaternion pq = new Quaternion(new Pos(0, this.model.getGlobalRotation(), 0));
+            Quaternion pq = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
             q = pq.multiply(q);
         }
 

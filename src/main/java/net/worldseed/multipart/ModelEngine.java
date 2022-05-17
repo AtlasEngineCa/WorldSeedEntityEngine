@@ -2,7 +2,9 @@ package net.worldseed.multipart;
 
 import com.google.gson.*;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.worldseed.multipart.parser.ModelParser;
@@ -18,8 +20,8 @@ public class ModelEngine {
     static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final static HashMap<String, HashMap<String, ItemStack>> blockMappings = new HashMap<>();
-    final static HashMap<String, Pos> offsetMappings = new HashMap<>();
-    final static HashMap<String, Pos> diffMappings = new HashMap<>();
+    final static HashMap<String, Point> offsetMappings = new HashMap<>();
+    final static HashMap<String, Point> diffMappings = new HashMap<>();
     private static String modelPath;
 
     public enum RenderType {
@@ -77,11 +79,11 @@ public class ModelEngine {
         return modelPath + "/" + id + "/model.animation.json";
     }
 
-    public static Optional<Pos> getPos(JsonElement pivot) {
+    public static Optional<Point> getPos(JsonElement pivot) {
         if (pivot == null) return Optional.empty();
         else {
             JsonArray arr = pivot.getAsJsonArray();
-            return Optional.of(new Pos(arr.get(0).getAsDouble(), arr.get(1).getAsDouble(), arr.get(2).getAsDouble()));
+            return Optional.of(new Vec(arr.get(0).getAsDouble(), arr.get(1).getAsDouble(), arr.get(2).getAsDouble()));
         }
     }
 
