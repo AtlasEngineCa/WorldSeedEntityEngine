@@ -42,3 +42,4 @@ gradle-app.setting
 **/out/
 
 src/test/resources/resourcepack/
+src/test/resources/model_mappings.json
