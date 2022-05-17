@@ -1,5 +1,6 @@
 package net.worldseed.multipart;
 
+import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.animations.AnimationLoader.AnimationType;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
@@ -13,7 +14,7 @@ import java.util.List;
 
 abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePart, ModelBoneVFX {
     protected final HashMap<String, ItemStack> items;
-    private final Pos diff;
+    private final Point diff;
     private final Point pivot;
     private final String name;
 
@@ -59,7 +60,7 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
     }
 
     public Point applyGlobalRotation(Point endPos) {
-        return applyRotation(endPos, new Pos(0, model.getGlobalRotation(), 0), this.model.getPivot());
+        return applyRotation(endPos, new Vec(0, model.getGlobalRotation(), 0), this.model.getPivot());
     }
 
     public Point applyRotation(Point p, Point rotation, Point pivot) {
@@ -92,7 +93,7 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
     }
 
     public Point getRotation(short tick) {
-        Pos netTransform = new Pos(0, 0, 0);
+        Point netTransform = Vec.ZERO;
 
         for (ModelAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {

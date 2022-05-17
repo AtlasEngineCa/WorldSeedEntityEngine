@@ -1,5 +1,6 @@
 package net.worldseed.multipart;
 
+import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.animations.AnimationLoader;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -40,15 +41,15 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, Entity masterEntity, LivingEntity nametagEntity) {
         JsonObject loadedModel = AnimationLoader.loadModel(getId());
-        this.position = new Pos(position.x(), position.y(), position.z());
+        this.position = new Vec(position.x(), position.y(), position.z());
 
         // Build bones
         for (JsonElement bone : loadedModel.get("minecraft:geometry").getAsJsonArray().get(0).getAsJsonObject().get("bones").getAsJsonArray()) {
             JsonElement pivot = bone.getAsJsonObject().get("pivot");
             String name = bone.getAsJsonObject().get("name").getAsString();
 
-            Pos boneRotation = ModelEngine.getPos(bone.getAsJsonObject().get("rotation")).orElse(Pos.ZERO).mul(-1, -1, 1);
-            Pos pivotPos = ModelEngine.getPos(pivot).orElse(Pos.ZERO).mul(-1,1,1);
+            Point boneRotation = ModelEngine.getPos(bone.getAsJsonObject().get("rotation")).orElse(Pos.ZERO).mul(-1, -1, 1);
+            Point pivotPos = ModelEngine.getPos(pivot).orElse(Pos.ZERO).mul(-1,1,1);
 
             ModelBone modelBonePart;
 
