@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.worldseed.multipart.parser.ModelParser;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
