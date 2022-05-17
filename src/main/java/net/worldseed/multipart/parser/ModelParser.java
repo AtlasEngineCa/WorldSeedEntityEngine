@@ -25,8 +25,52 @@ public class ModelParser {
 
     private static final Map<String, MappingEntry> mappings = new HashMap<>();
     private static final List<JsonObject> predicates = new ArrayList<>();
-
     final static JsonObject display = new JsonObject();
+
+    private enum TextureState {
+        normal(1.0,1.0,1.0),
+        hit(2.0,0.7,0.7);
+
+        final private double r;
+        final private double g;
+        final private double b;
+
+        TextureState(double r, double g, double b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+
+        private BufferedImage multiplyColour(BufferedImage oldImg) {
+            ColorModel cm = oldImg.getColorModel();
+            boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+            WritableRaster raster = oldImg.copyData(null);
+            BufferedImage img = new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+
+            for (int i = 0; i < img.getWidth(); i++) {
+                for (int j = 0; j < img.getHeight(); j++) {
+                    int rgb = img.getRGB(i, j);
+                    int ir = (rgb >> 16) & 0xFF;
+                    int ig = (rgb >> 8) & 0xFF;
+                    int ib = rgb & 0xFF;
+                    int ia = (rgb >> 24) & 0xFF;
+                    img.setRGB(i, j, (ia << 24) | (Math.min((int)(r * ir), 255) << 16) | (Math.min((int)(g * ig), 255) << 8) | Math.min((int)(b * ib), 255));
+                }
+            }
+
+            return img;
+        }
+    }
+
+    private enum TextureFace {
+        north,
+        east,
+        south,
+        west,
+        up,
+        down
+    }
+
     static {
         JsonArray translation = new JsonArray();
         translation.add(0);
@@ -65,130 +109,6 @@ public class ModelParser {
         try (var writer = new FileWriter(mappingsFile)) {
             GSON.toJson(mappingsToJson(), writer);
         }
-    }
-
-    private static UV convertUV(UV uv, int width, int height, boolean inverse) {
-        double sx = uv.x1 * (16.0 / width);
-        double sy = uv.y1 * (16.0 / height);
-        double ex = uv.x2 * (16.0 / width);
-        double ey = uv.y2 * (16.0 / height);
-
-        if (inverse)
-            return new UV(ex+sx, ey+sy, sx, sy);
-        return new UV(sx, sy, ex + sx, ey + sy);
-    }
-
-    private static JsonObject mappingsToJson() {
-        JsonObject res = new JsonObject();
-
-        for (Map.Entry<String, MappingEntry> entry : ModelParser.mappings.entrySet()) {
-            var id = entry.getKey();
-            var mapping = entry.getValue();
-
-            res.add(id, mappingEntryToJson(mapping));
-        }
-
-        return res;
-    }
-
-    private static JsonElement mappingEntryToJson(MappingEntry mapping) {
-        JsonObject res = new JsonObject();
-
-        res.add("id", entrySetToJson(mapping.map));
-        res.add("offset", pointAsJson(mapping.offset));
-        res.add("diff", pointAsJson(mapping.diff));
-
-        return res;
-    }
-
-    private static JsonElement entrySetToJson(Map<String, Integer> map) {
-        JsonObject res = new JsonObject();
-
-        for (Map.Entry<String, Integer> entry : map.entrySet()) {
-            res.addProperty(entry.getKey(), entry.getValue());
-        }
-
-        return res;
-    }
-
-    private static JsonElement predicatesToJson() {
-        var array = new JsonArray();
-        for (var predicate : ModelParser.predicates) {
-            array.add(predicate);
-        }
-        return array;
-    }
-
-    record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {}
-    record MappingEntry(Map<String, Integer> map, Point offset, Point diff) {}
-    record Bone(String name, List<Cube> cubes) {}
-    record ItemId(String name, String bone, Point offset, Point diff, int id) {}
-    record UV(double x1, double y1, double x2, double y2) {}
-    record RotationInfo(double angle, String axis, Point origin) {}
-    record Element(Point from, Point to, Map<TextureFace, UV> faces, RotationInfo rotation) {
-        public JsonObject asJson() {
-            JsonObject res = new JsonObject();
-            res.add("from", pointAsJson(from));
-            res.add("to", pointAsJson(to));
-            res.add("faces", facesAsJson(faces));
-            res.add("rotation", rotationAsJson(rotation));
-
-            return res;
-        }
-    }
-
-    private static JsonElement rotationAsJson(RotationInfo rotation) {
-        JsonObject res = new JsonObject();
-        res.addProperty("angle", rotation.angle);
-        res.addProperty("axis", rotation.axis);
-        res.add("origin", pointAsJson(rotation.origin));
-        return res;
-    }
-
-    private static JsonElement facesAsJson(Map<TextureFace, UV> faces) {
-        JsonObject res = new JsonObject();
-        for (TextureFace face : faces.keySet()) {
-            res.add(face.name(), uvAsJson(faces.get(face)));
-        }
-        return res;
-    }
-
-    private static JsonElement uvAsJson(UV uv) {
-        JsonArray els = new JsonArray();
-        els.add(new JsonPrimitive(uv.x1));
-        els.add(new JsonPrimitive(uv.y1));
-        els.add(new JsonPrimitive(uv.x2));
-        els.add(new JsonPrimitive(uv.y2));
-
-        JsonObject res = new JsonObject();
-
-        res.add("uv", els);
-        res.addProperty("texture", "#0");
-        return res;
-    }
-
-    private static JsonArray pointAsJson(Point from) {
-        JsonArray res = new JsonArray();
-        res.add(from.x());
-        res.add(from.y());
-        res.add(from.z());
-        return res;
-    }
-
-    public static Map<ModelParser.TextureFace, ModelParser.UV> getUV(JsonObject uv) {
-        Map<TextureFace, UV> res = new HashMap<>();
-
-        for (TextureFace face : TextureFace.values()) {
-            String faceName = face.name();
-
-            JsonObject north = uv.get(faceName).getAsJsonObject();
-            JsonArray north_uv = north.get("uv").getAsJsonArray();
-            JsonArray north_size = north.get("uv_size").getAsJsonArray();
-            UV uvNorth = new UV(north_uv.get(0).getAsDouble(), north_uv.get(1).getAsDouble(), north_size.get(0).getAsDouble(), north_size.get(1).getAsDouble());
-            res.put(face, uvNorth);
-        }
-
-        return res;
     }
 
     private static void createFiles(@NotNull String modelName, Path modelPath, Path outputPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
@@ -415,16 +335,46 @@ public class ModelParser {
         }
     }
 
-    private static JsonObject createPredicate(int id, String name, String state, String bone) {
+    private static UV convertUV(UV uv, int width, int height, boolean inverse) {
+        double sx = uv.x1 * (16.0 / width);
+        double sy = uv.y1 * (16.0 / height);
+        double ex = uv.x2 * (16.0 / width);
+        double ey = uv.y2 * (16.0 / height);
+
+        if (inverse)
+            return new UV(ex+sx, ey+sy, sx, sy);
+        return new UV(sx, sy, ex + sx, ey + sy);
+    }
+
+    private static JsonObject mappingsToJson() {
         JsonObject res = new JsonObject();
 
-        JsonObject customModelData = new JsonObject();
-        customModelData.addProperty("custom_model_data", id);
+        for (Map.Entry<String, MappingEntry> entry : ModelParser.mappings.entrySet()) {
+            var id = entry.getKey();
+            var mapping = entry.getValue();
 
-        res.add("predicate", customModelData);
-        res.addProperty("model", "wsee:mobs/" + name + "/" + state + "/" + bone);
+            res.add(id, mapping.asJson());
+        }
 
         return res;
+    }
+
+    private static JsonElement entrySetToJson(Map<String, Integer> map) {
+        JsonObject res = new JsonObject();
+
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            res.addProperty(entry.getKey(), entry.getValue());
+        }
+
+        return res;
+    }
+
+    private static JsonElement predicatesToJson() {
+        var array = new JsonArray();
+        for (var predicate : ModelParser.predicates) {
+            array.add(predicate);
+        }
+        return array;
     }
 
     private static JsonElement elementsToJson(List<Element> elements) {
@@ -437,47 +387,100 @@ public class ModelParser {
         return res;
     }
 
-    private enum TextureFace {
-        north,
-        east,
-        south,
-        west,
-        up,
-        down
+
+    record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {}
+    record MappingEntry(Map<String, Integer> map, Point offset, Point diff) {
+        public JsonObject asJson() {
+            JsonObject res = new JsonObject();
+
+            res.add("id", entrySetToJson(map));
+            res.add("offset", pointAsJson(offset));
+            res.add("diff", pointAsJson(diff));
+
+            return res;
+        }
+    }
+    record Bone(String name, List<Cube> cubes) {}
+    record ItemId(String name, String bone, Point offset, Point diff, int id) {}
+    record UV(double x1, double y1, double x2, double y2) {
+        public JsonObject asJson() {
+            JsonArray els = new JsonArray();
+            els.add(new JsonPrimitive(x1));
+            els.add(new JsonPrimitive(y1));
+            els.add(new JsonPrimitive(x2));
+            els.add(new JsonPrimitive(y2));
+
+            JsonObject res = new JsonObject();
+
+            res.add("uv", els);
+            res.addProperty("texture", "#0");
+            return res;
+        }
     }
 
-    private enum TextureState {
-        normal(1.0,1.0,1.0),
-        hit(2.0,0.7,0.7);
+    record RotationInfo(double angle, String axis, Point origin) {
+        public JsonObject asJson() {
+            JsonObject res = new JsonObject();
+            res.addProperty("angle", angle);
+            res.addProperty("axis", axis);
+            res.add("origin", pointAsJson(origin));
+            return res;
+        }
+    }
 
-        final private double r;
-        final private double g;
-        final private double b;
+    record Element(Point from, Point to, Map<TextureFace, UV> faces, RotationInfo rotation) {
+        public JsonObject asJson() {
+            JsonObject res = new JsonObject();
+            res.add("from", pointAsJson(from));
+            res.add("to", pointAsJson(to));
+            res.add("faces", facesAsJson(faces));
+            res.add("rotation", rotation.asJson());
 
-        TextureState(double r, double g, double b) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
+            return res;
+        }
+    }
+
+    private static JsonElement facesAsJson(Map<TextureFace, UV> faces) {
+        JsonObject res = new JsonObject();
+        for (TextureFace face : faces.keySet()) {
+            res.add(face.name(), faces.get(face).asJson());
+        }
+        return res;
+    }
+
+    private static JsonArray pointAsJson(Point from) {
+        JsonArray res = new JsonArray();
+        res.add(from.x());
+        res.add(from.y());
+        res.add(from.z());
+        return res;
+    }
+
+    private static Map<ModelParser.TextureFace, ModelParser.UV> getUV(JsonObject uv) {
+        Map<TextureFace, UV> res = new HashMap<>();
+
+        for (TextureFace face : TextureFace.values()) {
+            String faceName = face.name();
+
+            JsonObject north = uv.get(faceName).getAsJsonObject();
+            JsonArray north_uv = north.get("uv").getAsJsonArray();
+            JsonArray north_size = north.get("uv_size").getAsJsonArray();
+            UV uvNorth = new UV(north_uv.get(0).getAsDouble(), north_uv.get(1).getAsDouble(), north_size.get(0).getAsDouble(), north_size.get(1).getAsDouble());
+            res.put(face, uvNorth);
         }
 
-        private BufferedImage multiplyColour(BufferedImage oldImg) {
-            ColorModel cm = oldImg.getColorModel();
-            boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-            WritableRaster raster = oldImg.copyData(null);
-            BufferedImage img = new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+        return res;
+    }
 
-            for (int i = 0; i < img.getWidth(); i++) {
-                for (int j = 0; j < img.getHeight(); j++) {
-                    int rgb = img.getRGB(i, j);
-                    int ir = (rgb >> 16) & 0xFF;
-                    int ig = (rgb >> 8) & 0xFF;
-                    int ib = rgb & 0xFF;
-                    int ia = (rgb >> 24) & 0xFF;
-                    img.setRGB(i, j, (ia << 24) | (Math.min((int)(r * ir), 255) << 16) | (Math.min((int)(g * ig), 255) << 8) | Math.min((int)(b * ib), 255));
-                }
-            }
+    private static JsonObject createPredicate(int id, String name, String state, String bone) {
+        JsonObject res = new JsonObject();
 
-            return img;
-        }
+        JsonObject customModelData = new JsonObject();
+        customModelData.addProperty("custom_model_data", id);
+
+        res.add("predicate", customModelData);
+        res.addProperty("model", "wsee:mobs/" + name + "/" + state + "/" + bone);
+
+        return res;
     }
 }

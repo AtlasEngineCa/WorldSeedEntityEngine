@@ -1,14 +1,13 @@
 package net.worldseed.multipart;
 
-import net.minestom.server.coordinate.Vec;
-import net.worldseed.multipart.animations.AnimationLoader;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
+import net.worldseed.multipart.animations.AnimationLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -22,7 +22,6 @@ import net.worldseed.multipart.animations.AnimationHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class GemGolemMob extends EntityCreature {

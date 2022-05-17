@@ -24,14 +24,22 @@ public class ModelEngine {
     final static HashMap<String, Point> diffMappings = new HashMap<>();
     private static Path modelPath;
 
+    /**
+     * Entity Type to use for rendering the mode. If you don't know what this is, use ARMOR_STAND
+     */
     public enum RenderType {
         ZOMBIE,
         ARMOUR_STAND
     }
 
-    public static void loadMappings(Path mappingsFile, Path mpath) throws FileNotFoundException {
+    /**
+     * Loads the model from the given path
+     * @param mappingsFile mappings file created by model parser
+     * @param modelPath path of the models
+     */
+    public static void loadMappings(Path mappingsFile, Path modelPath) throws FileNotFoundException {
         JsonObject map = GSON.fromJson(new InputStreamReader(new FileInputStream(mappingsFile.toFile())), JsonObject.class);
-        modelPath = mpath;
+        ModelEngine.modelPath = modelPath;
 
         blockMappings.clear();
         offsetMappings.clear();
