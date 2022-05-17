@@ -5,6 +5,7 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.ModelEngine;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import javax.naming.SizeLimitExceededException;
@@ -13,6 +14,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -42,7 +44,7 @@ public class ModelParser {
         display.add("head", head);
     }
 
-    public static void parse(String outputPath, String modelsPath, String dataPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
+    public static void parse(Path outputPath, Path modelsPath, Path dataPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
         createFiles("gem_golem", modelsPath, outputPath);
 
         var textures = new JsonObject();
@@ -189,20 +191,20 @@ public class ModelParser {
         return res;
     }
 
-    private static void createFiles(String modelName, String modelPath, String outputPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
+    private static void createFiles(@NotNull String modelName, Path modelPath, Path outputPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
         List<TextureState> toGenerate = List.of(TextureState.hit, TextureState.normal);
         HashMap<String, JsonObject> modelInfo = new HashMap<>();
 
-        String geoFile = modelPath + modelName + "/model.geo.json";
-        String texturePath = modelPath + modelName + "/texture.png";
+        Path geoFile = modelPath.resolve(modelName).resolve("model.geo.json");
+        Path texturePath = modelPath.resolve(modelName).resolve("texture.png");
 
-        BufferedImage texture = ImageIO.read(new File(texturePath));
+        BufferedImage texture = ImageIO.read(texturePath.toFile());
 
         int textureHeight = 16;
         int textureWidth = 16;
 
         JsonObject modelGeoFile = GSON
-                .fromJson(new InputStreamReader(new FileInputStream(geoFile)), JsonObject.class)
+                .fromJson(new InputStreamReader(new FileInputStream(geoFile.toFile())), JsonObject.class)
                 .get("minecraft:geometry").getAsJsonArray().get(0).getAsJsonObject();
 
         JsonArray bonesJson = modelGeoFile.get("bones").getAsJsonArray();
