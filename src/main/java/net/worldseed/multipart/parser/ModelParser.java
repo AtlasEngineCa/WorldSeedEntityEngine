@@ -196,10 +196,6 @@ public class ModelParser {
                     Cube cube = new Cube(origin.get().withX(-origin.get().x() - size.get().x()), size.get(), pivot.orElse(Pos.ZERO), rotation.orElse(Pos.ZERO), uv);
                     cubes.add(cube);
                 }
-
-                if (name.equals("arm_left")) {
-                    System.out.println("arm_left");
-                }
             }
 
             if (cubes.size() > 0) {
@@ -232,6 +228,7 @@ public class ModelParser {
             BufferedImage stateTexture = state.multiplyColour(texture);
             ImageIO.write(stateTexture, "png", new File(outputTexturePath + "/" + uuid + ".png"));
 
+            System.out.println();
             for (Bone bone : bones) {
                 String boneName = bone.name;
 
@@ -261,8 +258,10 @@ public class ModelParser {
 
                 }
 
-                cubeMid = new Pos((cubeMaxX - cubeMinX) / 2 - 8, (cubeMaxY - cubeMinY) / 2 - 8, (cubeMaxZ - cubeMinZ) / 2 - 8);
+                cubeMid = new Pos((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
                 cubeDiff = new Pos(cubeMid.x() - cubeMinX, cubeMid.y() - cubeMinY, cubeMid.z() - cubeMinZ);
+
+                System.out.println(cubeMid + " " + boneName);
 
                 if (cubeMaxX > 47)
                     throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " max X");
@@ -356,7 +355,6 @@ public class ModelParser {
                     gson.toJson(modelJson, fileWriter);
 
                     fileWriter.flush();
-                    System.out.println("Wrote " + modelFile.getAbsolutePath());
                 }
 
             }
