@@ -4,7 +4,7 @@ import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.Instance;
 
-public sealed interface ModelBone permits ModelBoneGeneric {
+sealed public interface ModelBone permits ModelBoneGeneric {
     Quaternion calculateFinalAngle(Quaternion q, short tick);
     Point applyTransform(Point p, short tick);
     Point getRotation(short tick);

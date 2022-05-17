@@ -3,14 +3,12 @@ package net.worldseed.multipart;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.tag.Tag;
 
 non-sealed class ModelBonePart extends ModelBoneGeneric {
     private final ModelEngine.RenderType renderType;
