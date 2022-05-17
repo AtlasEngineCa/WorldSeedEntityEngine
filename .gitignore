@@ -41,6 +41,4 @@ gradle-app.setting
 .idea/
 **/out/
 
-models
-resourcepack
 src/test/resources/resourcepack/
