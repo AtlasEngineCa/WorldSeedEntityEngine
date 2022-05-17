@@ -6,7 +6,9 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
+import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 
@@ -14,7 +16,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
     private final ModelEngine.RenderType renderType;
     private Pos lastPos = Pos.ZERO;
 
-    public ModelBonePart(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, Entity forwardTo) {
+    public ModelBonePart(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
 
         this.renderType = renderType;
@@ -26,7 +28,10 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
                 this.stand = new LivingEntity(EntityType.ARMOR_STAND);
             }
 
-            this.stand.setTag(Tag.Integer("ForwardAttack"), forwardTo.getEntityId());
+            this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
+                event.setCancelled(true);
+                forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
+            }));
         }
     }
 
@@ -87,6 +92,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
             Pos newPos = endPos
                     .div(6.4, 6.4, 6.4)
                     .add(model.getPosition())
+                    .add(0, -1.4, 0)
                     .add(model.getGlobalOffset());
 
             stand.teleport(newPos.withView((float) -rotation.y(), (float) rotation.x()));
