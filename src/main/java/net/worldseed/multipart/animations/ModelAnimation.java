@@ -38,7 +38,7 @@ public class ModelAnimation {
 
     public Point getTransform(short tick) {
         if (!this.playing) return Pos.ZERO;
-        return this.interpolationCache.get(tick);
+        return this.interpolationCache.getOrDefault(tick, Pos.ZERO);
     }
 
     public ModelAnimation(String modelName, String animationName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime) {
