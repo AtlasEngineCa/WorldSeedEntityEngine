@@ -21,6 +21,8 @@ import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import net.minestom.server.monitoring.TickMonitor;
 import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.TaskSchedule;
@@ -94,6 +96,7 @@ public class Main {
                 if (!event.isFirstSpawn()) return;
                 final Player player = event.getPlayer();
                 player.setGameMode(GameMode.SURVIVAL);
+                player.setItemInMainHand(ItemStack.of(Material.DIAMOND_SWORD));
                 player.playSound(Sound.sound(SoundEvent.ENTITY_PLAYER_LEVELUP, Sound.Source.MASTER, 1f, 1f));
                 player.setEnableRespawnScreen(false);
             });

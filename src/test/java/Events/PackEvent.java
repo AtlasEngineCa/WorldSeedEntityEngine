@@ -68,7 +68,6 @@ public class PackEvent {
     public static void hook(GlobalEventHandler handler, File zipFile) throws IOException, NoSuchAlgorithmException {
         startHttpServer(zipFile);
         String hash = calculateMD5(zipFile);
-        // TODO: I think has generation is wrong
 
         handler.addListener(PlayerLoginEvent.class, event -> {
             ResourcePack pack = ResourcePack.optional("http://127.0.0.1:8080/pack", hash, Component.text("WSEE Resource Pack"));
