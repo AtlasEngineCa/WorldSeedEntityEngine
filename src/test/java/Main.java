@@ -1,5 +1,6 @@
 import Commands.SpawnCommand;
 import Events.CombatEvent;
+import Events.PackEvent;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,8 +18,6 @@ import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.extras.lan.OpenToLAN;
-import net.minestom.server.instance.ChunkGenerator;
-import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
@@ -26,7 +25,6 @@ import net.minestom.server.monitoring.TickMonitor;
 import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.MathUtils;
-import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.parser.ModelParser;
@@ -40,16 +38,23 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Main {
+    private static final String BASE_PATH = "src/test/resources/";
+    private static final String ZIP_PATH = BASE_PATH + "resourcepack.zip";
+    private static final String MODEL_PATH = BASE_PATH + "models/";
+
     public static void main(String[] args) throws IOException, SizeLimitExceededException, NoSuchAlgorithmException {
         MinecraftServer minecraftServer = MinecraftServer.init();
 
         try {
-            FileUtils.deleteDirectory(new File("src/test/resources/resourcepack"));
+            FileUtils.deleteDirectory(new File(BASE_PATH + "resourcepack"));
         } catch (IllegalArgumentException ignored) { }
 
-        FileUtils.copyDirectory(new File("src/test/resources/resourcepack_template"), new File("src/test/resources/resourcepack"));
-        ModelParser.parse("src/test/resources/resourcepack/assets/wsee/", "src/test/resources/models/", "src/test/resources/");
-        ModelEngine.loadMappings(new File("src/test/resources/model_mappings.json"), "src/test/resources/models/");
+        FileUtils.copyDirectory(new File(BASE_PATH + "resourcepack_template"), new File(BASE_PATH + "resourcepack"));
+        ModelParser.parse(BASE_PATH + "resourcepack/assets/wsee/", MODEL_PATH, BASE_PATH);
+        ModelEngine.loadMappings(new File(BASE_PATH + "model_mappings.json"), MODEL_PATH);
+
+        PackZip.ZipResourcePack(new File(BASE_PATH + "resourcepack"), ZIP_PATH);
+        File zipFile = new File(ZIP_PATH);
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer lobby = instanceManager.createInstanceContainer(DimensionType.OVERWORLD);
@@ -71,6 +76,7 @@ public class Main {
 
             // Group events
             CombatEvent.hook(handler);
+            PackEvent.hook(handler, zipFile);
 
             // Login
             handler.addListener(PlayerLoginEvent.class, event -> {
