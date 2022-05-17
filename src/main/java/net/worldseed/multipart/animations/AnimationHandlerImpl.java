@@ -25,8 +25,6 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
     private final HashMap<String, HashSet<ModelAnimation>> animations = new HashMap<>();
 
-    private final float timeScalar = 1f;
-
     protected Map<String, Integer> animationPriorities = new HashMap<>();
 
     Map.Entry<Integer, String> playing;
@@ -37,7 +35,7 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
     // When true, force the entire animation to play out. No animations can interrupt it.
     private short tick;
     private short animationLength;
-    private HashMap<String, Consumer<Void>> removeAfterPlaying = new HashMap<>();
+    private final HashMap<String, Consumer<Void>> removeAfterPlaying = new HashMap<>();
 
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
@@ -60,17 +58,17 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
                 JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
 
                 if (animationRotation != null) {
-                    ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationRotation, AnimationLoader.AnimationType.ROTATION, length, timeScalar);
+                    ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationRotation, AnimationLoader.AnimationType.ROTATION, length);
                     animationSet.add(boneAnimation);
                 }
 
                 if (animationPosition != null) {
-                    ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationPosition, AnimationLoader.AnimationType.TRANSLATION, length, timeScalar);
+                    ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationPosition, AnimationLoader.AnimationType.TRANSLATION, length);
                     animationSet.add(boneAnimation);
                 }
             }
 
-            animationTimes.put(animationName, length * timeScalar);
+            animationTimes.put(animationName, length);
             animations.put(animationName, animationSet);
         }
     }
