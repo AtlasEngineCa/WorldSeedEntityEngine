@@ -23,8 +23,8 @@ public class ModelParser {
     public static final String OUTPUT_PATH = "resourcepack/";
     private static int index = 0;
 
-    // private static mappings = {};
-    // private static predicates = [];
+    private static final Map<String, MappingEntry> mappings = new HashMap<>();
+    private static final List<JsonObject> predicates = new ArrayList<>();
 
     private static UV convertUV(UV uv, int width, int height, boolean inverse) {
         double sx = uv.x1 * (16.0 / width);
@@ -50,9 +50,70 @@ public class ModelParser {
         //     json.dump(mappings, f, ensure_ascii=False)
 
         createFiles("gem_golem");
+
+        var textures = new JsonObject();
+        textures.addProperty("layer0", "minecraft:item/leather_horse_armor");
+
+        var leather_armour_file = new JsonObject();
+        leather_armour_file.addProperty("parent", "item/generated");
+        leather_armour_file.add("textures", textures);
+        leather_armour_file.add("overrides", predicatesToJson());
+
+        var output = new File(OUTPUT_PATH + "models/item/leather_horse_armor.json");
+        output.getParentFile().mkdirs();
+        try (var writer = new FileWriter(output)) {
+            GSON.toJson(leather_armour_file, writer);
+        }
+
+        var mappingsFile = new File(OUTPUT_PATH + "model_mappings.json");
+        try (var writer = new FileWriter(mappingsFile)) {
+            GSON.toJson(mappingsToJson(), writer);
+        }
+    }
+
+    private static JsonObject mappingsToJson() {
+        JsonObject res = new JsonObject();
+
+        for (Map.Entry<String, MappingEntry> entry : ModelParser.mappings.entrySet()) {
+            var id = entry.getKey();
+            var mapping = entry.getValue();
+
+            res.add(id, mappingEntryToJson(mapping));
+        }
+
+        return res;
+    }
+
+    private static JsonElement mappingEntryToJson(MappingEntry mapping) {
+        JsonObject res = new JsonObject();
+
+        res.add("id", entrySetToJson(mapping.map));
+        res.add("offset", pointAsJson(mapping.offset));
+        res.add("diff", pointAsJson(mapping.diff));
+
+        return res;
+    }
+
+    private static JsonElement entrySetToJson(Map<String, Integer> map) {
+        JsonObject res = new JsonObject();
+
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            res.addProperty(entry.getKey(), entry.getValue());
+        }
+
+        return res;
+    }
+
+    private static JsonElement predicatesToJson() {
+        var array = new JsonArray();
+        for (var predicate : ModelParser.predicates) {
+            array.add(predicate);
+        }
+        return array;
     }
 
     record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {}
+    record MappingEntry(Map<String, Integer> map, Point offset, Point diff) {}
     record Bone(String name, List<Cube> cubes) {}
 
     record ItemId(String name, String bone, Point offset, Point diff, int id) {}
@@ -155,10 +216,9 @@ public class ModelParser {
         int textureHeight = 16;
         int textureWidth = 16;
 
-        JsonObject modelGeoFile = GSON.fromJson(
-            new InputStreamReader(new FileInputStream(geoFile)),
-            JsonObject.class
-        ).get("minecraft:geometry").getAsJsonArray().get(0).getAsJsonObject();
+        JsonObject modelGeoFile = GSON
+                .fromJson(new InputStreamReader(new FileInputStream(geoFile)), JsonObject.class)
+                .get("minecraft:geometry").getAsJsonArray().get(0).getAsJsonObject();
 
         JsonArray bonesJson = modelGeoFile.get("bones").getAsJsonArray();
         JsonObject description = modelGeoFile.get("description").getAsJsonObject();
@@ -228,20 +288,18 @@ public class ModelParser {
             BufferedImage stateTexture = state.multiplyColour(texture);
             ImageIO.write(stateTexture, "png", new File(outputTexturePath + "/" + uuid + ".png"));
 
+            System.out.println();
             for (Bone bone : bones) {
                 String boneName = bone.name;
 
                 List<Element> elements = new ArrayList<>();
-                double cubeMinX = Double.MAX_VALUE;
-                double cubeMinY = Double.MAX_VALUE;
-                double cubeMinZ = Double.MAX_VALUE;
+                double cubeMinX = 100000;
+                double cubeMinY = 100000;
+                double cubeMinZ = 100000;
 
-                double cubeMaxX = Double.MIN_VALUE;
-                double cubeMaxY = Double.MIN_VALUE;
-                double cubeMaxZ = Double.MIN_VALUE;
-
-                Point cubeMid;
-                Point cubeDiff;
+                double cubeMaxX = -100000;
+                double cubeMaxY = -100000;
+                double cubeMaxZ = -100000;
 
                 for (Cube cube : bone.cubes) {
                     Point cubeOrigin = cube.origin;
@@ -254,11 +312,12 @@ public class ModelParser {
                     cubeMaxX = Math.max(cubeMaxX, cubeOrigin.x() + cubeSize.x());
                     cubeMaxY = Math.max(cubeMaxY, cubeOrigin.y() + cubeSize.y());
                     cubeMaxZ = Math.max(cubeMaxZ, cubeOrigin.z() + cubeSize.z());
-
                 }
 
-                cubeMid = new Pos((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
-                cubeDiff = new Pos(cubeMid.x() - cubeMinX, cubeMid.y() - cubeMinY, cubeMid.z() - cubeMinZ);
+                final Point cubeMid = new Pos((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
+                final Point cubeDiff = new Pos(cubeMid.x() - cubeMinX + 16, cubeMid.y() - cubeMinY + 16, cubeMid.z() - cubeMinZ + 16);
+
+                System.out.println(cubeDiff + " " + boneName);
 
                 if (cubeMaxX > 47)
                     throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " max X");
@@ -329,7 +388,14 @@ public class ModelParser {
                     Element newElement = new Element(cubeFrom, cubeTo, uvs, rotationInfo);
                     elements.add(newElement);
 
-                    itemIds.add(new ItemId(modelName, boneName, new Pos(cubeMinX + cubeDiff.x() - 8, cubeMinY + cubeDiff.y() - 8, cubeMinZ + cubeDiff.z() - 8), cubeDiff, index));
+                    itemIds.add(
+                        new ItemId(modelName,
+                        boneName,
+                        new Pos(cubeMinX + cubeDiff.x() - 8, cubeMinY + cubeDiff.y() - 8, cubeMinZ + cubeDiff.z() - 8),
+                        cubeDiff,
+                        index)
+                    );
+
                     index++;
 
                     JsonObject boneInfo = new JsonObject();
@@ -346,16 +412,35 @@ public class ModelParser {
                 JsonObject modelJson = modelData.getValue();
 
                 File modelFile = new File(outputModelPath, fileName);
-                // write modelJson to modelFile
                 try (FileWriter fileWriter = new FileWriter(modelFile)) {
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     gson.toJson(modelJson, fileWriter);
 
                     fileWriter.flush();
                 }
+            }
 
+            for (var item : itemIds) {
+                if (!mappings.containsKey((item.name + "/" + item.bone))) {
+                    mappings.put(item.name + "/" + item.bone, new MappingEntry(new HashMap<>(), item.offset, item.diff));
+                }
+
+                mappings.get(item.name + "/" + item.bone).map.put(state.name(), item.id);
+                predicates.add(createPredicate(item.id, item.name, state.name(), item.bone));
             }
         }
+    }
+
+    private static JsonObject createPredicate(int id, String name, String state, String bone) {
+        JsonObject res = new JsonObject();
+
+        JsonObject customModelData = new JsonObject();
+        customModelData.addProperty("custom_model_data", id);
+
+        res.add("predicate", customModelData);
+        res.addProperty("model", "mobs/" + name + "/" + state + "/" + bone);
+
+        return res;
     }
 
     private static JsonElement elementsToJson(List<Element> elements) {
