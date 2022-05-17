@@ -387,8 +387,10 @@ public class ModelParser {
         return res;
     }
 
-
     record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {}
+    record Bone(String name, List<Cube> cubes) {}
+    record ItemId(String name, String bone, Point offset, Point diff, int id) {}
+
     record MappingEntry(Map<String, Integer> map, Point offset, Point diff) {
         public JsonObject asJson() {
             JsonObject res = new JsonObject();
@@ -400,8 +402,7 @@ public class ModelParser {
             return res;
         }
     }
-    record Bone(String name, List<Cube> cubes) {}
-    record ItemId(String name, String bone, Point offset, Point diff, int id) {}
+
     record UV(double x1, double y1, double x2, double y2) {
         public JsonObject asJson() {
             JsonArray els = new JsonArray();
