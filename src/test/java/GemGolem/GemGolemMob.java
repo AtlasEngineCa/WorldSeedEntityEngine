@@ -12,6 +12,9 @@ import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.network.packet.server.play.ParticlePacket;
+import net.minestom.server.particle.Particle;
+import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
@@ -19,6 +22,8 @@ import net.worldseed.multipart.animations.AnimationHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class GemGolemMob extends EntityCreature {
     private final GemGolemModel model;
@@ -94,16 +99,19 @@ public class GemGolemMob extends EntityCreature {
 
     @Override
     public void remove() {
-        super.remove();
-
+        var viewers = Set.copyOf(this.getViewers());
         this.animationHandler.playOnce("death", (cb) -> {
             this.model.destroy();
             this.animationHandler.destroy();
+            ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 2, position.z(), 2, 2, 2, 40);
+            viewers.forEach(v -> v.sendPacket(packet));
         });
+
+        super.remove();
     }
 
-    public void setSleeping(boolean b) {
-        this.sleeping = b;
+    public void setSleeping(boolean sleeping) {
+        this.sleeping = sleeping;
     }
 
     public boolean isSleeping() {
