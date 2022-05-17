@@ -32,7 +32,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
     public void spawn(Instance instance, Point position) {
         if (this.offset != null) {
-            this.stand.setHelmet(items.get("default"));
+            this.stand.setHelmet(items.get("normal"));
             this.stand.setNoGravity(true);
             this.stand.setSilent(true);
             this.stand.setInvisible(true);

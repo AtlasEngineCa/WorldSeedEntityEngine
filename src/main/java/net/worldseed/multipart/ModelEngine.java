@@ -8,6 +8,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -28,12 +29,9 @@ public class ModelEngine {
         ARMOUR_STAND
     }
 
-    public static void loadMappings() throws FileNotFoundException {
-        Map<String, String> env = System.getenv();
-        String path =  env.containsKey("MINECRAFT_ENV") ? "/var/files/Textures/generated/model_mappings.json" : "../Files/Textures/generated/model_mappings.json";
-        modelPath =  env.containsKey("MINECRAFT_ENV") ? "/var/files/Models" : "../Files/Models";
-
-        JsonObject map = GSON.fromJson(new InputStreamReader(new FileInputStream(path)), JsonObject.class);
+    public static void loadMappings(File mappingsFile, String mpath) throws FileNotFoundException {
+        JsonObject map = GSON.fromJson(new InputStreamReader(new FileInputStream(mappingsFile)), JsonObject.class);
+        modelPath = mpath;
 
         blockMappings.clear();
         offsetMappings.clear();
@@ -83,14 +81,6 @@ public class ModelEngine {
         else {
             JsonArray arr = pivot.getAsJsonArray();
             return Optional.of(new Vec(arr.get(0).getAsDouble(), arr.get(1).getAsDouble(), arr.get(2).getAsDouble()));
-        }
-    }
-
-    static {
-        try {
-            loadMappings();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         }
     }
 }

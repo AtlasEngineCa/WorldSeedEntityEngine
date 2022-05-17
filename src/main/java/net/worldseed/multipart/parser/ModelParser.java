@@ -19,13 +19,51 @@ import java.util.*;
 
 public class ModelParser {
     protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-
-    public static final String MODEL_PATH = "models/";
-    public static final String OUTPUT_PATH = "resourcepack/";
     private static int index = 0;
 
     private static final Map<String, MappingEntry> mappings = new HashMap<>();
     private static final List<JsonObject> predicates = new ArrayList<>();
+
+    final static JsonObject display = new JsonObject();
+    static {
+        JsonArray translation = new JsonArray();
+        translation.add(0);
+        translation.add(0);
+        translation.add(0);
+
+        JsonArray scale = new JsonArray();
+        scale.add(-4);
+        scale.add(4);
+        scale.add(-4);
+
+        JsonObject head = new JsonObject();
+        head.add("translation", translation);
+        head.add("scale", scale);
+        display.add("head", head);
+    }
+
+    public static void parse(String outputPath, String modelsPath, String dataPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
+        createFiles("gem_golem", modelsPath, outputPath);
+
+        var textures = new JsonObject();
+        textures.addProperty("layer0", "minecraft:item/leather_horse_armor");
+
+        var leather_armour_file = new JsonObject();
+        leather_armour_file.addProperty("parent", "item/generated");
+        leather_armour_file.add("textures", textures);
+        leather_armour_file.add("overrides", predicatesToJson());
+
+        var output = new File(outputPath + "../minecraft/models/item/leather_horse_armor.json");
+        output.getParentFile().mkdirs();
+        try (var writer = new FileWriter(output)) {
+            GSON.toJson(leather_armour_file, writer);
+        }
+
+        var mappingsFile = new File(dataPath + "model_mappings.json");
+        try (var writer = new FileWriter(mappingsFile)) {
+            GSON.toJson(mappingsToJson(), writer);
+        }
+    }
 
     private static UV convertUV(UV uv, int width, int height, boolean inverse) {
         double sx = uv.x1 * (16.0 / width);
@@ -36,40 +74,6 @@ public class ModelParser {
         if (inverse)
             return new UV(ex+sx, ey+sy, sx, sy);
         return new UV(sx, sy, ex + sx, ey + sy);
-    }
-
-    public static void parse() throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
-        // leather_armour_file = {"parent": "item/generated",
-        //     "textures": {"layer0": "minecraft:item/leather_horse_armor"},
-        //     "overrides": predicates
-        // }
-
-        // with open(outputPath + '/resourcepack/assets/minecraft/models/item/leather_horse_armor.json', 'w', encoding='utf-8') as f:
-        //     json.dump(leather_armour_file, f, ensure_ascii=False)
-
-        // with open(outputPath + '/model_mappings.json', 'w', encoding='utf-8') as f:
-        //     json.dump(mappings, f, ensure_ascii=False)
-
-        createFiles("gem_golem");
-
-        var textures = new JsonObject();
-        textures.addProperty("layer0", "minecraft:item/leather_horse_armor");
-
-        var leather_armour_file = new JsonObject();
-        leather_armour_file.addProperty("parent", "item/generated");
-        leather_armour_file.add("textures", textures);
-        leather_armour_file.add("overrides", predicatesToJson());
-
-        var output = new File(OUTPUT_PATH + "models/item/leather_horse_armor.json");
-        output.getParentFile().mkdirs();
-        try (var writer = new FileWriter(output)) {
-            GSON.toJson(leather_armour_file, writer);
-        }
-
-        var mappingsFile = new File(OUTPUT_PATH + "model_mappings.json");
-        try (var writer = new FileWriter(mappingsFile)) {
-            GSON.toJson(mappingsToJson(), writer);
-        }
     }
 
     private static JsonObject mappingsToJson() {
@@ -116,7 +120,6 @@ public class ModelParser {
     record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {}
     record MappingEntry(Map<String, Integer> map, Point offset, Point diff) {}
     record Bone(String name, List<Cube> cubes) {}
-
     record ItemId(String name, String bone, Point offset, Point diff, int id) {}
     record UV(double x1, double y1, double x2, double y2) {}
     record RotationInfo(double angle, String axis, Point origin) {}
@@ -186,31 +189,12 @@ public class ModelParser {
         return res;
     }
 
-    final static JsonObject display = new JsonObject();
-
-    static {
-        JsonArray translation = new JsonArray();
-        translation.add(0);
-        translation.add(0);
-        translation.add(0);
-
-        JsonArray scale = new JsonArray();
-        scale.add(-4);
-        scale.add(4);
-        scale.add(-4);
-
-        JsonObject head = new JsonObject();
-        head.add("translation", translation);
-        head.add("scale", scale);
-        display.add("head", head);
-    }
-
-    private static void createFiles(String modelName) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
+    private static void createFiles(String modelName, String modelPath, String outputPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
         List<TextureState> toGenerate = List.of(TextureState.hit, TextureState.normal);
         HashMap<String, JsonObject> modelInfo = new HashMap<>();
 
-        String geoFile = MODEL_PATH + modelName + "/model.geo.json";
-        String texturePath = MODEL_PATH + modelName + "/texture.png";
+        String geoFile = modelPath + modelName + "/model.geo.json";
+        String texturePath = modelPath + modelName + "/texture.png";
 
         BufferedImage texture = ImageIO.read(new File(texturePath));
 
@@ -277,14 +261,14 @@ public class ModelParser {
             }
 
             String uuid = sb.toString();
-            String outputTexturePath = OUTPUT_PATH + "textures/mobs/" + modelName + "/" + state.name() + "/";
-            String outputModelPath = OUTPUT_PATH + "models/mobs/" + modelName + "/" + state.name() + "/";
+            String outputTexturePath = outputPath + "textures/mobs/" + modelName + "/" + state.name() + "/";
+            String outputModelPath = outputPath + "models/mobs/" + modelName + "/" + state.name() + "/";
 
             new File(outputTexturePath).mkdirs();
             new File(outputModelPath).mkdirs();
 
             JsonObject modelTextureJson = new JsonObject();
-            modelTextureJson.addProperty("0", "mobs/" + modelName + "/" + state.name() + "/" + uuid);
+            modelTextureJson.addProperty("0", "wsee:mobs/" + modelName + "/" + state.name() + "/" + uuid);
 
             BufferedImage stateTexture = state.multiplyColour(texture);
             ImageIO.write(stateTexture, "png", new File(outputTexturePath + "/" + uuid + ".png"));
@@ -397,7 +381,7 @@ public class ModelParser {
                     index++;
 
                     JsonObject boneInfo = new JsonObject();
-                    boneInfo.add("texture", modelTextureJson);
+                    boneInfo.add("textures", modelTextureJson);
                     boneInfo.add("elements", elementsToJson(elements));
                     boneInfo.add("texture_size", textureSize);
                     boneInfo.add("display", display);
@@ -436,7 +420,7 @@ public class ModelParser {
         customModelData.addProperty("custom_model_data", id);
 
         res.add("predicate", customModelData);
-        res.addProperty("model", "mobs/" + name + "/" + state + "/" + bone);
+        res.addProperty("model", "wsee:mobs/" + name + "/" + state + "/" + bone);
 
         return res;
     }

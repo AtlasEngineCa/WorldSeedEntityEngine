@@ -92,9 +92,8 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
     public void playOnce(String animation, Consumer<Void> cb) {
         toPlay.put(animationPriorities.get(animation), animation);
         setUpdates(true);
-        playNext();
-
         removeAfterPlaying.put(animation, cb);
+        playNext();
     }
 
     @Override
@@ -108,6 +107,7 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
     private void playNext() {
         final Map.Entry<Integer, String> oldPlaying = this.playing;
         final Map.Entry<Integer, String> playing = toPlay.firstEntry();
+
         if (playing == null) return;
         if (oldPlaying != null && oldPlaying.getValue().equals(playing.getValue())) return;
 
@@ -123,8 +123,8 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
         this.playing = playing;
         if (this.playing == null) return;
         
-        tick = (short) (animationTimes.get(playing.getValue()).shortValue() * 1000 / 50);
-        animationLength = (short) (animationTimes.get(playing.getValue()).shortValue() * 1000 / 50);
+        tick = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
+        animationLength = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
 
         if (oldPlaying != null && !oldPlaying.getValue().equals(playing.getValue())) {
             animations.get(oldPlaying.getValue()).forEach(ModelAnimation::cancel);
@@ -143,16 +143,27 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
             this.drawBonesTask.cancel();
             this.drawBonesTask = null;
             this.updates = false;
+
+            for (Map.Entry<String, Consumer<Void>> toRemove : removeAfterPlaying.entrySet()) {
+                toRemove.getValue().accept(null);
+                toPlay.remove(animationPriorities.get(toRemove.getKey()));
+            }
+            removeAfterPlaying.clear();
         } else if (updates && !this.updates && this.drawBonesTask == null) {
             this.updates = true;
 
             this.drawBonesTask = MinecraftServer.getSchedulerManager()
                 .submitTask(() -> {
                     if (tick < 0) {
-                        if (playing != null && removeAfterPlaying.containsKey(playing.getValue())) {
-                            toPlay.remove(playing.getKey());
-                            removeAfterPlaying.get(playing.getValue()).accept(null);
-                            removeAfterPlaying.remove(playing.getValue());
+                        if (playing != null) {
+                            Integer playingKey = playing.getKey();
+                            String playingValue = playing.getValue();
+
+                            if (removeAfterPlaying.containsKey(playingValue)) {
+                                toPlay.remove(playingKey);
+                                removeAfterPlaying.get(playingValue).accept(null);
+                                removeAfterPlaying.remove(playingValue);
+                            }
                         }
 
                         playNextSchedule();
