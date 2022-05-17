@@ -8,24 +8,18 @@ import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class AnimationHandlerImpl implements AnimationHandler {
-    private static final short refreshRateTicks = 1;
+    private static final short REFRESH_RATE_TICKS = 1;
 
-    public final Map<String, Double> animationTimes = new HashMap<>();
+    private final Map<String, Set<ModelAnimation>> animations;
+    public final Map<String, Double> animationTimes;
     public final JsonObject loadedAnimations;
 
     private final GenericModel model;
     private final TreeMap<Integer, String> toPlay = new TreeMap<>();
-
-    private final HashMap<String, HashSet<ModelAnimation>> animations = new HashMap<>();
-
-    protected Map<String, Integer> animationPriorities = new HashMap<>();
 
     Map.Entry<Integer, String> playing;
 
@@ -35,64 +29,65 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
     // When true, force the entire animation to play out. No animations can interrupt it.
     private short tick;
     private short animationLength;
-    private final HashMap<String, Consumer<Void>> removeAfterPlaying = new HashMap<>();
+    private final Map<String, Consumer<Void>> removeAfterPlaying = new HashMap<>();
 
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
         this.loadedAnimations = AnimationLoader.loadAnimations(model.getId());
-    }
+        // Init animation
+        {
+            Map<String, HashSet<ModelAnimation>> animations = new HashMap<>();
+            Map<String, Double> animationTimes = new HashMap<>();
+            for (Map.Entry<String, JsonElement> animation : loadedAnimations.get("animations").getAsJsonObject().entrySet()) {
+                final String animationName = animation.getKey();
+                final JsonElement animationLength = animation.getValue().getAsJsonObject().get("animation_length");
+                final double length = animationLength == null ? 0 : animationLength.getAsDouble();
 
-    protected void initAnimations() {
-        for (Map.Entry<String, JsonElement> animation : loadedAnimations.get("animations").getAsJsonObject().entrySet()) {
-            String animationName = animation.getKey();
+                HashSet<ModelAnimation> animationSet = new HashSet<>();
+                for (Map.Entry<String, JsonElement> boneEntry : animation.getValue().getAsJsonObject().get("bones").getAsJsonObject().entrySet()) {
+                    String boneName = boneEntry.getKey();
+                    JsonElement animationRotation = boneEntry.getValue().getAsJsonObject().get("rotation");
+                    JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
 
-            var animationLength = animation.getValue().getAsJsonObject().get("animation_length");
-            double length = animationLength == null ? 0 : animationLength.getAsDouble();
-
-            HashSet<ModelAnimation> animationSet = new HashSet<>();
-
-            for (Map.Entry<String, JsonElement> boneEntry : animation.getValue().getAsJsonObject().get("bones").getAsJsonObject().entrySet()) {
-                String boneName = boneEntry.getKey();
-
-                JsonElement animationRotation = boneEntry.getValue().getAsJsonObject().get("rotation");
-                JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
-
-                if (animationRotation != null) {
-                    ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationRotation, AnimationLoader.AnimationType.ROTATION, length);
-                    animationSet.add(boneAnimation);
+                    if (animationRotation != null) {
+                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationRotation, AnimationLoader.AnimationType.ROTATION, length);
+                        animationSet.add(boneAnimation);
+                    }
+                    if (animationPosition != null) {
+                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationPosition, AnimationLoader.AnimationType.TRANSLATION, length);
+                        animationSet.add(boneAnimation);
+                    }
                 }
-
-                if (animationPosition != null) {
-                    ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, model.getPart(boneName), animationPosition, AnimationLoader.AnimationType.TRANSLATION, length);
-                    animationSet.add(boneAnimation);
-                }
+                animationTimes.put(animationName, length);
+                animations.put(animationName, animationSet);
             }
-
-            animationTimes.put(animationName, length);
-            animations.put(animationName, animationSet);
+            this.animations = Map.copyOf(animations);
+            this.animationTimes = Map.copyOf(animationTimes);
         }
     }
+
+    public abstract Map<String, Integer> animationPriorities();
 
     private short getTick() {
         return (short) (animationLength - tick);
     }
 
     public void playRepeat(String animation) {
-        toPlay.put(animationPriorities.get(animation), animation);
+        this.toPlay.put(animationPriorities().get(animation), animation);
         setUpdates(true);
         playNext();
     }
 
     public void stopRepeat(String animation) {
-        toPlay.remove(animationPriorities.get(animation));
+        this.toPlay.remove(animationPriorities().get(animation));
         playNext();
     }
 
     @Override
     public void playOnce(String animation, Consumer<Void> cb) {
-        toPlay.put(animationPriorities.get(animation), animation);
+        this.toPlay.put(animationPriorities().get(animation), animation);
         setUpdates(true);
-        removeAfterPlaying.put(animation, cb);
+        this.removeAfterPlaying.put(animation, cb);
         playNext();
     }
 
@@ -107,10 +102,8 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
     private void playNext() {
         final Map.Entry<Integer, String> oldPlaying = this.playing;
         final Map.Entry<Integer, String> playing = toPlay.firstEntry();
-
         if (playing == null) return;
         if (oldPlaying != null && oldPlaying.getValue().equals(playing.getValue())) return;
-
         playNextSchedule();
     }
 
@@ -122,20 +115,19 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
         this.playing = playing;
         if (this.playing == null) return;
-        
-        tick = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
-        animationLength = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
+
+        this.tick = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
+        this.animationLength = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
 
         if (oldPlaying != null && !oldPlaying.getValue().equals(playing.getValue())) {
-            animations.get(oldPlaying.getValue()).forEach(ModelAnimation::cancel);
+            this.animations.get(oldPlaying.getValue()).forEach(ModelAnimation::cancel);
         }
-
-        animations.get(playing.getValue()).forEach(ModelAnimation::play);
+        this.animations.get(playing.getValue()).forEach(ModelAnimation::play);
     }
 
     public String getPlaying() {
-        if (this.playing == null) return null;
-        return this.playing.getValue();
+        var playing = this.playing;
+        return playing != null ? playing.getValue() : null;
     }
 
     public void setUpdates(boolean updates) {
@@ -146,39 +138,34 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
             for (Map.Entry<String, Consumer<Void>> toRemove : removeAfterPlaying.entrySet()) {
                 toRemove.getValue().accept(null);
-                toPlay.remove(animationPriorities.get(toRemove.getKey()));
+                this.toPlay.remove(animationPriorities().get(toRemove.getKey()));
             }
-            removeAfterPlaying.clear();
+            this.removeAfterPlaying.clear();
         } else if (updates && !this.updates && this.drawBonesTask == null) {
             this.updates = true;
 
             this.drawBonesTask = MinecraftServer.getSchedulerManager()
-                .submitTask(() -> {
-                    if (tick < 0) {
-                        if (playing != null) {
-                            Integer playingKey = playing.getKey();
-                            String playingValue = playing.getValue();
+                    .submitTask(() -> {
+                        if (tick < 0) {
+                            if (playing != null) {
+                                Integer playingKey = playing.getKey();
+                                String playingValue = playing.getValue();
 
-                            if (removeAfterPlaying.containsKey(playingValue)) {
-                                toPlay.remove(playingKey);
-                                removeAfterPlaying.get(playingValue).accept(null);
-                                removeAfterPlaying.remove(playingValue);
+                                if (removeAfterPlaying.containsKey(playingValue)) {
+                                    toPlay.remove(playingKey);
+                                    removeAfterPlaying.get(playingValue).accept(null);
+                                    removeAfterPlaying.remove(playingValue);
+                                }
                             }
+                            playNextSchedule();
                         }
-
-                        playNextSchedule();
-                    }
-
-                    if (this.updates) {
-                        model.drawBones(getTick());
-                        tick--;
-
-                        return TaskSchedule.tick(refreshRateTicks);
-                    }
-                    
-                    return TaskSchedule.stop();
-
-                }, ExecutionType.ASYNC);
+                        if (this.updates) {
+                            model.drawBones(getTick());
+                            tick--;
+                            return TaskSchedule.tick(REFRESH_RATE_TICKS);
+                        }
+                        return TaskSchedule.stop();
+                    }, ExecutionType.ASYNC);
         }
     }
 }
