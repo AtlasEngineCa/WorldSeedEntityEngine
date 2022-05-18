@@ -89,7 +89,10 @@ public class ModelParser {
     }
 
     public static void parse(Path outputPath, Path modelsPath, Path dataPath) throws IOException, NoSuchAlgorithmException, SizeLimitExceededException {
-        createFiles("gem_golem", modelsPath, outputPath);
+        for (var folder : modelsPath.toFile().listFiles()) {
+            if (folder.isDirectory())
+                createFiles(folder.getName(), modelsPath, outputPath);
+        }
 
         var textures = new JsonObject();
         textures.addProperty("layer0", "minecraft:item/leather_horse_armor");
