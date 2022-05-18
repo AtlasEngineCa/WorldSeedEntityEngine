@@ -90,7 +90,7 @@ public class GemGolemMob extends EntityCreature {
 
         if (stateTask != null && stateTask.isAlive()) stateTask.cancel();
         this.stateTask = MinecraftServer.getSchedulerManager()
-                .buildTask(() -> this.model.setState("normal")).delay(10, TimeUnit.CLIENT_TICK)
+                .buildTask(() -> this.model.setState("normal")).delay(7, TimeUnit.CLIENT_TICK)
                 .schedule();
         
         return super.damage(type, value);
