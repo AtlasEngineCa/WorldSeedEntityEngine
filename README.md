@@ -35,11 +35,6 @@
   </p>
 </div>
 
-
-
-<!-- TABLE OF CONTENTS -->
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 <div align="center">
@@ -48,13 +43,17 @@
   </a>
   </div>
 
-Multipart entity engine for Minestom
+This is a library that allows users to add bedrock models from blockbench in to **Vanilla Minecraft**!
 
+WSEE allows creating multipart entities with Armor Stands, as well as Zombies for much smoother animations.
+The framework provided allows users to easily create multipart entities, define animations, and write AI that fully utilises the entity's animations.
+
+Currently WSEE only supports [Minestom](https://github.com/Minestom/Minestom)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-A full example can be found in [here](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/tree/master/src/test/java)
+A full, runnable example server can be found in [here](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/tree/master/src/test/java)
 
 <!-- USAGE EXAMPLES -->
 ## Usage
