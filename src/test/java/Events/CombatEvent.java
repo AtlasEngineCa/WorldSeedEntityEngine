@@ -10,7 +10,6 @@ public class CombatEvent {
         handler.addListener(EntityAttackEvent.class, event -> {
             if (event.getTarget() instanceof LivingEntity target) {
                 int damage = 1;
-
                 target.damage(DamageType.fromEntity(event.getEntity()), damage);
             }
         });
