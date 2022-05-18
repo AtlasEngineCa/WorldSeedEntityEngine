@@ -19,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/WorldSeedMMO/WorldSeedEntityEngine">
-    <img src="images/icon.png" alt="Logo" width="80" height="80">
+    <img src=".github/icon.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">WSEE</h3>
@@ -44,7 +44,7 @@
 ## About The Project
 <div align="center">
   <a href="https://github.com/WorldSeedMMO/WorldSeedEntityEngine">
-    <img src="images/demo.gif" alt="Logo" width="320" height="240">
+    <img src=".github/demo.gif" alt="Logo" width="320" height="240">
   </a>
   </div>
 
@@ -74,4 +74,3 @@ TODO: Maven
 [issues-url]: https://github.com/WorldSeedMMO/WorldSeedEntityEngine/issues
 [license-shield]: https://img.shields.io/github/license/WorldSeedMMO/WorldSeedEntityEngine?style=for-the-badge
 [license-url]: https://github.com/WorldSeedMMO/WorldSeedEntityEngine/blob/master/LICENSE
-[product-screenshot]: images/screenshot.png
