@@ -45,7 +45,7 @@
 
 This is a library that allows users to add bedrock models from blockbench in to **Vanilla Minecraft**!
 
-WSEE allows creating multipart entities with Armor Stands, as well as Zombies for much smoother animations.
+WSEE lets you create multipart entities with Armor Stands, as well as Zombies for much smoother animations.
 The framework provided allows users to easily create multipart entities, define animations, and write AI that fully utilises the entity's animations.
 
 Currently WSEE only supports [Minestom](https://github.com/Minestom/Minestom)
