@@ -19,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/WorldSeedMMO/WorldSeedEntityEngine">
-    <img src=".github/icon.png" alt="Logo" width="120" height="120">
+    <img src=".github/icon.png" alt="Logo" width="180" height="180">
   </a>
 
   <h3 align="center">WSEE</h3>
