@@ -55,9 +55,9 @@ Currently WSEE only supports [Minestom](https://github.com/Minestom/Minestom)
 
 A full, runnable example server can be found in [here](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/tree/master/src/test/java)
 
-<!-- USAGE EXAMPLES -->
-## Usage
-TODO: Maven
+## [Wiki](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/wiki)
+Learn what this project is, how it works and how you can use it on your server
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
