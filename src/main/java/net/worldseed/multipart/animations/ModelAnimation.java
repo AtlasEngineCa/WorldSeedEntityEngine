@@ -59,28 +59,15 @@ public class ModelAnimation {
         if (found == null) {
             LinkedHashMap<Double, Point> transform = new LinkedHashMap<>();
 
-            try {
-                for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
+            for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
+                try {
                     double time = Double.parseDouble(entry.getKey());
                     Point point = ModelEngine.getPos(entry.getValue().getAsJsonArray()).orElse(Pos.ZERO);
-
-                    transform.put(time, point);
-                }
-            } catch (IllegalStateException e) {
-                // Not a json object
-                double time = 0;
-
-                try {
-                    Point point = ModelEngine.getPos(keyframes.getAsJsonArray()).orElse(Pos.ZERO);
                     transform.put(time, point);
                 } catch (IllegalStateException e2) {
-                    // json object, lerp_mode thing
-                    for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
-                        time = Double.parseDouble(entry.getKey());
-                        Point point = ModelEngine.getPos(entry.getValue().getAsJsonObject().get("post").getAsJsonArray()).orElse(Pos.ZERO);
-
-                        transform.put(time, point);
-                    }
+                    double time = Double.parseDouble(entry.getKey());
+                    Point point = ModelEngine.getPos(entry.getValue().getAsJsonObject().get("post").getAsJsonArray()).orElse(Pos.ZERO);
+                    transform.put(time, point);
                 }
             }
 
