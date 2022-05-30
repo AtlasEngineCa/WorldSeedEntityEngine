@@ -1,13 +1,29 @@
 plugins {
     id("java")
+    `maven-publish`
 }
 
-group = "worldseed"
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+group = "net.worldseed"
 version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
     maven(url = "https://jitpack.io")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "net.worldseed"
+            artifactId = "WSEE"
+            version = "1.0-SNAPSHOT"
+        }
+    }
 }
 
 dependencies {
