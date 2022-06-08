@@ -124,7 +124,7 @@ public abstract class GenericModelImpl implements GenericModel {
             this.seat.getEntity().removePassenger(e);
     }
 
-    public Set<Entity> getPassenger() {
+    public Set<Entity> getPassengers() {
         return this.seat.getEntity().getPassengers();
     }
 

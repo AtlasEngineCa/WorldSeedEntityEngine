@@ -72,7 +72,7 @@ public class GemGolemMob extends EntityCreature {
     private void facePlayer() {
         Entity target = this.getTarget();
         if (target == null) return;
-        if (getRider().contains(target)) return;
+        if (getPassengers().contains(target)) return;
 
         Point e = this.position.sub(target.getPosition());
         model.setGlobalRotation(-PositionUtils.getLookYaw(e.x(), e.z()) + 180);
@@ -117,7 +117,8 @@ public class GemGolemMob extends EntityCreature {
         return sleeping;
     }
 
-    public Set<Entity> getRider() {
-        return model.getPassenger();
+    @Override
+    public @NotNull Set<Entity> getPassengers() {
+        return model.getPassengers();
     }
 }
