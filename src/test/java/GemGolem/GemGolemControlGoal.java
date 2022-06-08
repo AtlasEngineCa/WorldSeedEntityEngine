@@ -1,9 +1,13 @@
 package GemGolem;
 
 
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.ai.GoalSelector;
+import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.mount.ControlGoal;
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +16,10 @@ import java.time.Duration;
 
 public class GemGolemControlGoal extends GoalSelector implements ControlGoal {
     private final AnimationHandler animationHandler;
-    private Pos lastTargetPos;
     private boolean forceEnd;
-    private final Duration pathDuration = Duration.ofMillis(100);
     private long lastUpdateTime;
+    private boolean jumpCooldown;
+    private long lastRotationTime;
 
     private float forward = 0f;
     private float sideways = 0f;
@@ -27,13 +31,13 @@ public class GemGolemControlGoal extends GoalSelector implements ControlGoal {
 
     @Override
     public boolean shouldStart() {
-        return !entityCreature.getPassengers().isEmpty();
+        return !entityCreature.getPassengers().isEmpty() && forward != 0;
     }
 
     @Override
     public void start() {
-        lastTargetPos = Pos.ZERO;
         this.animationHandler.playRepeat("walk");
+        this.entityCreature.getNavigator().setPathTo(null);
     }
 
     @Override
@@ -44,23 +48,21 @@ public class GemGolemControlGoal extends GoalSelector implements ControlGoal {
             return;
         }
 
-        if (forceEnd || pathDuration.isZero() || pathDuration.toMillis() + lastUpdateTime > time) {
+        if (lastRotationTime + 100 > time) return;
+        lastRotationTime = time;
+
+        if (forceEnd) {
             return;
         }
 
-        final Pos targetPos = entityCreature.getPosition().add(passenger.getPosition().withPitch(0.3f).direction().normalize().mul(forward).mul(10));
-
-        if (!targetPos.samePoint(lastTargetPos)) {
-            this.lastUpdateTime = time;
-            this.lastTargetPos = targetPos;
-            this.entityCreature.getNavigator().setPathTo(targetPos);
-            ((GemGolemMob)entityCreature).facePoint(targetPos);
-        }
+        final Vec movement = passenger.getPosition().withPitch(0.3f).direction().normalize().mul(20).mul(forward);
+        ((GemGolemMob)entityCreature).facePoint(entityCreature.getPosition().add(movement));
+        entityCreature.setVelocity(movement.mul(entityCreature.getAttribute(Attribute.MOVEMENT_SPEED).getValue()));
     }
 
     @Override
     public boolean shouldEnd() {
-        return forceEnd;
+        return forceEnd || (Math.abs(this.forward) - 0.001f) < 0f;
     }
 
     public void setForward(float forward) {
@@ -68,8 +70,23 @@ public class GemGolemControlGoal extends GoalSelector implements ControlGoal {
     }
 
     @Override
+    public void setSideways(float sideways) {
+    }
+
+    @Override
+    public void setJump(boolean jump) {
+        if (jump && !jumpCooldown) {
+            jumpCooldown = true;
+            animationHandler.playOnce("attack", (i) -> {});
+
+            MinecraftServer.getSchedulerManager().scheduleTask(() -> {
+                jumpCooldown = false;
+            }, TaskSchedule.tick(30), TaskSchedule.stop());
+        }
+    }
+
+    @Override
     public void end() {
-        this.entityCreature.getNavigator().setPathTo(null);
         this.animationHandler.stopRepeat("walk");
         this.forceEnd = false;
     }

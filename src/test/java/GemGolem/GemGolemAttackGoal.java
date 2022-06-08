@@ -36,6 +36,9 @@ public class GemGolemAttackGoal extends GoalSelector {
             entityCreature.setTarget(findTarget());
             if (entityCreature.getTarget() == null) return false;
         }
+
+        if (!model.getPassengers().isEmpty()) return false;
+
         return (entityCreature.getDistance(entityCreature.getTarget()) <= 5);
     }
 
@@ -101,6 +104,7 @@ public class GemGolemAttackGoal extends GoalSelector {
                 target.isRemoved() ||
                 entityCreature.isDead() ||
                 entityCreature.isRemoved() ||
+                !model.getPassengers().isEmpty() ||
                 target.getPosition().distance(entityCreature.getPosition()) <= 5;
     }
 

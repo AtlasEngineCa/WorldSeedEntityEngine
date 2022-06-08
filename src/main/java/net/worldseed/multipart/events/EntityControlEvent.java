@@ -6,11 +6,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class EntityControlEvent implements EntityEvent {
     private final Entity entity;
-    private final float movement;
+    private final float forward;
+    private final float sideways;
+    private final boolean jump;
 
-    public EntityControlEvent(@NotNull Entity entity, float movement) {
+    public EntityControlEvent(@NotNull Entity entity, float forward, float sideways, boolean jump) {
         this.entity = entity;
-        this.movement = movement;
+        this.forward = forward;
+        this.sideways = sideways;
+        this.jump = jump;
     }
 
     @Override
@@ -18,8 +22,16 @@ public class EntityControlEvent implements EntityEvent {
         return entity;
     }
 
-    public float getMovement() {
-        return movement;
+    public float getForward() {
+        return forward;
+    }
+
+    public float getSideways() {
+        return sideways;
+    }
+
+    public boolean getJump() {
+        return jump;
     }
 }
 
