@@ -2,30 +2,23 @@ package net.worldseed.multipart;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
-import net.minestom.server.entity.metadata.other.SlimeMeta;
 import net.minestom.server.event.entity.EntityDamageEvent;
-import net.minestom.server.event.player.PlayerStartSneakingEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.events.EntityDismountEvent;
 import net.worldseed.multipart.events.EntityMountEvent;
 
-non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
-    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
+non-sealed class ModelBoneSeat extends ModelBoneGeneric {
+    public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
 
-        String[] spl = name.split("_");
-        int size = Integer.parseInt(spl[1]);
-
         if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.SLIME);
-            this.stand.setTag(Tag.String("WSEE"), "hitbox");
-
-            SlimeMeta meta = (SlimeMeta) this.stand.getEntityMeta();
-            meta.setSize(size);
+            this.stand = new LivingEntity(EntityType.ZOMBIE);
+            this.stand.setTag(Tag.String("WSEE"), "seat");
 
             this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
                 event.setCancelled(true);
@@ -42,6 +35,10 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
                 model.dismountEntity(event.getRider());
             }));
         }
+    }
+
+    Entity getEntity() {
+        return this.stand;
     }
 
     @Override

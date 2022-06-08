@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePart, ModelBoneVFX {
+abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePart, ModelBoneSeat, ModelBoneVFX {
     protected final HashMap<String, ItemStack> items;
     private final Point diff;
     private final Point pivot;

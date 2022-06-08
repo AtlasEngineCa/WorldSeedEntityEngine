@@ -59,16 +59,21 @@ public class ModelAnimation {
         if (found == null) {
             LinkedHashMap<Double, Point> transform = new LinkedHashMap<>();
 
-            for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
-                try {
-                    double time = Double.parseDouble(entry.getKey());
-                    Point point = ModelEngine.getPos(entry.getValue().getAsJsonArray()).orElse(Pos.ZERO);
-                    transform.put(time, point);
-                } catch (IllegalStateException e2) {
-                    double time = Double.parseDouble(entry.getKey());
-                    Point point = ModelEngine.getPos(entry.getValue().getAsJsonObject().get("post").getAsJsonArray()).orElse(Pos.ZERO);
-                    transform.put(time, point);
+            try {
+                for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
+                    try {
+                        double time = Double.parseDouble(entry.getKey());
+                        Point point = ModelEngine.getPos(entry.getValue().getAsJsonArray()).orElse(Pos.ZERO);
+                        transform.put(time, point);
+                    } catch (IllegalStateException e2) {
+                        double time = Double.parseDouble(entry.getKey());
+                        Point point = ModelEngine.getPos(entry.getValue().getAsJsonObject().get("post").getAsJsonArray()).orElse(Pos.ZERO);
+                        transform.put(time, point);
+                    }
                 }
+            } catch (IllegalStateException e) {
+                Point point = ModelEngine.getPos(keyframes.getAsJsonArray().getAsJsonArray()).orElse(Pos.ZERO);
+                transform.put(0.0, point);
             }
 
             if (this.type == AnimationLoader.AnimationType.ROTATION) {

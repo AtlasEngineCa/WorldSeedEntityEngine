@@ -1335,6 +1335,25 @@
 							}
 						}
 					]
+				},
+				{
+					"name": "seat",
+					"parent": "all",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{
+							"origin": [-1, 27, 0],
+							"size": [1, 1, 1],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [1, 1]},
+								"east": {"uv": [0, 0], "uv_size": [1, 1]},
+								"south": {"uv": [0, 0], "uv_size": [1, 1]},
+								"west": {"uv": [0, 0], "uv_size": [1, 1]},
+								"up": {"uv": [1, 1], "uv_size": [-1, -1]},
+								"down": {"uv": [1, 1], "uv_size": [-1, -1]}
+							}
+						}
+					]
 				}
 			]
 		}

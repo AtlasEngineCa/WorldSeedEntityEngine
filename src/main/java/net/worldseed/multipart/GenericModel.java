@@ -1,7 +1,11 @@
 package net.worldseed.multipart;
 
 import net.minestom.server.coordinate.Point;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.Set;
 
 public interface GenericModel {
     /**
@@ -56,6 +60,15 @@ public interface GenericModel {
      * Destroy the model
      */
     void destroy();
+
+    /**
+     * Remove all hitboxes from the model
+     */
+    void removeHitboxes();
+
+    void mountEntity(Entity entity);
+    void dismountEntity(Entity entity);
+    Set<Entity> getPassenger();
 
     /**
      * Get a VFX bone location
