@@ -10,7 +10,9 @@ import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.events.EntityDismountEvent;
+import net.worldseed.multipart.events.EntityControlEvent;
 import net.worldseed.multipart.events.EntityMountEvent;
+import net.worldseed.multipart.mount.MobRidable;
 
 non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
     public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
@@ -39,6 +41,12 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
 
             this.stand.eventNode().addListener(EntityDismountEvent.class, (event -> {
                 model.dismountEntity(event.getRider());
+            }));
+
+            this.stand.eventNode().addListener(EntityControlEvent.class, (event -> {
+                if (forwardTo instanceof MobRidable rideable) {
+                    rideable.getControlGoal().setForward(event.getMovement());
+                }
             }));
         }
     }

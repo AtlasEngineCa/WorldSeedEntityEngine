@@ -30,6 +30,7 @@ import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.MathUtils;
 import net.minestom.server.world.DimensionType;
 import net.worldseed.multipart.events.EntityDismountEvent;
+import net.worldseed.multipart.events.EntityControlEvent;
 import net.worldseed.multipart.events.EntityMountEvent;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.parser.ModelParser;
@@ -104,6 +105,10 @@ public class Main {
                     if (packet.flags() == 2 && ridingEntity != null) {
                         EntityDismountEvent entityRideEvent = new EntityDismountEvent(ridingEntity, event.getPlayer());
                         EventDispatcher.call(entityRideEvent);
+                    }
+
+                    if (packet.flags() == 0 && ridingEntity != null) {
+                        EventDispatcher.call(new EntityControlEvent(ridingEntity, packet.forward()));
                     }
                 }
             });

@@ -5,6 +5,7 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
@@ -19,14 +20,16 @@ import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
+import net.worldseed.multipart.mount.MobRidable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
 
-public class GemGolemMob extends EntityCreature {
+public class GemGolemMob extends EntityCreature implements MobRidable {
     private final GemGolemModel model;
     private final AnimationHandler animationHandler;
+    private final GemGolemControlGoal controlGoal;
     private Task stateTask;
     private boolean sleeping = false;
 
@@ -49,8 +52,11 @@ public class GemGolemMob extends EntityCreature {
         this.animationHandler = new AnimationHandlerGemGolem(model);
         animationHandler.playRepeat("idle_extended");
 
+        this.controlGoal = new GemGolemControlGoal(this, animationHandler);
+
         addAIGroup(
                 List.of(
+                        controlGoal,
                         new GemGolemActivateGoal(this, animationHandler),
                         new GemGolemMoveGoal(this, animationHandler),
                         new GemGolemAttackGoal(this, animationHandler, model)
@@ -67,6 +73,11 @@ public class GemGolemMob extends EntityCreature {
         // No way to set size without modifying minestom
         // PufferfishMeta meta = ((PufferfishMeta)this.getLivingEntityMeta());
         // meta.setSize(20);
+    }
+
+    public void facePoint(Point point) {
+        Point e = this.position.sub(point);
+        model.setGlobalRotation(-PositionUtils.getLookYaw(e.x(), e.z()) + 180);
     }
 
     private void facePlayer() {
@@ -120,5 +131,9 @@ public class GemGolemMob extends EntityCreature {
     @Override
     public @NotNull Set<Entity> getPassengers() {
         return model.getPassengers();
+    }
+
+    public GemGolemControlGoal getControlGoal() {
+        return this.controlGoal;
     }
 }
