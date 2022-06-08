@@ -8,6 +8,7 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.SlimeMeta;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.tag.Tag;
 
 non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
     public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
@@ -18,13 +19,16 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
 
         if (this.offset != null) {
             this.stand = new LivingEntity(EntityType.SLIME);
+            this.stand.setTag(Tag.String("WSEE"), "hitbox");
 
             SlimeMeta meta = (SlimeMeta) this.stand.getEntityMeta();
             meta.setSize(size);
 
             this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
                 event.setCancelled(true);
-                forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
+
+                if (forwardTo != null)
+                    forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
             }));
         }
     }
