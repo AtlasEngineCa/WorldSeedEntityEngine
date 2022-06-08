@@ -12,7 +12,7 @@ import java.time.Duration;
 public class GemGolemMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
     private Entity target = null;
-    private Pos lastTargetPos;
+    private Pos lastTargetPos = Pos.ZERO;
     private boolean forceEnd;
     private final Duration pathDuration = Duration.ofSeconds(1);
     private long lastUpdateTime;
@@ -78,7 +78,7 @@ public class GemGolemMoveGoal extends GoalSelector {
                 || target.isRemoved()
                 || entityCreature.getDistance(target) >= maxDistance
                 || entityCreature.getDistance(target) <= minDistance
-                || (((GemGolemMob)entityCreature).getPassengers().contains(target))
+                || entityCreature.getPassengers().contains(target)
                 || !this.animationHandler.getPlaying().equals("walk");
     }
 

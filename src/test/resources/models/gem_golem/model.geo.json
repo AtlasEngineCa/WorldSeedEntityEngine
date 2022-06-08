@@ -1339,10 +1339,10 @@
 				{
 					"name": "seat",
 					"parent": "all",
-					"pivot": [0, 0, 0],
+					"pivot": [0, -19, 0],
 					"cubes": [
 						{
-							"origin": [-1, 27, 0],
+							"origin": [-1, 8, 0],
 							"size": [1, 1, 1],
 							"uv": {
 								"north": {"uv": [0, 0], "uv_size": [1, 1]},
