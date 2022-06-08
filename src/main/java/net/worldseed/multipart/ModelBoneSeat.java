@@ -2,6 +2,7 @@ package net.worldseed.multipart;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
@@ -70,12 +71,18 @@ non-sealed class ModelBoneSeat extends ModelBoneGeneric {
         p = applyTransform(p, tick);
         p = applyGlobalRotation(p);
 
+        Quaternion q = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
+
         Pos endPos = Pos.fromPoint(p);
+        Point rotation = q.toEulerYZX();
+
+        // TODO: I think this sends two packets?
+        stand.setView((float) -rotation.y(), (float) rotation.x());
 
         stand.teleport(
             endPos
                 .div(6.4, 6.4, 6.4)
                 .add(model.getPosition())
-                .add(model.getGlobalOffset()));
+                .add(model.getGlobalOffset()).withView((float) -rotation.y(), (float) rotation.x()));
     }
 }
