@@ -41,7 +41,6 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
             }));
 
             this.stand.eventNode().addListener(EntityDismountEvent.class, (event -> {
-                System.out.println("dasfasdf");
                 model.dismountEntity(event.getRider());
             }));
 
