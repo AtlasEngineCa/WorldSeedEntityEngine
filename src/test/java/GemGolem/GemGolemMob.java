@@ -11,7 +11,6 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
-import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
@@ -64,11 +63,6 @@ public class GemGolemMob extends EntityCreature {
         setBoundingBox(3, 3, 3);
         this.setInstance(instance, pos);
         this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.15f);
-
-        this.eventNode().addListener(PlayerEntityInteractEvent.class, (event) -> {
-            System.out.println("asdfasdf");
-            model.mountEntity(event.getPlayer());
-        });
 
         // No way to set size without modifying minestom
         // PufferfishMeta meta = ((PufferfishMeta)this.getLivingEntityMeta());
