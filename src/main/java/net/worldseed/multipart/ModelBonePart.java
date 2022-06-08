@@ -48,7 +48,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
             }));
 
             this.stand.eventNode().addListener(EntityControlEvent.class, (event -> {
-                if (event.getEntity() instanceof MobRidable rideable) {
+                if (forwardTo instanceof MobRidable rideable) {
                     rideable.getControlGoal().setForward(event.getMovement());
                 }
             }));
