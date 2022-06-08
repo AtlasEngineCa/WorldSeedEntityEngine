@@ -29,6 +29,7 @@ public class GemGolemMoveGoal extends GoalSelector {
     public boolean shouldStart() {
         target = findTarget();
         if (target == null) return false;
+        if (((GemGolemMob)entityCreature).getRider().contains(target)) return false;
         if (((GemGolemMob)entityCreature).isSleeping()) return false;
         if (!this.animationHandler.getPlaying().equals("idle_extended")) return false;
 
@@ -77,6 +78,7 @@ public class GemGolemMoveGoal extends GoalSelector {
                 || target.isRemoved()
                 || entityCreature.getDistance(target) >= maxDistance
                 || entityCreature.getDistance(target) <= minDistance
+                || (((GemGolemMob)entityCreature).getRider().contains(target))
                 || !this.animationHandler.getPlaying().equals("walk");
     }
 

@@ -9,13 +9,12 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.Audiences;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
-import net.minestom.server.event.player.PlayerChatEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerLoginEvent;
-import net.minestom.server.event.player.PlayerSpawnEvent;
+import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.InstanceContainer;
@@ -24,10 +23,14 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.monitoring.TickMonitor;
+import net.minestom.server.network.packet.client.play.ClientSteerVehiclePacket;
 import net.minestom.server.sound.SoundEvent;
+import net.minestom.server.tag.Tag;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.MathUtils;
 import net.minestom.server.world.DimensionType;
+import net.worldseed.multipart.events.EntityDismountEvent;
+import net.worldseed.multipart.events.EntityMountEvent;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.parser.ModelParser;
 import org.apache.commons.io.FileUtils;
@@ -38,12 +41,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Main {
     private static final Path BASE_PATH = Path.of("src/test/resources");
     private static final Path ZIP_PATH = BASE_PATH.resolve("resourcepack.zip");
     private static final Path MODEL_PATH = BASE_PATH.resolve("models");
+    private static Map<Entity, Entity> riding = new HashMap<>();
 
     public static void main(String[] args) throws IOException, SizeLimitExceededException, NoSuchAlgorithmException {
         MinecraftServer minecraftServer = MinecraftServer.init();
@@ -90,6 +96,24 @@ public class Main {
                         player.getUsername() + " has joined",
                         NamedTextColor.GREEN
                 ));
+            });
+
+            handler.addListener(PlayerPacketEvent.class, event -> {
+                if (event.getPacket() instanceof ClientSteerVehiclePacket packet) {
+                    Entity ridingEntity = riding.get(event.getPlayer());
+                    if (packet.flags() == 2 && ridingEntity != null) {
+                        EntityDismountEvent entityRideEvent = new EntityDismountEvent(ridingEntity, event.getPlayer());
+                        EventDispatcher.call(entityRideEvent);
+                    }
+                }
+            });
+
+            handler.addListener(PlayerEntityInteractEvent.class, event -> {
+                if (event.getTarget().getTag(Tag.String("WSEE")) != null) {
+                    EntityMountEvent entityRideEvent = new EntityMountEvent(event.getTarget(), event.getPlayer());
+                    EventDispatcher.call(entityRideEvent);
+                    riding.put(event.getPlayer(), event.getTarget());
+                }
             });
 
             handler.addListener(PlayerSpawnEvent.class, event -> {

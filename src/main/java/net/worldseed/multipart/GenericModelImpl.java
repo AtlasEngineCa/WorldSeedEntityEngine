@@ -5,7 +5,9 @@ import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.animations.AnimationLoader;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +23,8 @@ public abstract class GenericModelImpl implements GenericModel {
     private final Set<ModelBoneHitbox> hittableBones = new HashSet<>();
     private final HashMap<String, ModelBoneVFX> VFXBones = new HashMap<>();
 
+    private ModelBoneSeat seat;
+
     private Point position;
     private double globalRotation;
 
@@ -32,6 +36,10 @@ public abstract class GenericModelImpl implements GenericModel {
     @Override
     public Point getPosition() {
         return position;
+    }
+
+    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType) {
+        init(instance, position, renderType, null, null);
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity) {
@@ -58,6 +66,8 @@ public abstract class GenericModelImpl implements GenericModel {
                 modelBonePart = new ModelBoneHitbox(pivotPos, name, boneRotation, this, masterEntity);
             } else if (name.contains("vfx")) {
                 modelBonePart = new ModelBoneVFX(pivotPos, name, boneRotation, this);
+            } else if (name.contains("seat")) {
+                modelBonePart = new ModelBoneSeat(pivotPos, name, boneRotation, this, masterEntity);
             } else {
                 modelBonePart = new ModelBonePart(pivotPos, name, boneRotation, this, renderType, masterEntity);
             }
@@ -88,6 +98,8 @@ public abstract class GenericModelImpl implements GenericModel {
                 hittableBones.add(hitbox);
             else if (modelBonePart instanceof ModelBoneVFX vfx)
                 VFXBones.put(vfx.getName(), vfx);
+            else if (modelBonePart instanceof ModelBoneSeat seat)
+                this.seat = seat;
         }
 
         drawBones((short) 0);
@@ -99,6 +111,21 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public void setGlobalRotation(double rotation) {
         this.globalRotation = rotation;
+    }
+
+    public void mountEntity(Entity entity) {
+        if (this.seat != null) {
+            this.seat.getEntity().addPassenger(entity);
+        }
+    }
+
+    public void dismountEntity(Entity e) {
+        if (this.seat != null)
+            this.seat.getEntity().removePassenger(e);
+    }
+
+    public Set<Entity> getPassenger() {
+        return this.seat.getEntity().getPassengers();
     }
 
     public void setState(String state) {
