@@ -1,5 +1,6 @@
 package net.worldseed.multipart;
 
+import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;

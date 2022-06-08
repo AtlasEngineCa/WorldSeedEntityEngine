@@ -9,6 +9,7 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.tag.Tag;
 
 non-sealed class ModelBonePart extends ModelBoneGeneric {
     private final ModelEngine.RenderType renderType;
@@ -26,9 +27,12 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
                 this.stand = new LivingEntity(EntityType.ARMOR_STAND);
             }
 
+            this.stand.setTag(Tag.String("WSEE"), "hitbox");
             this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
                 event.setCancelled(true);
-                forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
+
+                if (forwardTo != null)
+                    forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
             }));
         }
     }
