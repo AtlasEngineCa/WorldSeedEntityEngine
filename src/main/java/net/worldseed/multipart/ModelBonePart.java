@@ -7,7 +7,9 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
+import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityDamageEvent;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 
@@ -33,6 +35,11 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
                 if (forwardTo != null)
                     forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
+            }));
+
+            this.stand.eventNode().addListener(PlayerEntityInteractEvent.class, (event -> {
+                if (forwardTo != null)
+                    EventDispatcher.call(new PlayerEntityInteractEvent(event.getPlayer(), forwardTo, event.getHand()));
             }));
         }
     }
