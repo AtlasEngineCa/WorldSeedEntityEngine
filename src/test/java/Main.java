@@ -105,7 +105,6 @@ public class Main {
                     Entity ridingEntity = event.getPlayer().getVehicle();
 
                     if (packet.flags() == 2 && ridingEntity != null) {
-                        System.out.println(ridingEntity.getEntityType());
                         EntityDismountEvent entityRideEvent = new EntityDismountEvent(ridingEntity, event.getPlayer());
                         EventDispatcher.call(entityRideEvent);
                     }
