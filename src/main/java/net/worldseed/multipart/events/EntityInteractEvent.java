@@ -5,13 +5,13 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.trait.EntityEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class EntityMountEvent implements EntityEvent {
+public class EntityInteractEvent implements EntityEvent {
     private final Entity entity;
-    private final Player rider;
+    private final Entity interactor;
 
-    public EntityMountEvent(@NotNull Entity entity, Player rider) {
+    public EntityInteractEvent(@NotNull Entity entity, Entity interactor) {
         this.entity = entity;
-        this.rider = rider;
+        this.interactor = interactor;
     }
 
     @Override
@@ -19,8 +19,8 @@ public class EntityMountEvent implements EntityEvent {
         return entity;
     }
 
-    public @NotNull Player getRider() {
-        return rider;
+    public @NotNull Entity getInteracted() {
+        return interactor;
     }
 }
 

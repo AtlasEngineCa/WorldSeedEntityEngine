@@ -1,4 +1,5 @@
 import Commands.SpawnCommand;
+import Commands.SummonCommand;
 import Events.CombatEvent;
 import Events.PackEvent;
 import net.kyori.adventure.sound.Sound;
@@ -12,8 +13,10 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.extras.lan.OpenToLAN;
@@ -31,7 +34,7 @@ import net.minestom.server.utils.MathUtils;
 import net.minestom.server.world.DimensionType;
 import net.worldseed.multipart.events.EntityDismountEvent;
 import net.worldseed.multipart.events.EntityControlEvent;
-import net.worldseed.multipart.events.EntityMountEvent;
+import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.parser.ModelParser;
 import org.apache.commons.io.FileUtils;
@@ -42,15 +45,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Main {
     private static final Path BASE_PATH = Path.of("src/test/resources");
     private static final Path ZIP_PATH = BASE_PATH.resolve("resourcepack.zip");
     private static final Path MODEL_PATH = BASE_PATH.resolve("models");
-    private static Map<Entity, Entity> riding = new HashMap<>();
 
     public static void main(String[] args) throws IOException, SizeLimitExceededException, NoSuchAlgorithmException {
         MinecraftServer minecraftServer = MinecraftServer.init();
@@ -78,6 +78,7 @@ public class Main {
             CommandManager manager = MinecraftServer.getCommandManager();
             manager.setUnknownCommandCallback((sender, c) -> sender.sendMessage("Command not found."));
             manager.register(new SpawnCommand());
+            manager.register(new SummonCommand());
         }
 
         // Events
@@ -101,23 +102,28 @@ public class Main {
 
             handler.addListener(PlayerPacketEvent.class, event -> {
                 if (event.getPacket() instanceof ClientSteerVehiclePacket packet) {
-                    Entity ridingEntity = riding.get(event.getPlayer());
+                    Entity ridingEntity = event.getPlayer().getVehicle();
+
                     if (packet.flags() == 2 && ridingEntity != null) {
+                        System.out.println(ridingEntity.getEntityType());
                         EntityDismountEvent entityRideEvent = new EntityDismountEvent(ridingEntity, event.getPlayer());
                         EventDispatcher.call(entityRideEvent);
                     }
 
+                    if (packet.flags() == 1 && ridingEntity != null) {
+                        EventDispatcher.call(new EntityControlEvent(ridingEntity, packet.forward(), packet.sideways(), true));
+                    }
+
                     if (packet.flags() == 0 && ridingEntity != null) {
-                        EventDispatcher.call(new EntityControlEvent(ridingEntity, packet.forward()));
+                        EventDispatcher.call(new EntityControlEvent(ridingEntity, packet.forward(), packet.sideways(), false));
                     }
                 }
             });
 
             handler.addListener(PlayerEntityInteractEvent.class, event -> {
                 if (event.getTarget().getTag(Tag.String("WSEE")) != null) {
-                    EntityMountEvent entityRideEvent = new EntityMountEvent(event.getTarget(), event.getPlayer());
-                    EventDispatcher.call(entityRideEvent);
-                    riding.put(event.getPlayer(), event.getTarget());
+                    EntityInteractEvent entityInteractEvent = new EntityInteractEvent(event.getTarget(), event.getPlayer());
+                    EventDispatcher.call(entityInteractEvent);
                 }
             });
 

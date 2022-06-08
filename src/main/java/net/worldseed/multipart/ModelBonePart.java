@@ -6,13 +6,15 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.damage.EntityDamage;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
+import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.events.EntityControlEvent;
 import net.worldseed.multipart.events.EntityDismountEvent;
-import net.worldseed.multipart.events.EntityMountEvent;
+import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.mount.MobRidable;
 
 non-sealed class ModelBonePart extends ModelBoneGeneric {
@@ -35,12 +37,11 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
             this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
                 event.setCancelled(true);
 
-                if (forwardTo != null)
-                    forwardTo.damage(DamageType.fromEntity(event.getEntity()), event.getDamage());
-            }));
-
-            this.stand.eventNode().addListener(EntityMountEvent.class, (event -> {
-                model.mountEntity(event.getRider());
+                if (forwardTo != null) {
+                    if (event.getDamageType() instanceof EntityDamage source) {
+                        forwardTo.damage(DamageType.fromEntity(source.getSource()), event.getDamage());
+                    }
+                }
             }));
 
             this.stand.eventNode().addListener(EntityDismountEvent.class, (event -> {
@@ -49,7 +50,16 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
             this.stand.eventNode().addListener(EntityControlEvent.class, (event -> {
                 if (forwardTo instanceof MobRidable rideable) {
-                    rideable.getControlGoal().setForward(event.getMovement());
+                    rideable.getControlGoal().setForward(event.getForward());
+                    rideable.getControlGoal().setSideways(event.getSideways());
+                    rideable.getControlGoal().setJump(event.getJump());
+                }
+            }));
+
+            this.stand.eventNode().addListener(EntityInteractEvent.class, (event -> {
+                if (forwardTo != null) {
+                    EntityInteractEvent entityInteractEvent = new EntityInteractEvent(forwardTo, event.getInteracted());
+                    EventDispatcher.call(entityInteractEvent);
                 }
             }));
         }

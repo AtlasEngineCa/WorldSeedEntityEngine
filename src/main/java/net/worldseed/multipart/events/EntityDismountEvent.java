@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class EntityDismountEvent implements EntityEvent {
     private final Entity entity;
-    private final Player rider;
+    private final Entity rider;
 
-    public EntityDismountEvent(@NotNull Entity entity, Player rider) {
+    public EntityDismountEvent(@NotNull Entity entity, Entity rider) {
         this.entity = entity;
         this.rider = rider;
     }
@@ -19,7 +19,7 @@ public class EntityDismountEvent implements EntityEvent {
         return entity;
     }
 
-    public @NotNull Player getRider() {
+    public @NotNull Entity getRider() {
         return rider;
     }
 }
