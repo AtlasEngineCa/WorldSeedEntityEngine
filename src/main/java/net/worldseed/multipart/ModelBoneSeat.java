@@ -22,7 +22,10 @@ non-sealed class ModelBoneSeat extends ModelBoneGeneric {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.ZOMBIE);
+            this.stand = new LivingEntity(EntityType.ZOMBIE) {
+                @Override
+                public void tick(long time) {}
+            };
             this.stand.setTag(Tag.String("WSEE"), "seat");
 
             this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {

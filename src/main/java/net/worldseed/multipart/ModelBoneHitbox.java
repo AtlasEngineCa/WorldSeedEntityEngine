@@ -24,7 +24,11 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
         int size = Integer.parseInt(spl[1]);
 
         if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.SLIME);
+            this.stand = new LivingEntity(EntityType.SLIME) {
+                @Override
+                public void tick(long time) {}
+            };
+
             this.stand.setTag(Tag.String("WSEE"), "hitbox");
 
             SlimeMeta meta = (SlimeMeta) this.stand.getEntityMeta();

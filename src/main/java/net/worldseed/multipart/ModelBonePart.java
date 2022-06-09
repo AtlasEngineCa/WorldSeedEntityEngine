@@ -28,9 +28,15 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
         if (this.offset != null) {
             if (renderType == ModelEngine.RenderType.ZOMBIE) {
-                this.stand = new LivingEntity(EntityType.ZOMBIE);
+                this.stand = new LivingEntity(EntityType.ZOMBIE) {
+                    @Override
+                    public void tick(long time) {}
+                };
             } else if (renderType == ModelEngine.RenderType.ARMOUR_STAND) {
-                this.stand = new LivingEntity(EntityType.ARMOR_STAND);
+                this.stand = new LivingEntity(EntityType.ARMOR_STAND) {
+                    @Override
+                    public void tick(long time) {}
+                };
             }
 
             this.stand.setTag(Tag.String("WSEE"), "hitbox");
