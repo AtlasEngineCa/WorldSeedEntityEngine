@@ -29,7 +29,9 @@ public class ModelEngine {
      */
     public enum RenderType {
         ZOMBIE,
-        ARMOUR_STAND
+        SMALL_ZOMBIE,
+        ARMOUR_STAND,
+        SMALL_ARMOUR_STAND
     }
 
     /**
