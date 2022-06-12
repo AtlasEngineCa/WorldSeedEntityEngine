@@ -13,10 +13,8 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
-import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.extras.lan.OpenToLAN;
@@ -38,6 +36,7 @@ import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.parser.ModelParser;
 import org.apache.commons.io.FileUtils;
+import org.zeroturnaround.zip.ZipUtil;
 
 import javax.naming.SizeLimitExceededException;
 import java.io.File;
@@ -63,7 +62,7 @@ public class Main {
         ModelParser.parse(BASE_PATH.resolve("resourcepack/assets/wsee"), MODEL_PATH, BASE_PATH);
         ModelEngine.loadMappings(BASE_PATH.resolve("model_mappings.json"), MODEL_PATH);
 
-        PackZip.ZipResourcePack(BASE_PATH.resolve("resourcepack"), ZIP_PATH);
+        ZipUtil.pack(BASE_PATH.resolve("resourcepack").toFile(), ZIP_PATH.toFile());
         File zipFile = ZIP_PATH.toFile();
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();

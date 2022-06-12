@@ -30,6 +30,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     implementation("com.github.Minestom:Minestom:bfa2dbd3f7")
     implementation("commons-io:commons-io:2.11.0")
+    implementation("org.zeroturnaround:zt-zip:1.8")
 }
 
 tasks.getByName<Test>("test") {
