@@ -81,4 +81,6 @@ public interface GenericModel {
 
     @ApiStatus.Internal
     void drawBones(short tick);
+
+    ModelEngine.RenderType getRenderType();
 }

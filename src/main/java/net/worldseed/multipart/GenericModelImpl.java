@@ -7,7 +7,6 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.animations.AnimationLoader;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +22,8 @@ public abstract class GenericModelImpl implements GenericModel {
     private final Set<ModelBoneHitbox> hittableBones = new HashSet<>();
     private final HashMap<String, ModelBoneVFX> VFXBones = new HashMap<>();
 
+    private ModelEngine.RenderType renderType;
+
     private ModelBoneSeat seat;
 
     private Point position;
@@ -31,6 +32,11 @@ public abstract class GenericModelImpl implements GenericModel {
     @Override
     public double getGlobalRotation() {
         return globalRotation;
+    }
+
+    @Override
+    public ModelEngine.RenderType getRenderType() {
+        return renderType;
     }
 
     @Override
@@ -47,6 +53,8 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity, LivingEntity nametagEntity) {
+        this.renderType = renderType;
+
         JsonObject loadedModel = AnimationLoader.loadModel(getId());
         this.position = new Vec(position.x(), position.y(), position.z());
 
