@@ -152,8 +152,9 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
                                 if (removeAfterPlaying.containsKey(playingValue)) {
                                     toPlay.remove(playingKey);
-                                    removeAfterPlaying.get(playingValue).accept(null);
+                                    Consumer<Void> found = removeAfterPlaying.get(playingValue);
                                     removeAfterPlaying.remove(playingValue);
+                                    found.accept(null);
                                 }
                             }
                             playNextSchedule();
