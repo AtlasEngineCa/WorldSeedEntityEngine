@@ -89,12 +89,18 @@ non-sealed class ModelBoneSeat extends ModelBoneGeneric {
         Pos endPos = Pos.fromPoint(p);
         Point rotation = q.toEulerYZX();
 
+        double divisor = 1;
+        if (model.getRenderType() == ModelEngine.RenderType.SMALL_ARMOUR_STAND || model.getRenderType() == ModelEngine.RenderType.SMALL_ZOMBIE) {
+            divisor = 1.6;
+        }
+
         // TODO: I think this sends two packets?
         stand.setView((float) -rotation.y(), (float) rotation.x());
 
         stand.teleport(
             endPos
                 .div(6.4, 6.4, 6.4)
+                .div(divisor)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset()).withView((float) -rotation.y(), (float) rotation.x()));
     }

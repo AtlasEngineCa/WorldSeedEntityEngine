@@ -26,8 +26,14 @@ non-sealed class ModelBoneNametag extends ModelBoneGeneric {
         p = applyTransform(p, tick);
         p = applyGlobalRotation(p);
 
+        double divisor = 1;
+        if (model.getRenderType() == ModelEngine.RenderType.SMALL_ARMOUR_STAND || model.getRenderType() == ModelEngine.RenderType.SMALL_ZOMBIE) {
+            divisor = 1.6;
+        }
+
         Pos endPos = Pos.fromPoint(p)
             .div(6.4, 6.4, 6.4)
+            .div(divisor)
             .add(model.getPosition())
             .add(model.getGlobalOffset());
 
