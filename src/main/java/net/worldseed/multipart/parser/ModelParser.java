@@ -5,6 +5,8 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.ModelEngine;
+import net.worldseed.multipart.parser.generator.ModelGenerator;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -13,7 +15,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +30,15 @@ public class ModelParser {
     private static final Map<String, MappingEntry> mappings = new HashMap<>();
     private static final List<JsonObject> predicates = new ArrayList<>();
     final static JsonObject display = new JsonObject();
+
+    public static void parseBBench(Path bbmodel, Path modelPath) throws IOException {
+        for (File entityModel : bbmodel.toFile().listFiles()) {
+            ModelGenerator.BBEntityModel bbModel = ModelGenerator.generate(GSON.fromJson(Files.newBufferedReader(entityModel.toPath()), JsonObject.class), entityModel.getName().split("\\.")[0]);
+            FileUtils.writeStringToFile(modelPath.resolve(bbModel.id() + "/model.animation.json").toFile(), bbModel.animations().toString(), Charset.defaultCharset());
+            FileUtils.writeStringToFile(modelPath.resolve(bbModel.id() + "/model.geo.json").toFile(), bbModel.geo().toString(), Charset.defaultCharset());
+            FileUtils.writeByteArrayToFile(modelPath.resolve(bbModel.id() + "/texture.png").toFile(), bbModel.textures().get("0"));
+        }
+    }
 
     private enum TextureState {
         normal(1.0,1.0,1.0),
@@ -226,19 +239,6 @@ public class ModelParser {
                 final Point cubeMid = new Vec((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
                 final Point cubeDiff = new Vec(cubeMid.x() - cubeMinX + 16, cubeMid.y() - cubeMinY + 16, cubeMid.z() - cubeMinZ + 16);
 
-                if (cubeMaxX > 47)
-                    throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " max X");
-                if (cubeMaxY > 47)
-                    throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " max Y");
-                if (cubeMaxZ > 47)
-                    throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " max Z");
-                if (cubeMinX < -15)
-                    throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " min X");
-                if (cubeMinY < -15)
-                    throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " min Y");
-                if (cubeMinZ < -15)
-                    throw new SizeLimitExceededException("Cube size exceeded: " + boneName + " min Z");
-
                 for (Cube cube : bone.cubes()) {
                     Point cubePivot = new Vec(-(cube.pivot().x() + cubeMid.x()), cube.pivot.y() - cubeMid.y(), cube.pivot.z() - cubeMid.z());
                     Point cubeSize = cube.size;
@@ -259,13 +259,13 @@ public class ModelParser {
                     String rotationAxis = "z";
 
                     if (cubeRotation.x() != 45 && cubeRotation.x() != -22.5 && cubeRotation.x() != 22.5 && cubeRotation.x() != -45 && cubeRotation.x() != 0) {
-                        throw new IllegalArgumentException("Invalid rotation: " + boneName + " X");
+                        throw new IllegalArgumentException("Invalid rotation: " + boneName + " X " + modelName);
                     }
                     if (cubeRotation.y() != 45 && cubeRotation.y() != -22.5 && cubeRotation.y() != 22.5 && cubeRotation.y() != -45 && cubeRotation.y() != 0) {
-                        throw new IllegalArgumentException("Invalid rotation: " + boneName + " Y");
+                        throw new IllegalArgumentException("Invalid rotation: " + boneName + " Y " + modelName);
                     }
                     if (cubeRotation.z() != 45 && cubeRotation.z() != -22.5 && cubeRotation.z() != 22.5 && cubeRotation.z() != -45 && cubeRotation.z() != 0) {
-                        throw new IllegalArgumentException("Invalid rotation: " + boneName + " Z");
+                        throw new IllegalArgumentException("Invalid rotation: " + boneName + " Z " + modelName);
                     }
 
                     if (cubeRotation.x() != 0) {
@@ -487,4 +487,14 @@ public class ModelParser {
 
         return res;
     }
+
+    public static JsonArray applyInflate(JsonArray from, double inflate) {
+        JsonArray inflated = new JsonArray();
+        for (int i = 0; i < from.size(); ++i) {
+            double val = from.get(i).getAsDouble() + inflate;
+            inflated.add(val);
+        }
+        return inflated;
+    }
+
 }

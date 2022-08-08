@@ -59,6 +59,8 @@ public class Main {
         } catch (IllegalArgumentException ignored) { }
 
         FileUtils.copyDirectory(BASE_PATH.resolve("resourcepack_template").toFile(), BASE_PATH.resolve("resourcepack").toFile());
+
+        ModelParser.parseBBench(BASE_PATH.resolve("bbmodel"), MODEL_PATH);
         ModelParser.parse(BASE_PATH.resolve("resourcepack/assets/wsee"), MODEL_PATH, BASE_PATH);
         ModelEngine.loadMappings(BASE_PATH.resolve("model_mappings.json"), MODEL_PATH);
 
