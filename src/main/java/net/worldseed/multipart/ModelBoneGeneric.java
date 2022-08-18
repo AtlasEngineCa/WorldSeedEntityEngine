@@ -13,8 +13,8 @@ import java.util.List;
 
 abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePart, ModelBoneSeat, ModelBoneVFX {
     protected final HashMap<String, ItemStack> items;
-    private final Point diff;
-    private final Point pivot;
+    final Point diff;
+    final Point pivot;
     private final String name;
 
     final List<ModelAnimation> allAnimations = new ArrayList<>();
