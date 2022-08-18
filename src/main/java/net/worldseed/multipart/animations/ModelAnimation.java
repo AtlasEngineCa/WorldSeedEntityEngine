@@ -76,6 +76,8 @@ public class ModelAnimation {
                 transform.put(0.0, point);
             }
 
+            System.out.println("[AnimationLoader] Generating cache for " + bone.getName() + "/" + animationName);
+
             if (this.type == AnimationLoader.AnimationType.ROTATION) {
                 found = calculateAllTransforms(animationTime, transform);
                 AnimationLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
