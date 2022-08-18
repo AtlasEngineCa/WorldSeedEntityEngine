@@ -25,6 +25,7 @@ public abstract class GenericModelImpl implements GenericModel {
     private ModelEngine.RenderType renderType;
 
     private ModelBoneSeat seat;
+    private ModelBoneHead head;
 
     private Point position;
     private double globalRotation;
@@ -76,6 +77,10 @@ public abstract class GenericModelImpl implements GenericModel {
                 modelBonePart = new ModelBoneVFX(pivotPos, name, boneRotation, this);
             } else if (name.contains("seat")) {
                 modelBonePart = new ModelBoneSeat(pivotPos, name, boneRotation, this, masterEntity);
+                this.seat = (ModelBoneSeat) modelBonePart;
+            } else if (name.equals("head")) {
+                modelBonePart = new ModelBoneHead(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                this.head = (ModelBoneHead) modelBonePart;
             } else {
                 modelBonePart = new ModelBonePart(pivotPos, name, boneRotation, this, renderType, masterEntity);
             }
@@ -106,8 +111,6 @@ public abstract class GenericModelImpl implements GenericModel {
                 hittableBones.add(hitbox);
             else if (modelBonePart instanceof ModelBoneVFX vfx)
                 VFXBones.put(vfx.getName(), vfx);
-            else if (modelBonePart instanceof ModelBoneSeat seat)
-                this.seat = seat;
         }
 
         drawBones((short) 0);
@@ -159,6 +162,8 @@ public abstract class GenericModelImpl implements GenericModel {
             modelBonePart.destroy();
         }
 
+        if (this.head != null) this.head.destroy();
+
         this.viewableBones.clear();
         this.hittableBones.clear();
         this.VFXBones.clear();
@@ -175,5 +180,9 @@ public abstract class GenericModelImpl implements GenericModel {
         ModelBoneVFX found = VFXBones.get(name);
         if (found == null) return null;
         return found.getPosition();
+    }
+
+    public void setHeadRotation(double rotation) {
+        if (this.head != null) this.head.setRotation(rotation);
     }
 }

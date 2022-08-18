@@ -19,7 +19,7 @@ import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.mount.MobRidable;
 
 non-sealed class ModelBonePart extends ModelBoneGeneric {
-    private final ModelEngine.RenderType renderType;
+    final ModelEngine.RenderType renderType;
 
     public ModelBonePart(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -92,7 +92,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
         }
     }
 
-    public void setBoneRotation(Point rotation) {
+    void setBoneRotation(Point rotation) {
         ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
 
         meta.setHeadRotation(new Vec(
