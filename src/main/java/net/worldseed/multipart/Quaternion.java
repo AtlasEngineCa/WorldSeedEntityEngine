@@ -3,21 +3,25 @@ package net.worldseed.multipart;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 
-final class Quaternion {
+final public class Quaternion {
     private final double x;
     private final double y;
     private final double z;
 
     private final double w;
 
-    Quaternion(double x, double y, double z, double w) {
+    public Quaternion(double x, double y, double z, double w) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
     }
 
-    Quaternion(Point p) {
+    public Quaternion() {
+        this(0, 0, 0, 0);
+    }
+
+    public Quaternion(Point p) {
         p = ModelMath.toRadians(p);
 
         double cy = Math.cos(p.z() * 0.5);
@@ -33,7 +37,23 @@ final class Quaternion {
         z = cr * cp * sy - sr * sp * cy;
     }
 
-    Point toEuler() {
+    public double x() {
+        return x;
+    }
+
+    public double y() {
+        return y;
+    }
+
+    public double z() {
+        return z;
+    }
+
+    public double w() {
+        return w;
+    }
+
+    public Point toEuler() {
         double t0 = (x+z)*(x-z);        // x^2-z^2
         double t1 = (w+y)*(w-y);        // w^2-y^2
         double xx = 0.5*(t0+t1);        // 1/2 x of x'
@@ -84,7 +104,7 @@ final class Quaternion {
         return new Vec(x,z,y);
     }
 
-    Point toEulerYZX() {
+    public Point toEulerYZX() {
         Quaternion q = this;
 
         return ModelMath.toDegrees(threeAxisRot( -2*(q.x*q.z - q.w*q.y),

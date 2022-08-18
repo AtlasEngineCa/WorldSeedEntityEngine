@@ -4,8 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class AnimationGenerator {
     public static JsonObject generate(JsonArray animationRaw) {
@@ -25,8 +24,8 @@ public class AnimationGenerator {
 
                 String boneName = animator.get("name").getAsString();
 
-                JsonObject rotation = new JsonObject();
-                JsonObject position = new JsonObject();
+                List<Map.Entry<Double, JsonObject>> rotation = new ArrayList<>();
+                List<Map.Entry<Double, JsonObject>> position = new ArrayList<>();
 
                 JsonArray keyframes = animator.get("keyframes").getAsJsonArray();
 
@@ -44,15 +43,29 @@ public class AnimationGenerator {
                     built.addProperty("lerp_mode", interpolation);
 
                     if (channel.equals("rotation")) {
-                        rotation.add(String.valueOf(time), built);
+                        rotation.add(Map.entry(time, built));
                     } else if (channel.equals("position")) {
-                        position.add(String.valueOf(time), built);
+                        position.add(Map.entry(time, built));
                     }
                 }
 
+                rotation.sort(Map.Entry.comparingByKey());
+                position.sort(Map.Entry.comparingByKey());
+
+                JsonObject rotationJson = new JsonObject();
+                JsonObject positionJson = new JsonObject();
+
+                for (var rotation_ : rotation) {
+                    rotationJson.add(rotation_.getKey().toString(), rotation_.getValue());
+                }
+
+                for (var position_ : position) {
+                    positionJson.add(position_.getKey().toString(), position_.getValue());
+                }
+
                 JsonObject built = new JsonObject();
-                built.add("rotation", rotation);
-                built.add("position", position);
+                built.add("rotation", rotationJson);
+                built.add("position", positionJson);
 
                 bones.add(boneName, built);
             }
