@@ -20,7 +20,6 @@ import net.worldseed.multipart.mount.MobRidable;
 
 non-sealed class ModelBonePart extends ModelBoneGeneric {
     private final ModelEngine.RenderType renderType;
-    private Pos lastPos = Pos.ZERO;
 
     public ModelBonePart(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -97,9 +96,9 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
         ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
 
         meta.setHeadRotation(new Vec(
-                rotation.x(),
-                0,
-                -rotation.z()
+            rotation.x(),
+            0,
+            -rotation.z()
         ));
     }
 
@@ -122,29 +121,23 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
         Point rotation = q.toEulerYZX();
 
         if (renderType == ModelEngine.RenderType.ARMOUR_STAND) {
-            Pos newPos =
-                    endPos
-                            .div(6.4, 6.4, 6.4)
-                            .add(model.getPosition())
-                            .sub(0, 1.4, 0)
-                            .add(model.getGlobalOffset());
+            Pos newPos = endPos
+                .div(6.4, 6.4, 6.4)
+                .add(model.getPosition())
+                .sub(0, 1.4, 0)
+                .add(model.getGlobalOffset());
 
-            Pos diff = newPos.sub(lastPos).mul(0.5);
-            this.lastPos = newPos;
-            stand.teleport(newPos.add(diff).withYaw((float) -rotation.y()));
+            stand.teleport(newPos.withYaw((float) -rotation.y()));
             setBoneRotation(rotation);
         } else if (renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
-            Pos newPos =
-                    endPos
-                            .div(6.4, 6.4, 6.4)
-                            .div(1.6)
-                            .add(model.getPosition())
-                            .sub(0, 0.4, 0)
-                            .add(model.getGlobalOffset());
+            Pos newPos = endPos
+                .div(6.4, 6.4, 6.4)
+                .div(1.6)
+                .add(model.getPosition())
+                .sub(0, 0.4, 0)
+                .add(model.getGlobalOffset());
 
-            Pos diff = newPos.sub(lastPos).mul(0.5);
-            this.lastPos = newPos;
-            stand.teleport(newPos.add(diff).withYaw((float) -rotation.y()));
+            stand.teleport(newPos.withYaw((float) -rotation.y()));
             setBoneRotation(rotation);
         } else if (renderType == ModelEngine.RenderType.ZOMBIE) {
             // TODO: I think this sends two packets?
