@@ -159,6 +159,7 @@ public class ModelParser {
         for (JsonElement bone : bonesJson) {
             if (!bone.getAsJsonObject().has("cubes")) continue;
             String name = bone.getAsJsonObject().get("name").getAsString();
+            Point bonePivot = ModelEngine.getPos(bone.getAsJsonObject().get("pivot").getAsJsonArray()).orElse(Vec.ZERO);
 
             List<Cube> cubes = new ArrayList<>();
             for (JsonElement cubeJson : bone.getAsJsonObject().get("cubes").getAsJsonArray()) {
@@ -182,7 +183,7 @@ public class ModelParser {
             }
 
             if (cubes.size() > 0) {
-                bones.add(new Bone(name, cubes));
+                bones.add(new Bone(name, cubes, bonePivot));
             }
         }
 
@@ -219,24 +220,15 @@ public class ModelParser {
                 double cubeMinY = 100000;
                 double cubeMinZ = 100000;
 
-                double cubeMaxX = -100000;
-                double cubeMaxY = -100000;
-                double cubeMaxZ = -100000;
-
                 for (Cube cube : bone.cubes) {
                     Point cubeOrigin = cube.origin;
-                    Point cubeSize = cube.size;
 
                     cubeMinX = Math.min(cubeMinX, cubeOrigin.x());
                     cubeMinY = Math.min(cubeMinY, cubeOrigin.y());
                     cubeMinZ = Math.min(cubeMinZ, cubeOrigin.z());
-
-                    cubeMaxX = Math.max(cubeMaxX, cubeOrigin.x() + cubeSize.x());
-                    cubeMaxY = Math.max(cubeMaxY, cubeOrigin.y() + cubeSize.y());
-                    cubeMaxZ = Math.max(cubeMaxZ, cubeOrigin.z() + cubeSize.z());
                 }
 
-                final Point cubeMid = new Vec((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
+                final Point cubeMid = bone.pivot.mul(-1, 1, 1).sub(8, 8, 8);
                 final Point cubeDiff = new Vec(cubeMid.x() - cubeMinX + 16, cubeMid.y() - cubeMinY + 16, cubeMid.z() - cubeMinZ + 16);
 
                 for (Cube cube : bone.cubes()) {
@@ -391,7 +383,7 @@ public class ModelParser {
     }
 
     record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {}
-    record Bone(String name, List<Cube> cubes) {}
+    record Bone(String name, List<Cube> cubes, Point pivot) {}
     record ItemId(String name, String bone, Point offset, Point diff, int id) {}
 
     record MappingEntry(Map<String, Integer> map, Point offset, Point diff) {
