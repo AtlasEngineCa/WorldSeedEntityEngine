@@ -1,5 +1,6 @@
 package net.worldseed.multipart;
 
+import net.minestom.server.entity.Entity;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.Instance;
@@ -20,4 +21,5 @@ sealed public interface ModelBone permits ModelBoneGeneric {
     String getName();
     void destroy();
     Quaternion calculateFinalAngle(Quaternion q, short tick);
+    Entity getEntity();
 }

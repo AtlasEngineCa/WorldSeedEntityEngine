@@ -12,9 +12,8 @@ import net.worldseed.multipart.animations.AnimationLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class GenericModelImpl implements GenericModel {
     private final HashMap<String, ModelBone> parts = new HashMap<>();
@@ -162,8 +161,6 @@ public abstract class GenericModelImpl implements GenericModel {
             modelBonePart.destroy();
         }
 
-        if (this.head != null) this.head.destroy();
-
         this.viewableBones.clear();
         this.hittableBones.clear();
         this.VFXBones.clear();
@@ -184,5 +181,9 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public void setHeadRotation(double rotation) {
         if (this.head != null) this.head.setRotation(rotation);
+    }
+
+    public List<Entity> getParts() {
+        return this.parts.values().stream().map(ModelBone::getEntity).filter(Objects::nonNull).toList();
     }
 }

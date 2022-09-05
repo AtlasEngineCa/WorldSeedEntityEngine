@@ -4,6 +4,7 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.List;
 import java.util.Set;
 
 public interface GenericModel {
@@ -83,4 +84,6 @@ public interface GenericModel {
     void drawBones(short tick);
 
     ModelEngine.RenderType getRenderType();
+
+    List<Entity> getParts();
 }
