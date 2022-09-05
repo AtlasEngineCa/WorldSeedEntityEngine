@@ -1,6 +1,7 @@
 package net.worldseed.multipart;
 
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.worldseed.multipart.animations.AnimationLoader.AnimationType;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
@@ -26,6 +27,11 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
 
     final ArrayList<ModelBone> children = new ArrayList<>();
     final GenericModel model;
+
+    @Override
+    public Entity getEntity() {
+        return stand;
+    }
 
     @Override
     public ModelBone getParent() {

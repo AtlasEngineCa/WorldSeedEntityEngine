@@ -3,7 +3,6 @@ package net.worldseed.multipart;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
@@ -57,10 +56,6 @@ non-sealed class ModelBoneSeat extends ModelBoneGeneric {
                 }
             }));
         }
-    }
-
-    Entity getEntity() {
-        return this.stand;
     }
 
     @Override
