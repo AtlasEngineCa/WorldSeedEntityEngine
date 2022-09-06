@@ -67,6 +67,7 @@ Learn what this project is, how it works and how you can use it on your server
 ## Important Notes
 
 Entities used for bones will be placed at the pivot point of the bone in blockbench. **THIS IS IMPORTANT TO REMEMBER WHEN PLACING HITBOXES**
+
 Slime entities for hitboxes are placed at the bone pivot point, not the block location.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
