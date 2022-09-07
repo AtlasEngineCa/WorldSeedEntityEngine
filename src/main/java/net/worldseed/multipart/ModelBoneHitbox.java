@@ -90,7 +90,7 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
 
         double divisor = 1;
         if (model.getRenderType() == ModelEngine.RenderType.SMALL_ARMOUR_STAND || model.getRenderType() == ModelEngine.RenderType.SMALL_ZOMBIE) {
-            divisor = 1.6;
+            divisor = 1.426;
         }
 
         stand.teleport(
