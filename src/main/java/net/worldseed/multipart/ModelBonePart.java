@@ -132,7 +132,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
         } else if (renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
             Pos newPos = endPos
                 .div(6.4, 6.4, 6.4)
-                .div(1.6)
+                .div(1.426)
                 .add(model.getPosition())
                 .sub(0, 0.4, 0)
                 .add(model.getGlobalOffset());
@@ -156,7 +156,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
             Pos newPos = endPos
                     .div(6.4, 6.4, 6.4)
-                    .div(1.6)
+                    .div(1.426)
                     .add(model.getPosition())
                     .sub(0, 0.4, 0)
                     .add(model.getGlobalOffset());
