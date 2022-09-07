@@ -113,6 +113,10 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
         final Map.Entry<Integer, String> playing = toPlay.firstEntry();
 
         this.playing = playing;
+
+        if (this.playing == null && oldPlaying != null)
+            this.animations.get(oldPlaying.getValue()).forEach(ModelAnimation::cancel);
+
         if (this.playing == null) return;
 
         this.tick = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
