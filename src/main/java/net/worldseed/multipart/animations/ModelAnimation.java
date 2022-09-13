@@ -41,12 +41,12 @@ public class ModelAnimation {
         return this.interpolationCache.getOrDefault(tick, Pos.ZERO);
     }
 
-    public ModelAnimation(String modelName, String animationName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime) {
+    public ModelAnimation(String modelName, String boneName, String animationName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime) {
         this.type = animationType;
         this.animationTime = animationTime;
 
         if (bone == null) {
-            throw new IllegalArgumentException("Bone name cannot be null");
+            throw new IllegalArgumentException("Cannot find bone " + boneName + " in model " + modelName + " for animation " + animationName);
         }
 
         Map<Short, Point> found;
