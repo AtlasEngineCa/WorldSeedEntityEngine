@@ -8,9 +8,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Optional;
@@ -35,11 +33,11 @@ public class ModelEngine {
 
     /**
      * Loads the model from the given path
-     * @param mappingsFile mappings file created by model parser
+     * @param mappingsData mappings file created by model parser
      * @param modelPath path of the models
      */
-    public static void loadMappings(Path mappingsFile, Path modelPath) throws FileNotFoundException {
-        JsonObject map = GSON.fromJson(new InputStreamReader(new FileInputStream(mappingsFile.toFile())), JsonObject.class);
+    public static void loadMappings(Reader mappingsData, Path modelPath) {
+        JsonObject map = GSON.fromJson(mappingsData, JsonObject.class);
         ModelEngine.modelPath = modelPath;
 
         blockMappings.clear();
