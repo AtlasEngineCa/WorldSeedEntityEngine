@@ -21,7 +21,7 @@ non-sealed class ModelBoneHitbox extends ModelBoneGeneric {
         super(pivot, name, rotation, model);
 
         String[] spl = name.split("_");
-        int size = Integer.parseInt(spl[1]);
+        int size = spl.length > 1 ? Integer.parseInt(spl[1]) : 1;
 
         if (this.offset != null) {
             this.stand = new LivingEntity(EntityType.SLIME) {
