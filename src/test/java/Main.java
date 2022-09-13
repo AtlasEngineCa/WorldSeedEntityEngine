@@ -39,8 +39,7 @@ import org.apache.commons.io.FileUtils;
 import org.zeroturnaround.zip.ZipUtil;
 
 import javax.naming.SizeLimitExceededException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -62,7 +61,9 @@ public class Main {
 
         ModelParser.parseBBench(BASE_PATH.resolve("bbmodel"), MODEL_PATH);
         ModelParser.parse(BASE_PATH.resolve("resourcepack/assets/wsee"), MODEL_PATH, BASE_PATH);
-        ModelEngine.loadMappings(BASE_PATH.resolve("model_mappings.json"), MODEL_PATH);
+
+        Reader mappingsData = new InputStreamReader(new FileInputStream(BASE_PATH.resolve("model_mappings.json").toFile()));
+        ModelEngine.loadMappings(mappingsData, MODEL_PATH);
 
         ZipUtil.pack(BASE_PATH.resolve("resourcepack").toFile(), ZIP_PATH.toFile());
         File zipFile = ZIP_PATH.toFile();
