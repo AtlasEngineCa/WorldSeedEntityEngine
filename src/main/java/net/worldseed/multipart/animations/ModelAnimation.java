@@ -41,7 +41,7 @@ public class ModelAnimation {
         return this.interpolationCache.getOrDefault(tick, Pos.ZERO);
     }
 
-    public ModelAnimation(String modelName, String boneName, String animationName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime) {
+    public ModelAnimation(String modelName, String animationName, String boneName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double animationTime) {
         this.type = animationType;
         this.animationTime = animationTime;
 
