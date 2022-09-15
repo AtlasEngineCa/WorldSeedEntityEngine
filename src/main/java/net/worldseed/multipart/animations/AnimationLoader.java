@@ -21,6 +21,13 @@ public class AnimationLoader {
     private static final Map<String, Map<String, Map<Short, Point>>> interpolationTranslateCache = new HashMap<>();
     private static final Map<String, Map<String, Map<Short, Point>>> interpolationRotateCache = new HashMap<>();
 
+    public static void clearCache() {
+        interpolationTranslateCache.clear();
+        interpolationRotateCache.clear();
+        loadedAnimations.clear();
+        loadedModels.clear();
+    }
+
     public enum AnimationType {
         ROTATION, TRANSLATION
     }
