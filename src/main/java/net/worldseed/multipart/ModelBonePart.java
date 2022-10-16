@@ -170,7 +170,11 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
     @Override
     public void setState(String state) {
         if (this.stand != null) {
-            this.stand.setHelmet(this.items.get(state));
+            var item = this.items.get(state);
+
+            if (item != null) {
+                this.stand.setHelmet(item);
+            }
         }
     }
 }
