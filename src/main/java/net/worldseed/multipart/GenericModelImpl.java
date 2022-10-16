@@ -135,7 +135,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public Set<Entity> getPassengers() {
-        if (this.seat == null) return Set.of();
+        if (this.seat == null || this.seat.getEntity() == null) return Set.of();
         return this.seat.getEntity().getPassengers();
     }
 
