@@ -34,14 +34,13 @@ import net.worldseed.multipart.events.EntityDismountEvent;
 import net.worldseed.multipart.events.EntityControlEvent;
 import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.ModelEngine;
-import net.worldseed.multipart.parser.ModelParser;
+import net.worldseed.resourcepack.PackBuilder;
 import org.apache.commons.io.FileUtils;
 import org.zeroturnaround.zip.ZipUtil;
 
-import javax.naming.SizeLimitExceededException;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -50,7 +49,7 @@ public class Main {
     private static final Path ZIP_PATH = BASE_PATH.resolve("resourcepack.zip");
     private static final Path MODEL_PATH = BASE_PATH.resolve("models");
 
-    public static void main(String[] args) throws IOException, SizeLimitExceededException, NoSuchAlgorithmException {
+    public static void main(String[] args) throws Exception {
         MinecraftServer minecraftServer = MinecraftServer.init();
 
         try {
@@ -58,9 +57,8 @@ public class Main {
         } catch (IllegalArgumentException ignored) { }
 
         FileUtils.copyDirectory(BASE_PATH.resolve("resourcepack_template").toFile(), BASE_PATH.resolve("resourcepack").toFile());
-
-        ModelParser.parseBBench(BASE_PATH.resolve("bbmodel"), MODEL_PATH);
-        ModelParser.parse(BASE_PATH.resolve("resourcepack/assets/wsee"), MODEL_PATH, BASE_PATH);
+        var config = PackBuilder.Generate(BASE_PATH.resolve("bbmodel"), BASE_PATH.resolve("resourcepack"), MODEL_PATH);
+        FileUtils.writeStringToFile(BASE_PATH.resolve("model_mappings.json").toFile(), config.modelMappings(), Charset.defaultCharset());
 
         Reader mappingsData = new InputStreamReader(new FileInputStream(BASE_PATH.resolve("model_mappings.json").toFile()));
         ModelEngine.loadMappings(mappingsData, MODEL_PATH);
@@ -100,6 +98,8 @@ public class Main {
                         player.getUsername() + " has joined",
                         NamedTextColor.GREEN
                 ));
+
+                player.sendMessage(Component.text("Run /spawn", NamedTextColor.YELLOW));
             });
 
             handler.addListener(PlayerPacketEvent.class, event -> {

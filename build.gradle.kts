@@ -31,6 +31,9 @@ dependencies {
     implementation("com.github.Minestom:Minestom:5f8842084c")
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.zeroturnaround:zt-zip:1.8")
+
+    implementation("javax.json:javax.json-api:1.1.4")
+    implementation("org.glassfish:javax.json:1.1.4")
 }
 
 tasks.getByName<Test>("test") {

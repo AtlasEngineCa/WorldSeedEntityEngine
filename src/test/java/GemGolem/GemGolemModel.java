@@ -19,7 +19,7 @@ public class GemGolemModel extends GenericModelImpl {
         return globalOffset;
     }
 
-    private static final String id = "gem_golem";
+    private static final String id = "gem_golem.bbmodel";
 
     @Override
     public String getId() {
