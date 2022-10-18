@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class TuffGolem extends GenericModelImpl {
     private final Pos pivot = new Pos(0, 0, 0);
-    private final Pos globalOffset = new Pos(0, -0.3, 0);
+    private final Pos globalOffset = new Pos(0, -0.2, 0);
     private static final String id = "tuff_golem.bbmodel";
 
     public Pos getPivot() {
@@ -26,6 +26,6 @@ public class TuffGolem extends GenericModelImpl {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, LivingEntity masterEntity) {
-        super.init(instance, position, ModelEngine.RenderType.SMALL_ARMOUR_STAND, masterEntity);
+        super.init(instance, position, ModelEngine.RenderType.SMALL_ZOMBIE, masterEntity);
     }
 }

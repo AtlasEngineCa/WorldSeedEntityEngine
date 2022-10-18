@@ -14,112 +14,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class PackBuilder {
-
     public record Model(String data, String name, JsonObject additionalStates) {}
     public record ConfigJson(String modelMappings) {}
-    private record BBenchResult(JsonObject json, Map<String, byte[]> textures) {}
-
-    private static BBenchResult BBenchToJson(JsonObject bbmodel, int textureId) {
-        JsonArrayBuilder fixedElements = Json.createArrayBuilder();
-        JsonArray fixedTextureSize = Json.createArrayBuilder()
-            .add(16)
-            .add(16)
-            .build();
-
-        if (bbmodel.containsKey("resolution")) {
-            var textureSize = bbmodel.getJsonObject("resolution");
-
-            fixedTextureSize = Json.createArrayBuilder()
-                .add(textureSize.getInt("width"))
-                .add(textureSize.getInt("height"))
-                .build();
-        }
-
-        for (JsonValue element : bbmodel.getJsonArray("elements")) {
-            JsonObject elementJson = element.asJsonObject();
-            JsonObjectBuilder facesFixed = Json.createObjectBuilder();
-
-            double inflate = 0;
-
-            try {
-                inflate = Math.round(elementJson.getJsonNumber("inflate").doubleValue() * 10000) / 10000.0;
-            } catch (Exception ignored) { }
-
-            JsonObject faces = elementJson.getJsonObject("faces");
-            for (var faceObj : faces.entrySet()) {
-                String face = faceObj.getKey();
-                JsonObject faceJson = faceObj.getValue().asJsonObject();
-                JsonObjectBuilder faceFixed = Json.createObjectBuilder(faceJson);
-
-                String texture = "#0";
-
-                if (faceJson.containsKey("texture")) {
-                    texture = "#" + faceJson.getInt("texture");
-                }
-
-                faceFixed.add("texture", texture);
-                facesFixed.add(face, faceFixed.build());
-            }
-
-            JsonObject fixedRotation = Json.createObjectBuilder()
-                .add("axis", "y")
-                .add("angle", 0)
-                .add("origin", elementJson.getJsonArray("origin"))
-                .build();
-
-            if (elementJson.containsKey("rotation")) {
-                JsonArray rotation = elementJson.getJsonArray("rotation");
-
-                String axis = "";
-                double angle = 0;
-
-                if (rotation.getJsonNumber(0).doubleValue() != 0) {
-                    axis = "x";
-                    angle = rotation.getJsonNumber(0).doubleValue();
-                } else if (rotation.getJsonNumber(1).doubleValue() != 0) {
-                    axis = "y";
-                    angle = rotation.getJsonNumber(1).doubleValue();
-                } else if (rotation.getJsonNumber(2).doubleValue() != 0) {
-                    axis = "z";
-                    angle = rotation.getJsonNumber(2).doubleValue();
-                }
-
-                fixedRotation = Json.createObjectBuilder()
-                    .add("axis", axis)
-                    .add("angle", angle)
-                    .add("origin", elementJson.getJsonArray("origin"))
-                    .build();
-            }
-
-            JsonObject newElement = Json.createObjectBuilder()
-                    .add("from", applyInflate(elementJson.getJsonArray("from"), inflate))
-                    .add("to", applyInflate(elementJson.getJsonArray("to"), -inflate))
-                    .add("rotation", fixedRotation)
-                    .add("faces", facesFixed.build())
-                    .build();
-
-            fixedElements.add(newElement);
-        }
-
-        int offsetLength = "data:image/png;base64,".length();
-
-        Map<String, byte[]> textures = new HashMap<>();
-        JsonObjectBuilder newTextures = Json.createObjectBuilder();
-
-        for (JsonValue texture : bbmodel.getJsonArray("textures")) {
-            JsonObject textureJson = texture.asJsonObject();
-            byte[] textureData = Base64.getDecoder().decode(textureJson.getString("source").substring(offsetLength));
-            textures.put(textureJson.getString("id"), textureData);
-            newTextures.add(String.valueOf(textureJson.getString("id")), "worldseed:item/" + textureId + "/" + textureJson.getString("id"));
-        }
-
-        return new BBenchResult(Json.createObjectBuilder()
-            .add("textures", newTextures.build())
-            .add("elements", fixedElements.build())
-            .add("texture_size", fixedTextureSize)
-            .add("display", bbmodel.getJsonObject("display"))
-                .build(), textures);
-    }
 
     public static JsonArray applyInflate(JsonArray from, double inflate) {
         JsonArrayBuilder inflated = Json.createArrayBuilder();
@@ -165,24 +61,6 @@ public class PackBuilder {
         JsonObject modelMappings = writeCustomModels(entityModels, modelDataPath, texturePathMobs, modelPathMobs, baseModelPath);
 
         return new ConfigJson(modelMappings.toString());
-    }
-
-    public static String buildPredicate(JsonObject predicate) {
-        List<String> res = new ArrayList<>();
-
-        for (var entry : predicate.entrySet()) {
-            String key = entry.getKey();
-            String value = switch (((JsonString) entry.getValue()).getString()) {
-                case "bass_drum" -> "basedrum";
-                case "snare_drum" -> "snare";
-                case "bass_guitar" -> "bass";
-                default -> ((JsonString) entry.getValue()).getString();
-            };
-
-            res.add(key + "=" + value);
-        }
-
-        return String.join(",", res);
     }
 
     private static JsonObject writeCustomModels(List<Model> entityModels, Path modelDataPath, Path texturePathMobs, Path modelPathMobs, Path baseModelPath) throws Exception {
