@@ -70,7 +70,7 @@ public class PackEvent {
         String hash = calculateMD5(zipFile);
 
         handler.addListener(PlayerLoginEvent.class, event -> {
-            ResourcePack pack = ResourcePack.optional("http://127.0.0.1:8080/pack", hash, Component.text("WSEE Resource Pack"));
+            ResourcePack pack = ResourcePack.optional("http://127.0.0.1:8080/pack?hash=" + hash, hash, Component.text("WSEE Resource Pack"));
             ResourcePackSendPacket packSendPacket = new ResourcePackSendPacket(pack);
             event.getPlayer().sendPacket(packSendPacket);
         });
