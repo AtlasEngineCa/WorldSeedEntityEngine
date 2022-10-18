@@ -1,6 +1,6 @@
 package Commands;
 
-import GemGolem.GemGolemMob;
+import TuffGolem.TuffGolemMob;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 
@@ -10,7 +10,7 @@ public class SpawnCommand extends Command {
 
         setDefaultExecutor((sender, context) -> {
             final Player player = (Player) sender;
-            GemGolemMob golem = new GemGolemMob(player.getInstance(), player.getPosition());
+            new TuffGolemMob(player.getInstance(), player.getPosition(), player);
         });
     }
 }
