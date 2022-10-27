@@ -57,7 +57,7 @@ public class GeoGenerator {
         return res;
     }
 
-    public static JsonArray generate(JsonArray elements, JsonArray outliner) {
+    public static JsonArray generate(JsonArray elements, JsonArray outliner, Map<String, TextureGenerator.TextureData> textures) {
         Map<String, JsonObject> blocks = new HashMap<>();
 
         for (var element : elements) {
@@ -109,7 +109,7 @@ public class GeoGenerator {
                 rotation = arrayBuilder.build();
             }
 
-            JsonObject faces = parseFaces(el.getJsonObject("faces"));
+            JsonObject faces = parseFaces(el.getJsonObject("faces"), textures);
             JsonObject built = Json.createObjectBuilder()
                     .add("origin", from)
                     .add("size", size)
@@ -133,7 +133,7 @@ public class GeoGenerator {
         return bones.build();
     }
 
-    private static JsonObject parseFaces(JsonObject obj) {
+    private static JsonObject parseFaces(JsonObject obj, Map<String, TextureGenerator.TextureData> textures) {
         JsonObjectBuilder res = Json.createObjectBuilder();
 
         for (var entry : obj.entrySet()) {
@@ -168,7 +168,15 @@ public class GeoGenerator {
 
             String texture = "#0";
             var n = entry.getValue().asJsonObject().get("texture");
-            if (n != null && n.getValueType() != JsonValue.ValueType.NULL) texture = "#" + n;
+            if (n != null && n.getValueType() != JsonValue.ValueType.NULL) {
+                int nInt = ((JsonNumber) n).intValue();
+
+                if (textures.values().size() <= 0) {
+                    texture = "#" + nInt;
+                } else {
+                    texture = textures.values().toArray(new TextureGenerator.TextureData[0])[nInt].id();
+                }
+            }
 
             JsonObject faceParsed = Json.createObjectBuilder()
                 .add("uv", from)
