@@ -72,9 +72,18 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
     }
 
     public void playRepeat(String animation) {
+        clearPlayOnce();
         this.toPlay.put(animationPriorities().get(animation), animation);
         setUpdates(true);
         playNext();
+    }
+
+    private void clearPlayOnce() {
+        for (Map.Entry<String, Consumer<Void>> toRemove : removeAfterPlaying.entrySet()) {
+            toRemove.getValue().accept(null);
+            this.toPlay.remove(animationPriorities().get(toRemove.getKey()));
+        }
+        this.removeAfterPlaying.clear();
     }
 
     public void stopRepeat(String animation) {
@@ -84,6 +93,7 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
     @Override
     public void playOnce(String animation, Consumer<Void> cb) {
+        clearPlayOnce();
         this.toPlay.put(animationPriorities().get(animation), animation);
         setUpdates(true);
         this.removeAfterPlaying.put(animation, cb);
@@ -138,12 +148,7 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
             this.drawBonesTask.cancel();
             this.drawBonesTask = null;
             this.updates = false;
-
-            for (Map.Entry<String, Consumer<Void>> toRemove : removeAfterPlaying.entrySet()) {
-                toRemove.getValue().accept(null);
-                this.toPlay.remove(animationPriorities().get(toRemove.getKey()));
-            }
-            this.removeAfterPlaying.clear();
+            clearPlayOnce();
         } else if (updates && !this.updates && this.drawBonesTask == null) {
             this.updates = true;
 
