@@ -18,36 +18,19 @@ import net.worldseed.multipart.events.EntityDismountEvent;
 import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.mount.MobRidable;
 
-non-sealed class ModelBonePart extends ModelBoneGeneric {
-    final ModelEngine.RenderType renderType;
-    private Pos tempPos = Pos.ZERO;
-
-    public ModelBonePart(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
+non-sealed class ModelBonePartZombie extends ModelBoneGeneric {
+    public ModelBonePartZombie(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
 
-        this.renderType = renderType;
-
         if (this.offset != null) {
-            if (renderType == ModelEngine.RenderType.ZOMBIE || renderType == ModelEngine.RenderType.SMALL_ZOMBIE) {
-                this.stand = new LivingEntity(EntityType.ZOMBIE) {
-                    @Override
-                    public void tick(long time) {}
-                };
+            this.stand = new LivingEntity(EntityType.ZOMBIE) {
+                @Override
+                public void tick(long time) {}
+            };
 
-                if (renderType == ModelEngine.RenderType.SMALL_ZOMBIE) {
-                    ZombieMeta meta = (ZombieMeta) this.stand.getEntityMeta();
-                    meta.setBaby(true);
-                }
-            } else if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
-                this.stand = new LivingEntity(EntityType.ARMOR_STAND) {
-                    @Override
-                    public void tick(long time) {}
-                };
-
-                if (renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
-                    ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
-                    meta.setSmall(true);
-                }
+            if (renderType == ModelEngine.RenderType.SMALL_ZOMBIE) {
+                ZombieMeta meta = (ZombieMeta) this.stand.getEntityMeta();
+                meta.setBaby(true);
             }
 
             this.stand.setTag(Tag.String("WSEE"), "hitbox");
@@ -90,7 +73,6 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
             this.stand.setInvisible(true);
 
             this.stand.setInstance(instance, position);
-            tempPos = Pos.fromPoint(position);
         }
     }
 
@@ -120,39 +102,12 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
             q = pq.multiply(q);
         }
 
-        if (renderType == ModelEngine.RenderType.ARMOUR_STAND) {
-            Point rotation = q.toEuler();
+        Point rotation = q.toEulerYZX();
 
-            Pos newPos = endPos
-                .div(6.4, 6.4, 6.4)
-                .add(model.getPosition())
-                .sub(0, 1.4, 0)
-                .add(model.getGlobalOffset());
+        // TODO: I think this sends two packets?
+        stand.setView((float) -rotation.y(), (float) rotation.x());
 
-            Pos posDiff = newPos.sub(tempPos).mul(2);
-            tempPos = newPos;
-            if (Vec.fromPoint(posDiff).length() > 0.7) newPos = newPos.add(posDiff);
-            stand.teleport(newPos);
-
-            setBoneRotation(rotation);
-        } else if (renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
-            Point rotation = q.toEulerYZX();
-
-            Pos newPos = endPos
-                .div(6.4, 6.4, 6.4)
-                .div(1.426)
-                .add(model.getPosition())
-                .sub(0, 0.4, 0)
-                .add(model.getGlobalOffset());
-
-            stand.teleport(newPos.withYaw((float) -rotation.y()));
-            setBoneRotation(rotation.withY(0));
-        } else if (renderType == ModelEngine.RenderType.ZOMBIE) {
-            Point rotation = q.toEulerYZX();
-
-            // TODO: I think this sends two packets?
-            stand.setView((float) -rotation.y(), (float) rotation.x());
-
+        if (super.model.getRenderType() == ModelEngine.RenderType.ZOMBIE) {
             Pos newPos = endPos
                     .div(6.4, 6.4, 6.4)
                     .add(model.getPosition())
@@ -160,12 +115,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
                     .add(model.getGlobalOffset());
 
             stand.teleport(newPos.withView((float) -rotation.y(), (float) rotation.x()));
-        } else if (renderType == ModelEngine.RenderType.SMALL_ZOMBIE) {
-            Point rotation = q.toEulerYZX();
-
-            // TODO: I think this sends two packets?
-            stand.setView((float) -rotation.y(), (float) rotation.x());
-
+        } else if (super.model.getRenderType() == ModelEngine.RenderType.SMALL_ZOMBIE) {
             Pos newPos = endPos
                     .div(6.4, 6.4, 6.4)
                     .div(1.426)

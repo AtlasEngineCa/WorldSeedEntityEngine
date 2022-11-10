@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePart, ModelBoneSeat, ModelBoneVFX {
+abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePartArmourStand, ModelBonePartZombie, ModelBoneSeat, ModelBoneVFX {
     protected final HashMap<String, ItemStack> items;
     final Point diff;
     final Point pivot;

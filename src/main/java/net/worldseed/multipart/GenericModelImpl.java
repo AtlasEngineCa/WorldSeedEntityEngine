@@ -16,7 +16,7 @@ import java.util.*;
 
 public abstract class GenericModelImpl implements GenericModel {
     private final HashMap<String, ModelBone> parts = new HashMap<>();
-    private final Set<ModelBonePart> viewableBones = new HashSet<>();
+    private final Set<ModelBoneGeneric> viewableBones = new HashSet<>();
     private final Set<ModelBoneHitbox> hittableBones = new HashSet<>();
     private final HashMap<String, ModelBoneVFX> VFXBones = new HashMap<>();
 
@@ -27,6 +27,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private Point position;
     private double globalRotation;
+    protected boolean precise = false;
 
     @Override
     public double getGlobalRotation() {
@@ -77,10 +78,18 @@ public abstract class GenericModelImpl implements GenericModel {
                 modelBonePart = new ModelBoneSeat(pivotPos, name, boneRotation, this, masterEntity);
                 this.seat = (ModelBoneSeat) modelBonePart;
             } else if (name.equals("head")) {
-                modelBonePart = new ModelBoneHead(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
+                    modelBonePart = new ModelBoneHeadArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                } else {
+                    modelBonePart = new ModelBoneHeadZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                }
                 this.head = (ModelBoneHead) modelBonePart;
             } else {
-                modelBonePart = new ModelBonePart(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
+                    modelBonePart = new ModelBonePartArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                } else {
+                    modelBonePart = new ModelBonePartZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                }
             }
 
             this.parts.put(name, modelBonePart);
@@ -103,7 +112,7 @@ public abstract class GenericModelImpl implements GenericModel {
         for (ModelBone modelBonePart : this.parts.values()) {
             modelBonePart.spawn(instance, this.position);
 
-            if (modelBonePart instanceof ModelBonePart bonePart)
+            if (modelBonePart instanceof ModelBonePartArmourStand bonePart)
                 viewableBones.add(bonePart);
             else if (modelBonePart instanceof ModelBoneHitbox hitbox)
                 hittableBones.add(hitbox);
@@ -139,7 +148,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public void setState(String state) {
-        for (ModelBonePart part : viewableBones) {
+        for (ModelBoneGeneric part : viewableBones) {
             part.setState(state);
         }
     }
@@ -185,5 +194,13 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public List<Entity> getParts() {
         return this.parts.values().stream().map(ModelBone::getEntity).filter(Objects::nonNull).toList();
+    }
+
+    public void setPrecise(boolean precise) {
+        this.precise = precise;
+    }
+
+    public boolean isPrecise() {
+        return this.precise;
     }
 }

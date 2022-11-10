@@ -88,4 +88,18 @@ public interface GenericModel {
     void setHeadRotation(double rotation);
 
     List<Entity> getParts();
+
+    /**
+     * Precise vs Smooth
+     * Precise models will move bones ahead of time to keep them together, smooth will interpolate y rotation
+     * Mode only works for armour stands
+     * @param precise
+     */
+    void setPrecise(boolean precise);
+
+    /**
+     * Check if the model is in precision mode.
+     * @return true if the model is in precision mode, false if the model is smooth.
+     */
+    boolean isPrecise();
 }
