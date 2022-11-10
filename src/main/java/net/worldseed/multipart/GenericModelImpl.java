@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class GenericModelImpl implements GenericModel {
     private final HashMap<String, ModelBone> parts = new HashMap<>();
@@ -179,6 +178,7 @@ public abstract class GenericModelImpl implements GenericModel {
         return found.getPosition();
     }
 
+    @Override
     public void setHeadRotation(double rotation) {
         if (this.head != null) this.head.setRotation(rotation);
     }

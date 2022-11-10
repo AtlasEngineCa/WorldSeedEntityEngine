@@ -85,5 +85,7 @@ public interface GenericModel {
 
     ModelEngine.RenderType getRenderType();
 
+    void setHeadRotation(double rotation);
+
     List<Entity> getParts();
 }

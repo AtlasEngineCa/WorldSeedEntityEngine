@@ -24,7 +24,6 @@ public class ModelParser {
 
     private static final Map<String, MappingEntry> mappings = new HashMap<>();
     private static final List<JsonObject> predicates = new ArrayList<>();
-    final static JsonObject display;
 
     public record TextureState(double r, double g, double b, String name) {
         public static TextureState NORMAL = new TextureState(1.0,1.0,1.0, "normal");
@@ -60,11 +59,11 @@ public class ModelParser {
         down
     }
 
-    static {
+    static JsonObject display(Point offset) {
         JsonArrayBuilder translation = Json.createArrayBuilder();
-        translation.add(0);
-        translation.add(0);
-        translation.add(0);
+        translation.add(offset.x() * -4);
+        translation.add(offset.y() * 4);
+        translation.add(offset.z() * -4);
 
         JsonArrayBuilder scale = Json.createArrayBuilder();
         scale.add(-4);
@@ -74,7 +73,7 @@ public class ModelParser {
         JsonObjectBuilder head = Json.createObjectBuilder();
         head.add("translation", translation);
         head.add("scale", scale);
-        display = Json.createObjectBuilder().add("head", head).build();
+        return Json.createObjectBuilder().add("head", head).build();
     }
 
     public static Optional<Point> getPos(JsonArray pivot) {
@@ -123,16 +122,28 @@ public class ModelParser {
             double cubeMinY = 100000;
             double cubeMinZ = 100000;
 
+            double cubeMaxX = -100000;
+            double cubeMaxY = -100000;
+            double cubeMaxZ = -100000;
+
             for (Cube cube : bone.cubes) {
                 Point cubeOrigin = cube.origin;
+                Point cubeSize = cube.size;
 
                 cubeMinX = Math.min(cubeMinX, cubeOrigin.x());
                 cubeMinY = Math.min(cubeMinY, cubeOrigin.y());
                 cubeMinZ = Math.min(cubeMinZ, cubeOrigin.z());
+
+                cubeMaxX = Math.max(cubeMaxX, cubeOrigin.x() + cubeSize.x());
+                cubeMaxY = Math.max(cubeMaxY, cubeOrigin.y() + cubeSize.y());
+                cubeMaxZ = Math.max(cubeMaxZ, cubeOrigin.z() + cubeSize.z());
             }
 
-            final Point cubeMid = bone.pivot.mul(-1, 1, 1).sub(8, 8, 8);
-            final Point cubeDiff = new Vec(cubeMid.x() - cubeMinX + 16, cubeMid.y() - cubeMinY + 16, cubeMid.z() - cubeMinZ + 16);
+            final Point cubeMid = new Vec((cubeMaxX + cubeMinX) / 2 - 8, (cubeMaxY + cubeMinY) / 2 - 8, (cubeMaxZ + cubeMinZ) / 2 - 8);
+            final Point trueMid = bone.pivot.mul(-1, 1, 1).sub(8, 8, 8);
+            final Point midOffset = cubeMid.sub(trueMid);
+
+            final Point cubeDiff = new Vec(trueMid.x() - cubeMinX + 16, trueMid.y() - cubeMinY + 16, trueMid.z() - cubeMinZ + 16);
 
             for (Cube cube : bone.cubes()) {
                 Point cubePivot = new Vec(-(cube.pivot().x() + cubeMid.x()), cube.pivot.y() - cubeMid.y(), cube.pivot.z() - cubeMid.z());
@@ -211,7 +222,7 @@ public class ModelParser {
                 boneInfo.add("textures", builtTextures);
                 boneInfo.add("elements", elementsToJson(elements));
                 boneInfo.add("texture_size", textureSize);
-                boneInfo.add("display", display);
+                boneInfo.add("display", display(midOffset));
                 modelInfo.put(boneName + ".json", boneInfo.build());
             }
         }

@@ -20,6 +20,7 @@ import net.worldseed.multipart.mount.MobRidable;
 
 non-sealed class ModelBonePart extends ModelBoneGeneric {
     final ModelEngine.RenderType renderType;
+    private Pos tempPos = Pos.ZERO;
 
     public ModelBonePart(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -89,6 +90,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
             this.stand.setInvisible(true);
 
             this.stand.setInstance(instance, position);
+            tempPos = Pos.fromPoint(position);
         }
     }
 
@@ -97,7 +99,7 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
         meta.setHeadRotation(new Vec(
             rotation.x(),
-            0,
+            -rotation.y(),
             -rotation.z()
         ));
     }
@@ -118,18 +120,24 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
             q = pq.multiply(q);
         }
 
-        Point rotation = q.toEulerYZX();
-
         if (renderType == ModelEngine.RenderType.ARMOUR_STAND) {
+            Point rotation = q.toEuler();
+
             Pos newPos = endPos
                 .div(6.4, 6.4, 6.4)
                 .add(model.getPosition())
                 .sub(0, 1.4, 0)
                 .add(model.getGlobalOffset());
 
-            stand.teleport(newPos.withYaw((float) -rotation.y()));
+            Pos posDiff = newPos.sub(tempPos).mul(2);
+            tempPos = newPos;
+            if (Vec.fromPoint(posDiff).length() > 0.7) newPos = newPos.add(posDiff);
+            stand.teleport(newPos);
+
             setBoneRotation(rotation);
         } else if (renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
+            Point rotation = q.toEulerYZX();
+
             Pos newPos = endPos
                 .div(6.4, 6.4, 6.4)
                 .div(1.426)
@@ -138,8 +146,10 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
                 .add(model.getGlobalOffset());
 
             stand.teleport(newPos.withYaw((float) -rotation.y()));
-            setBoneRotation(rotation);
+            setBoneRotation(rotation.withY(0));
         } else if (renderType == ModelEngine.RenderType.ZOMBIE) {
+            Point rotation = q.toEulerYZX();
+
             // TODO: I think this sends two packets?
             stand.setView((float) -rotation.y(), (float) rotation.x());
 
@@ -151,6 +161,8 @@ non-sealed class ModelBonePart extends ModelBoneGeneric {
 
             stand.teleport(newPos.withView((float) -rotation.y(), (float) rotation.x()));
         } else if (renderType == ModelEngine.RenderType.SMALL_ZOMBIE) {
+            Point rotation = q.toEulerYZX();
+
             // TODO: I think this sends two packets?
             stand.setView((float) -rotation.y(), (float) rotation.x());
 
