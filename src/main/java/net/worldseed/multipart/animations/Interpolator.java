@@ -1,7 +1,7 @@
 package net.worldseed.multipart.animations;
 
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.Quaternion;
 
 import java.util.LinkedHashMap;
@@ -9,7 +9,8 @@ import java.util.LinkedHashMap;
 public class Interpolator {
     record StartEnd (ModelAnimation.PointInterpolation s, ModelAnimation.PointInterpolation e, double st, double et) {}
     private static StartEnd getStartEnd(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
-        Point lastPoint = Pos.ZERO;
+        if (transform.size() == 0) return new StartEnd(new ModelAnimation.PointInterpolation(Vec.ZERO, "linear"), new ModelAnimation.PointInterpolation(Vec.ZERO, "linear"), 0, 0);
+        ModelAnimation.PointInterpolation lastPoint = transform.get(transform.keySet().iterator().next());
         double lastTime = 0;
 
         for (Double keyTime : transform.keySet()) {
@@ -63,14 +64,22 @@ public class Interpolator {
 
         double timeDiff = points.et - points.st;
 
-        Quaternion qa = new Quaternion(points.s);
-        Quaternion qb = new Quaternion(points.e);
-
         if (timeDiff == 0)
-            return points.s;
+            return points.s.p();
 
         double timePercent = (time - points.st) / timeDiff;
-        return slerp(qa, qb, timePercent).toEuler();
+
+        if (points.s.lerp().equals("linear")) {
+            Vec ps = Vec.fromPoint(points.s.p());
+            Vec pe = Vec.fromPoint(points.e.p());
+
+            return ps.lerp(pe, timePercent);
+        } else {
+            Quaternion qa = new Quaternion(points.s.p());
+            Quaternion qb = new Quaternion(points.e.p());
+
+            return slerp(qa, qb, timePercent).toEuler();
+        }
     }
 
 }
