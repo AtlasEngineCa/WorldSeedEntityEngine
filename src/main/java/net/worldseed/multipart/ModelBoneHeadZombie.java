@@ -14,13 +14,13 @@ class ModelBoneHeadZombie extends ModelBonePartZombie implements ModelBoneHead {
     }
 
     @Override
-    public Point getRotation(short tick) {
+    public Point getRotation() {
         Point netTransform = Vec.ZERO;
 
         for (ModelAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
                 if (currentAnimation.getType() == AnimationLoader.AnimationType.ROTATION) {
-                    Point calculatedTransform = currentAnimation.getTransform(tick);
+                    Point calculatedTransform = currentAnimation.getTransform();
                     netTransform = netTransform.add(calculatedTransform);
                 }
             }

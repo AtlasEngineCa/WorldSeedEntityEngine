@@ -81,7 +81,7 @@ public interface GenericModel {
     ModelBone getPart(String boneName);
 
     @ApiStatus.Internal
-    void drawBones(short tick);
+    void drawBones();
 
     ModelEngine.RenderType getRenderType();
 
@@ -89,17 +89,7 @@ public interface GenericModel {
 
     List<Entity> getParts();
 
-    /**
-     * Precise vs Smooth
-     * Precise models will move bones ahead of time to keep them together, smooth will interpolate y rotation
-     * Mode only works for armour stands
-     * @param precise
-     */
-    void setPrecise(boolean precise);
+    ModelBone getSeat();
 
-    /**
-     * Check if the model is in precision mode.
-     * @return true if the model is in precision mode, false if the model is smooth.
-     */
-    boolean isPrecise();
+    Point getBoneAtTime(String animation, String bone, int time);
 }

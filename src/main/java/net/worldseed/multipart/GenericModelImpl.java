@@ -27,7 +27,6 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private Point position;
     private double globalRotation;
-    protected boolean precise = false;
 
     @Override
     public double getGlobalRotation() {
@@ -120,7 +119,7 @@ public abstract class GenericModelImpl implements GenericModel {
                 VFXBones.put(vfx.getName(), vfx);
         }
 
-        drawBones((short) 0);
+        drawBones();
     }
 
     public void setPosition(Point pos) {
@@ -157,10 +156,14 @@ public abstract class GenericModelImpl implements GenericModel {
         return this.parts.get(boneName);
     }
 
-    public void drawBones(short tick) {
+    public ModelBone getSeat() {
+        return this.seat;
+    }
+
+    public void drawBones() {
         for (ModelBone modelBonePart : this.parts.values()) {
             if (modelBonePart.getParent() == null)
-                modelBonePart.draw(tick);
+                modelBonePart.draw();
         }
     }
 
@@ -196,11 +199,23 @@ public abstract class GenericModelImpl implements GenericModel {
         return this.parts.values().stream().map(ModelBone::getEntity).filter(Objects::nonNull).toList();
     }
 
-    public void setPrecise(boolean precise) {
-        this.precise = precise;
-    }
+    @Override
+    public Point getBoneAtTime(String animation, String boneName, int time) {
+        var bone = this.parts.get(boneName);
 
-    public boolean isPrecise() {
-        return this.precise;
+        Point p = bone.getOffset();
+        p = bone.simulateTransform(p, animation, time);
+        p = bone.calculateRotation(p, new Vec(0, getGlobalRotation(), 0), getPivot());
+
+        if (this.renderType == ModelEngine.RenderType.ARMOUR_STAND || this.renderType == ModelEngine.RenderType.ZOMBIE) {
+            return p.div(6.4, 6.4, 6.4)
+                    .add(getPosition())
+                    .add(getGlobalOffset());
+        } else {
+            return p.div(6.4, 6.4, 6.4)
+                    .div(1.426)
+                    .add(getPosition())
+                    .add(getGlobalOffset());
+        }
     }
 }

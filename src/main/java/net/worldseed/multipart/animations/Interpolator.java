@@ -7,8 +7,8 @@ import net.worldseed.multipart.Quaternion;
 import java.util.LinkedHashMap;
 
 public class Interpolator {
-    record StartEnd (Point s, Point e, double st, double et) {}
-    private static StartEnd getStartEnd(double time, LinkedHashMap<Double, Point> transform, double animationTime) {
+    record StartEnd (ModelAnimation.PointInterpolation s, ModelAnimation.PointInterpolation e, double st, double et) {}
+    private static StartEnd getStartEnd(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
         Point lastPoint = Pos.ZERO;
         double lastTime = 0;
 
@@ -58,7 +58,7 @@ public class Interpolator {
         return new Quaternion(qmx, qmy, qmz, qmw);
     }
 
-    static Point interpolate(double time, LinkedHashMap<Double, Point> transform, double animationTime) {
+    static Point interpolate(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
 
         double timeDiff = points.et - points.st;

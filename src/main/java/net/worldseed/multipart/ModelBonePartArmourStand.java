@@ -89,17 +89,17 @@ non-sealed class ModelBonePartArmourStand extends ModelBoneGeneric {
         ));
     }
 
-    public void draw(short tick) {
-        this.children.forEach(bone -> bone.draw(tick));
+    public void draw() {
+        this.children.forEach(bone -> bone.draw());
         if (this.offset == null) return;
 
         Point p = this.offset.sub(0, 1.6, 0);
-        p = applyTransform(p, tick);
-        p = applyGlobalRotation(p);
+        p = applyTransform(p);
+        p = calculateGlobalRotation(p);
 
         Pos endPos = Pos.fromPoint(p);
 
-        Quaternion q = calculateFinalAngle(new Quaternion(getRotation(tick)), tick);
+        Quaternion q = calculateFinalAngle(new Quaternion(getRotation()));
         if (model.getGlobalRotation() != 0) {
             Quaternion pq = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
             q = pq.multiply(q);
@@ -135,7 +135,7 @@ non-sealed class ModelBonePartArmourStand extends ModelBoneGeneric {
             if (halfStepZ > 180) halfStepZ -= 360;
             if (halfStepZ < -180) halfStepZ += 360;
 
-            double divisor = 4/2.0;
+            double divisor = 2;
             halfRotation = lastRotation.add(new Vec(halfStepX / divisor, 0, halfStepZ / divisor));
 
             stand.teleport(newPos.withYaw((float) -rotation.y()));
