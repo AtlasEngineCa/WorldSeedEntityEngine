@@ -55,13 +55,32 @@ Currently WSEE only supports [Minestom](https://github.com/Minestom/Minestom)
 
 A full, runnable example server can be found in [here](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/tree/master/src/test/java)
 
+### Adding as a dependency
+
+Add the following to your `build.gradle.kts` file:
+
+```
+repositories {
+    maven("https://reposilite.worldseed.online/public")
+}
+```
+
+Add the library as a dependency
+```
+dependencies {
+    implementation("net.worldseed.multipart:WorldSeedEntityEngine:<version>")
+}
+```
+
+The lastest version number can be found [here](https://reposilite.worldseed.online/#/public/net/worldseed/multipart/WorldSeedEntityEngine)
+
 ## Restrictions
 
 Some restrictions are imposed by Minecraft
 - Cubes can only be rotated on one axis, and can only have rotation values of 0, -22.5, 22.5, 45 or -45. This does not effect bones (these show up as folders in blockbench)
 - Bones can only be 64 blocks in size
 
-## [Wiki](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/wiki)
+## [Wiki](https://github.com/WorldSeedGames/WorldSeedEntityEngine/wiki)
 Learn what this project is, how it works and how you can use it on your server
 
 ## Important Notes
