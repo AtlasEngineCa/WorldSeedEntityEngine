@@ -1,7 +1,5 @@
 package net.worldseed.multipart;
 
-import net.minestom.server.tag.Tag;
-import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
@@ -23,13 +21,13 @@ non-sealed class ModelBoneVFX extends ModelBoneGeneric {
     public void spawn(Instance instance, Point position) {
     }
 
-    public void draw(short tick) {
-        this.children.forEach(bone -> bone.draw(tick));
+    public void draw() {
+        this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
         Point p = this.offset;
-        p = applyTransform(p, tick);
-        p = applyGlobalRotation(p);
+        p = applyTransform(p);
+        p = calculateGlobalRotation(p);
 
         Pos endPos = Pos.fromPoint(p);
 
@@ -46,6 +44,5 @@ non-sealed class ModelBoneVFX extends ModelBoneGeneric {
 
     @Override
     public void destroy() {
-        allAnimations.forEach(ModelAnimation::destroy);
     }
 }

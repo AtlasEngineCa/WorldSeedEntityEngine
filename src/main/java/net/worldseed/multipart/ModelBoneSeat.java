@@ -71,13 +71,13 @@ non-sealed class ModelBoneSeat extends ModelBoneGeneric {
         }
     }
 
-    public void draw(short tick) {
-        this.children.forEach(bone -> bone.draw(tick));
+    public void draw() {
+        this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
         Point p = this.offset;
-        p = applyTransform(p, tick);
-        p = applyGlobalRotation(p);
+        p = applyTransform(p);
+        p = calculateGlobalRotation(p);
 
         Quaternion q = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
 

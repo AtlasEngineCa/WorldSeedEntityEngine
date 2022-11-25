@@ -29,7 +29,6 @@ public class GemGolemActivateGoal extends GoalSelector {
             animationHandler.playRepeat("idle_extended");
             playing = false;
         });
-        animationHandler.setUpdates(true);
     }
 
     private void deactivate() {
@@ -41,7 +40,6 @@ public class GemGolemActivateGoal extends GoalSelector {
         animationHandler.playOnce("retract", (v) -> {
             animationHandler.playOnce("idle_retracted", (v2) -> {
                 playing = false;
-                animationHandler.setUpdates(false);
             });
         });
     }

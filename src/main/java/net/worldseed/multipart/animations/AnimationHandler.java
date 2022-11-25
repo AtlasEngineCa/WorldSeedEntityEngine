@@ -1,5 +1,8 @@
 package net.worldseed.multipart.animations;
 
+import net.minestom.server.coordinate.Point;
+
+import java.util.Map;
 import java.util.function.Consumer;
 
 public interface AnimationHandler {
@@ -23,6 +26,13 @@ public interface AnimationHandler {
     void playOnce(String animation, Consumer<Void> cb);
 
     /**
+     * Play an animation once without stopping other playing animations.
+     * @param animation name of animation to play
+     * @param cb callback to call when animation is finished
+     */
+    void playOnceConcurrent(String animation, Consumer<Void> cb);
+
+    /**
      * Destroy the animation handler
      */
     void destroy();
@@ -33,8 +43,5 @@ public interface AnimationHandler {
      */
     String getPlaying();
 
-    /**
-     * Toggle the animation handler on or off
-     */
-    void setUpdates(boolean updates);
+    Map<String, Integer> animationPriorities();
 }

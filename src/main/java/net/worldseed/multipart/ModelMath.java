@@ -63,9 +63,16 @@ class ModelMath {
         double rotY = rot.y();
         double rotZ = rot.z();
 
-        Matrix3 rotMatrixX = new Matrix3(1, 0, 0, 0, Math.cos(rotX), -Math.sin(rotX), 0, Math.sin(rotX), Math.cos(rotX));
-        Matrix3 rotMatrixY = new Matrix3(Math.cos(rotY), 0, Math.sin(rotY), 0, 1, 0, -Math.sin(rotY), 0, Math.cos(rotY));
-        Matrix3 rotMatrixZ = new Matrix3(Math.cos(rotZ), -Math.sin(rotZ), 0, Math.sin(rotZ), Math.cos(rotZ), 0, 0, 0, 1);
+        double cosX = Math.cos(rotX);
+        double sinX = Math.sin(rotX);
+        double cosY = Math.cos(rotY);
+        double sinY = Math.sin(rotY);
+        double cosZ = Math.cos(rotZ);
+        double sinZ = Math.sin(rotZ);
+
+        Matrix3 rotMatrixX = new Matrix3(1, 0, 0, 0, cosX, -sinX, 0, sinX, cosX);
+        Matrix3 rotMatrixY = new Matrix3(cosY, 0, sinY, 0, 1, 0, -sinY, 0, cosY);
+        Matrix3 rotMatrixZ = new Matrix3(cosZ, -sinZ, 0, sinZ, cosZ, 0, 0, 0, 1);
 
         return rotMatrixZ.mul(rotMatrixY).mul(rotMatrixX).mul(vector);
     }
