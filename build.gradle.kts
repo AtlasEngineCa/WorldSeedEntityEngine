@@ -18,7 +18,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "1.28"
+        version = "4.0.0"
 
         from(components["java"])
     }
@@ -26,7 +26,7 @@ publishing {
     repositories {
         maven {
             name = "WorldSeed"
-            url = uri("https://reposilite.worldseed.online/releases")
+            url = uri("https://reposilite.worldseed.online/public")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
