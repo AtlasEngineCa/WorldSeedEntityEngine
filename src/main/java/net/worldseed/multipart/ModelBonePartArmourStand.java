@@ -127,8 +127,8 @@ non-sealed class ModelBonePartArmourStand extends ModelBoneGeneric {
 
             Point halfStep = rotation.sub(lastRotation);
 
-            double halfStepX = halfStep.x();
-            double halfStepZ = halfStep.z();
+            double halfStepX = halfStep.x() % 360;
+            double halfStepZ = halfStep.z() % 360;
 
             if (halfStepX > 180) halfStepX -= 360;
             if (halfStepX < -180) halfStepX += 360;

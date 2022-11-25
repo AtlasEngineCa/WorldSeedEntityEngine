@@ -42,7 +42,12 @@ public class ModelAnimation {
 
     Point calculateTransform(int tick, LinkedHashMap<Double, PointInterpolation> transform) {
         double toInterpolate = tick * 50.0 / 1000;
-        return Interpolator.interpolate(toInterpolate, transform, length).mul(this.type == AnimationLoader.AnimationType.ROTATION ? RotationMul : TranslationMul);
+
+        if (this.type == AnimationLoader.AnimationType.ROTATION) {
+            return Interpolator.interpolateRotation(toInterpolate, transform, length).mul(RotationMul);
+        }
+
+        return Interpolator.interpolateTranslation(toInterpolate, transform, length).mul(TranslationMul);
     }
 
     public Point getTransform() {

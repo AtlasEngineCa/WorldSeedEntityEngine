@@ -59,7 +59,7 @@ public class Interpolator {
         return new Quaternion(qmx, qmy, qmz, qmw);
     }
 
-    static Point interpolate(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
+    static Point interpolateRotation(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
 
         double timeDiff = points.et - points.st;
@@ -75,11 +75,23 @@ public class Interpolator {
 
             return ps.lerp(pe, timePercent);
         } else {
-            Quaternion qa = new Quaternion(points.s.p());
-            Quaternion qb = new Quaternion(points.e.p());
-
-            return slerp(qa, qb, timePercent).toEuler();
+            Quaternion qa = new Quaternion(points.s.p().div(5));
+            Quaternion qb = new Quaternion(points.e.p().div(5));
+            return slerp(qa, qb, timePercent).toEuler().mul(5);
         }
     }
 
+    static Point interpolateTranslation(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
+        StartEnd points = getStartEnd(time, transform, animationTime);
+
+        double timeDiff = points.et - points.st;
+
+        if (timeDiff == 0) return points.s.p();
+        double timePercent = (time - points.st) / timeDiff;
+
+        Vec ps = Vec.fromPoint(points.s.p());
+        Vec pe = Vec.fromPoint(points.e.p());
+
+        return ps.lerp(pe, timePercent);
+    }
 }
