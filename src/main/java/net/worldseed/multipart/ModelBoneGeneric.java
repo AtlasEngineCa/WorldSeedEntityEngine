@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePart, ModelBoneSeat, ModelBoneVFX {
+abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHitbox, ModelBoneNametag, ModelBonePartArmourStand, ModelBonePartZombie, ModelBoneSeat, ModelBoneVFX {
     protected final HashMap<String, ItemStack> items;
     final Point diff;
     final Point pivot;
@@ -64,46 +64,71 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
         this.items = ModelEngine.getItems(model.getId(), name);
     }
 
-    public Point applyGlobalRotation(Point endPos) {
-        return applyRotation(endPos, new Vec(0, model.getGlobalRotation(), 0), this.model.getPivot());
+    public Point calculateGlobalRotation(Point endPos) {
+        return calculateRotation(endPos, new Vec(0, model.getGlobalRotation(), 0), this.model.getPivot());
     }
 
-    public Point applyRotation(Point p, Point rotation, Point pivot) {
+    public Point calculateRotation(Point p, Point rotation, Point pivot) {
         Point position = p.sub(pivot);
         return ModelMath.rotate(position, rotation).add(pivot);
     }
 
-    public Point applyTransform(Point p, short tick) {
+    @Override
+    public Point simulateTransform(Point p, String animation, int time) {
         Point endPos = p;
 
         if (this.diff != null)
-            endPos = applyRotation(endPos, this.getRotation(tick), this.pivot.sub(this.diff));
+            endPos = calculateRotation(endPos, this.simulateRotation(animation, time), this.pivot.sub(this.diff));
         else
-            endPos = applyRotation(endPos, this.getRotation(tick), this.pivot);
+            endPos = calculateRotation(endPos, this.simulateRotation(animation, time), this.pivot);
+
+        for (ModelAnimation currentAnimation : this.allAnimations) {
+            if (currentAnimation == null || !currentAnimation.name().equals(animation)) continue;
+
+            if (currentAnimation.getType() == AnimationType.TRANSLATION) {
+                var calculatedTransform = currentAnimation.getTransformAtTime(time);
+                endPos = endPos.add(calculatedTransform);
+            }
+        }
+
+        if (this.parent != null) {
+            endPos = parent.simulateTransform(endPos, animation, time);
+        }
+
+        return endPos;
+    }
+
+    public Point applyTransform(Point p) {
+        Point endPos = p;
+
+        if (this.diff != null)
+            endPos = calculateRotation(endPos, this.getRotation(), this.pivot.sub(this.diff));
+        else
+            endPos = calculateRotation(endPos, this.getRotation(), this.pivot);
 
         for (ModelAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
                 if (currentAnimation.getType() == AnimationType.TRANSLATION) {
-                    var calculatedTransform = currentAnimation.getTransform(tick);
+                    var calculatedTransform = currentAnimation.getTransform();
                     endPos = endPos.add(calculatedTransform);
                 }
             }
         }
 
         if (this.parent != null) {
-            endPos = parent.applyTransform(endPos, tick);
+            endPos = parent.applyTransform(endPos);
         }
 
         return endPos;
     }
 
-    public Point getRotation(short tick) {
+    public Point getRotation() {
         Point netTransform = Vec.ZERO;
 
         for (ModelAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
                 if (currentAnimation.getType() == AnimationType.ROTATION) {
-                    Point calculatedTransform = currentAnimation.getTransform(tick);
+                    Point calculatedTransform = currentAnimation.getTransform();
                     netTransform = netTransform.add(calculatedTransform);
                 }
             }
@@ -112,9 +137,24 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
         return this.rotation.add(netTransform);
     }
 
-    public Quaternion calculateFinalAngle(Quaternion q, short tick) {
+    public Point simulateRotation(String animation, int time) {
+        Point netTransform = Vec.ZERO;
+
+        for (ModelAnimation currentAnimation : this.allAnimations) {
+            if (currentAnimation == null || !currentAnimation.name().equals(animation)) continue;
+
+            if (currentAnimation.getType() == AnimationType.ROTATION) {
+                Point calculatedTransform = currentAnimation.getTransformAtTime(time);
+                netTransform = netTransform.add(calculatedTransform);
+            }
+        }
+
+        return this.rotation.add(netTransform);
+    }
+
+    public Quaternion calculateFinalAngle(Quaternion q) {
         if (this.parent != null) {
-            Quaternion pq = parent.calculateFinalAngle(new Quaternion(parent.getRotation(tick)), tick);
+            Quaternion pq = parent.calculateFinalAngle(new Quaternion(parent.getRotation()));
             q = pq.multiply(q);
         }
 
@@ -136,6 +176,10 @@ abstract sealed class ModelBoneGeneric implements ModelBone permits ModelBoneHit
         }
 
         this.children.clear();
-        allAnimations.forEach(ModelAnimation::destroy);
+    }
+
+    @Override
+    public Point getOffset() {
+        return this.offset;
     }
 }

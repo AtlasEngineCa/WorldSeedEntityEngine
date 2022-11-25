@@ -17,10 +17,6 @@ final public class Quaternion {
         this.w = w;
     }
 
-    public Quaternion() {
-        this(0, 0, 0, 0);
-    }
-
     public Quaternion(Point p) {
         p = ModelMath.toRadians(p);
 
@@ -100,13 +96,11 @@ final public class Quaternion {
         double x = Math.atan2(r31, r32);
         double y = Math.asin(r21);
         double z = Math.atan2(r11, r12);
-
         return new Vec(x,z,y);
     }
 
     public Point toEulerYZX() {
         Quaternion q = this;
-
         return ModelMath.toDegrees(threeAxisRot( -2*(q.x*q.z - q.w*q.y),
                 q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z,
                 2*(q.x*q.y + q.w*q.z),

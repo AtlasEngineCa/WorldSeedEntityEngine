@@ -9,32 +9,25 @@ import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public abstract class AnimationHandlerImpl implements AnimationHandler {
-    private static final short REFRESH_RATE_TICKS = 1;
-    public abstract Map<String, Integer> animationPriorities();
-
     private final Map<String, Set<ModelAnimation>> animations;
-    public final Map<String, Double> animationTimes;
-    public final JsonObject loadedAnimations;
+    public final Map<String, Integer> animationTimes = new HashMap<>();
 
     private final GenericModel model;
-    private final TreeMap<Integer, String> toPlay = new TreeMap<>();
+    private final Task task;
 
-    Map.Entry<Integer, String> playing;
+    TreeMap<Integer, String> repeating = new TreeMap<>();
+    String playingOnce = null;
 
-    private Task drawBonesTask;
-    private boolean updates = false;
-
-    // When true, force the entire animation to play out. No animations can interrupt it.
-    private short tick;
-    private short animationLength;
-    private final Map<String, Consumer<Void>> removeAfterPlaying = new HashMap<>();
+    Map<String, Consumer<Void>> callbacks = new ConcurrentHashMap<>();
+    Map<String, Integer> callbackTimers = new ConcurrentHashMap<>();
 
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
-        this.loadedAnimations = AnimationLoader.loadAnimations(model.getId());
+        JsonObject loadedAnimations = AnimationLoader.loadAnimations(model.getId());
         // Init animation
         {
             Map<String, HashSet<ModelAnimation>> animations = new HashMap<>();
@@ -63,113 +56,121 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
                 animations.put(animationName, animationSet);
             }
             this.animations = Map.copyOf(animations);
-            this.animationTimes = Map.copyOf(animationTimes);
-        }
-    }
+            // this.animationTimes = Map.copyOf(animationTimes);
 
-    private short getTick() {
-        return (short) (animationLength - tick);
+            animationTimes.forEach((name, time) -> {
+                this.animationTimes.put(name, (int) (time * 20));
+            });
+        }
+
+        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.ASYNC);
     }
 
     public void playRepeat(String animation) {
-        this.toPlay.put(animationPriorities().get(animation), animation);
-        setUpdates(true);
-        playNext();
+        this.repeating.put(this.animationPriorities().get(animation), animation);
+        var top = this.repeating.firstEntry();
+
+        if (playingOnce != null) {
+            this.callbacks.get(playingOnce).accept(null);
+            this.animations.get(playingOnce).forEach(ModelAnimation::stop);
+        }
+
+        if (top != null && animation.equals(top.getValue())) {
+            this.animations.get(animation).forEach(ModelAnimation::play);
+            this.repeating.values().forEach(v -> {
+                if (!v.equals(animation)) {
+                    this.animations.get(v).forEach(ModelAnimation::stop);
+                }
+            });
+        }
     }
 
     public void stopRepeat(String animation) {
-        this.toPlay.remove(animationPriorities().get(animation));
-        playNext();
+        this.animations.get(animation).forEach(ModelAnimation::stop);
+        int priority = this.animationPriorities().get(animation);
+
+        Map.Entry<Integer, String> currentTop = this.repeating.firstEntry();
+
+        this.animations.get(animation).forEach(ModelAnimation::stop);
+        this.repeating.remove(priority);
+
+        Map.Entry<Integer, String> firstEntry = this.repeating.firstEntry();
+        if (firstEntry != null && currentTop != null && !firstEntry.getKey().equals(currentTop.getKey())) {
+            this.animations.get(firstEntry.getValue()).forEach(ModelAnimation::play);
+        }
     }
 
-    @Override
     public void playOnce(String animation, Consumer<Void> cb) {
-        this.toPlay.put(animationPriorities().get(animation), animation);
-        setUpdates(true);
-        this.removeAfterPlaying.put(animation, cb);
-        playNext();
+        if (this.callbacks.containsKey(animation)) {
+            this.callbacks.get(animation).accept(null);
+        }
+
+        if (playingOnce != null) {
+            this.animations.get(playingOnce).forEach(ModelAnimation::stop);
+        }
+
+        playingOnce = animation;
+
+        this.callbacks.put(animation, cb);
+        this.callbackTimers.put(animation, animationTimes.get(animation));
+        this.animations.get(animation).forEach(ModelAnimation::play);
+
+        this.repeating.values().forEach(v -> {
+            if (!v.equals(animation)) {
+                this.animations.get(v).forEach(ModelAnimation::stop);
+            }
+        });
     }
 
-    @Override
+    public void playOnceConcurrent(String animation, Consumer<Void> cb) {
+        if (this.callbacks.containsKey(animation)) {
+            this.callbacks.get(animation).accept(null);
+        }
+
+        this.callbacks.put(animation, cb);
+        this.callbackTimers.put(animation, animationTimes.get(animation));
+        this.animations.get(animation).forEach(ModelAnimation::play);
+    }
+
+    private void tick() {
+        try {
+            for (Map.Entry<String, Integer> entry : callbackTimers.entrySet()) {
+                if (entry.getValue() <= 0) {
+                    if (this.playingOnce != null && this.playingOnce.equals(entry.getKey())) {
+                        Map.Entry<Integer, String> firstEntry = this.repeating.firstEntry();
+                        if (firstEntry != null) {
+                            this.animations.get(firstEntry.getValue()).forEach(ModelAnimation::play);
+                        }
+
+                        this.playingOnce = null;
+                    }
+
+                    animations.get(entry.getKey()).forEach(ModelAnimation::stop);
+                    callbackTimers.remove(entry.getKey());
+                    callbacks.get(entry.getKey()).accept(null);
+                    callbacks.remove(entry.getKey());
+                } else {
+                    callbackTimers.put(entry.getKey(), entry.getValue() - 1);
+                }
+            }
+
+            if (callbacks.size() + repeating.size() == 0) return;
+            this.model.drawBones();
+
+            this.animations.forEach((animation, animations) -> {
+                animations.forEach(ModelAnimation::tick);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void destroy() {
-        if (drawBonesTask != null) {
-            this.drawBonesTask.cancel();
-            this.drawBonesTask = null;
-        }
-    }
-
-    private void playNext() {
-        final Map.Entry<Integer, String> oldPlaying = this.playing;
-        final Map.Entry<Integer, String> playing = toPlay.firstEntry();
-        if (playing == null) return;
-        if (oldPlaying != null && oldPlaying.getValue().equals(playing.getValue())) return;
-        playNextSchedule();
-    }
-
-    private void playNextSchedule() {
-        if (!this.updates) return;
-
-        final Map.Entry<Integer, String> oldPlaying = this.playing;
-        final Map.Entry<Integer, String> playing = toPlay.firstEntry();
-
-        this.playing = playing;
-
-        if (this.playing == null && oldPlaying != null)
-            this.animations.get(oldPlaying.getValue()).forEach(ModelAnimation::cancel);
-
-        if (this.playing == null) return;
-
-        this.tick = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
-        this.animationLength = (short) (animationTimes.get(playing.getValue()) * 1000 / 50);
-
-        if (oldPlaying != null && !oldPlaying.getValue().equals(playing.getValue())) {
-            this.animations.get(oldPlaying.getValue()).forEach(ModelAnimation::cancel);
-        }
-        this.animations.get(playing.getValue()).forEach(ModelAnimation::play);
+        this.task.cancel();
     }
 
     public String getPlaying() {
-        var playing = this.playing;
+        var playing = this.repeating.firstEntry();
         return playing != null ? playing.getValue() : null;
-    }
-
-    public void setUpdates(boolean updates) {
-        if (this.updates && this.drawBonesTask != null && !updates) {
-            this.drawBonesTask.cancel();
-            this.drawBonesTask = null;
-            this.updates = false;
-
-            for (Map.Entry<String, Consumer<Void>> toRemove : removeAfterPlaying.entrySet()) {
-                toRemove.getValue().accept(null);
-                this.toPlay.remove(animationPriorities().get(toRemove.getKey()));
-            }
-            this.removeAfterPlaying.clear();
-        } else if (updates && !this.updates && this.drawBonesTask == null) {
-            this.updates = true;
-
-            this.drawBonesTask = MinecraftServer.getSchedulerManager()
-                    .submitTask(() -> {
-                        if (tick < 0) {
-                            if (playing != null) {
-                                Integer playingKey = playing.getKey();
-                                String playingValue = playing.getValue();
-
-                                if (removeAfterPlaying.containsKey(playingValue)) {
-                                    toPlay.remove(playingKey);
-                                    Consumer<Void> found = removeAfterPlaying.get(playingValue);
-                                    removeAfterPlaying.remove(playingValue);
-                                    found.accept(null);
-                                }
-                            }
-                            playNextSchedule();
-                        }
-                        if (this.updates) {
-                            model.drawBones(getTick());
-                            tick--;
-                            return TaskSchedule.tick(REFRESH_RATE_TICKS);
-                        }
-                        return TaskSchedule.stop();
-                    }, ExecutionType.ASYNC);
-        }
     }
 }

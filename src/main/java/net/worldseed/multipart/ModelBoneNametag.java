@@ -19,12 +19,12 @@ non-sealed class ModelBoneNametag extends ModelBoneGeneric {
     @Override
     public void setState(String state) { }
 
-    public void draw(short tick) {
+    public void draw() {
         if (this.offset == null) return;
 
         Point p = this.offset;
-        p = applyTransform(p, tick);
-        p = applyGlobalRotation(p);
+        p = applyTransform(p);
+        p = calculateGlobalRotation(p);
 
         double divisor = 1;
         if (model.getRenderType() == ModelEngine.RenderType.SMALL_ARMOUR_STAND || model.getRenderType() == ModelEngine.RenderType.SMALL_ZOMBIE) {

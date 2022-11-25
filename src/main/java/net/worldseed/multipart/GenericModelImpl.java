@@ -13,11 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class GenericModelImpl implements GenericModel {
     private final HashMap<String, ModelBone> parts = new HashMap<>();
-    private final Set<ModelBonePart> viewableBones = new HashSet<>();
+    private final Set<ModelBoneGeneric> viewableBones = new HashSet<>();
     private final Set<ModelBoneHitbox> hittableBones = new HashSet<>();
     private final HashMap<String, ModelBoneVFX> VFXBones = new HashMap<>();
 
@@ -78,10 +77,18 @@ public abstract class GenericModelImpl implements GenericModel {
                 modelBonePart = new ModelBoneSeat(pivotPos, name, boneRotation, this, masterEntity);
                 this.seat = (ModelBoneSeat) modelBonePart;
             } else if (name.equals("head")) {
-                modelBonePart = new ModelBoneHead(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
+                    modelBonePart = new ModelBoneHeadArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                } else {
+                    modelBonePart = new ModelBoneHeadZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                }
                 this.head = (ModelBoneHead) modelBonePart;
             } else {
-                modelBonePart = new ModelBonePart(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
+                    modelBonePart = new ModelBonePartArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                } else {
+                    modelBonePart = new ModelBonePartZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                }
             }
 
             this.parts.put(name, modelBonePart);
@@ -104,7 +111,7 @@ public abstract class GenericModelImpl implements GenericModel {
         for (ModelBone modelBonePart : this.parts.values()) {
             modelBonePart.spawn(instance, this.position);
 
-            if (modelBonePart instanceof ModelBonePart bonePart)
+            if (modelBonePart instanceof ModelBonePartArmourStand bonePart)
                 viewableBones.add(bonePart);
             else if (modelBonePart instanceof ModelBoneHitbox hitbox)
                 hittableBones.add(hitbox);
@@ -112,7 +119,7 @@ public abstract class GenericModelImpl implements GenericModel {
                 VFXBones.put(vfx.getName(), vfx);
         }
 
-        drawBones((short) 0);
+        drawBones();
     }
 
     public void setPosition(Point pos) {
@@ -140,7 +147,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public void setState(String state) {
-        for (ModelBonePart part : viewableBones) {
+        for (ModelBoneGeneric part : viewableBones) {
             part.setState(state);
         }
     }
@@ -149,10 +156,14 @@ public abstract class GenericModelImpl implements GenericModel {
         return this.parts.get(boneName);
     }
 
-    public void drawBones(short tick) {
+    public ModelBone getSeat() {
+        return this.seat;
+    }
+
+    public void drawBones() {
         for (ModelBone modelBonePart : this.parts.values()) {
             if (modelBonePart.getParent() == null)
-                modelBonePart.draw(tick);
+                modelBonePart.draw();
         }
     }
 
@@ -179,11 +190,32 @@ public abstract class GenericModelImpl implements GenericModel {
         return found.getPosition();
     }
 
+    @Override
     public void setHeadRotation(double rotation) {
         if (this.head != null) this.head.setRotation(rotation);
     }
 
     public List<Entity> getParts() {
         return this.parts.values().stream().map(ModelBone::getEntity).filter(Objects::nonNull).toList();
+    }
+
+    @Override
+    public Point getBoneAtTime(String animation, String boneName, int time) {
+        var bone = this.parts.get(boneName);
+
+        Point p = bone.getOffset();
+        p = bone.simulateTransform(p, animation, time);
+        p = bone.calculateRotation(p, new Vec(0, getGlobalRotation(), 0), getPivot());
+
+        if (this.renderType == ModelEngine.RenderType.ARMOUR_STAND || this.renderType == ModelEngine.RenderType.ZOMBIE) {
+            return p.div(6.4, 6.4, 6.4)
+                    .add(getPosition())
+                    .add(getGlobalOffset());
+        } else {
+            return p.div(6.4, 6.4, 6.4)
+                    .div(1.426)
+                    .add(getPosition())
+                    .add(getGlobalOffset());
+        }
     }
 }

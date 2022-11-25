@@ -81,9 +81,15 @@ public interface GenericModel {
     ModelBone getPart(String boneName);
 
     @ApiStatus.Internal
-    void drawBones(short tick);
+    void drawBones();
 
     ModelEngine.RenderType getRenderType();
 
+    void setHeadRotation(double rotation);
+
     List<Entity> getParts();
+
+    ModelBone getSeat();
+
+    Point getBoneAtTime(String animation, String bone, int time);
 }
