@@ -10,7 +10,7 @@ non-sealed class ModelBoneNametag extends ModelBoneGeneric {
     public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, LivingEntity nametagEntity) {
         super(pivot, name, rotation, model);
 
-        if (this.offset != null) {
+        if (this.offset != null && nametagEntity != null) {
             this.stand = nametagEntity;
             this.stand.setTag(Tag.String("WSEE"), "nametag");
         }
@@ -19,8 +19,14 @@ non-sealed class ModelBoneNametag extends ModelBoneGeneric {
     @Override
     public void setState(String state) { }
 
+    public void linkEntity(LivingEntity entity) {
+        this.stand = entity;
+        this.stand.setTag(Tag.String("WSEE"), "nametag");
+    }
+
     public void draw() {
         if (this.offset == null) return;
+        if (this.stand == null) return;
 
         Point p = this.offset;
         p = applyTransform(p);

@@ -2,6 +2,7 @@ package net.worldseed.multipart;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
@@ -85,11 +86,29 @@ public interface GenericModel {
 
     ModelEngine.RenderType getRenderType();
 
+    /**
+     * Set the model's head rotation
+     * @param rotation rotation of head
+     */
     void setHeadRotation(double rotation);
 
     List<Entity> getParts();
 
     ModelBone getSeat();
 
+    /**
+     * Check where a bone will be at a specified time during a specified animation
+     * @param animation animation
+     * @param bone bone name
+     * @param time time in ticks
+     * @return position of bone
+     */
     Point getBoneAtTime(String animation, String bone, int time);
+
+    /**
+     * Set the entity used for the nametag
+     * Takes over control of entity movement.
+     * @param entity the entity
+     */
+    void setNametagEntity(LivingEntity entity);
 }

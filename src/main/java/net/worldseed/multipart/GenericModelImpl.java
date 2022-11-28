@@ -24,6 +24,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private ModelBoneSeat seat;
     private ModelBoneHead head;
+    private ModelBoneNametag nametag;
 
     private Point position;
     private double globalRotation;
@@ -44,14 +45,10 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType) {
-        init(instance, position, renderType, null, null);
+        init(instance, position, renderType, null);
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity) {
-        init(instance, position, renderType, masterEntity, null);
-    }
-
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity, LivingEntity nametagEntity) {
         this.renderType = renderType;
 
         JsonObject loadedModel = AnimationLoader.loadModel(getId());
@@ -67,8 +64,9 @@ public abstract class GenericModelImpl implements GenericModel {
 
             ModelBone modelBonePart;
 
-            if (name.equals("nametag") && nametagEntity != null) {
-                modelBonePart = new ModelBoneNametag(pivotPos, name, boneRotation, this, nametagEntity);
+            if (name.equals("nametag")) {
+                this.nametag = new ModelBoneNametag(pivotPos, name, boneRotation, this, null);
+                modelBonePart = nametag;
             } else if (name.contains("hitbox")) {
                 modelBonePart = new ModelBoneHitbox(pivotPos, name, boneRotation, this, masterEntity);
             } else if (name.contains("vfx")) {
@@ -120,6 +118,10 @@ public abstract class GenericModelImpl implements GenericModel {
         }
 
         drawBones();
+    }
+
+    public void setNametagEntity(LivingEntity entity) {
+        if (this.nametag != null) this.nametag.linkEntity(entity);
     }
 
     public void setPosition(Point pos) {
