@@ -18,7 +18,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "4.0.0"
+        version = "4.0.4"
 
         from(components["java"])
     }

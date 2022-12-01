@@ -28,6 +28,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private Point position;
     private double globalRotation;
+    private Instance instance;
 
     @Override
     public double getGlobalRotation() {
@@ -50,9 +51,11 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity) {
         this.renderType = renderType;
+        this.instance = instance;
 
         JsonObject loadedModel = AnimationLoader.loadModel(getId());
         this.position = new Vec(position.x(), position.y(), position.z());
+        this.setGlobalRotation(position.yaw());
 
         // Build bones
         for (JsonElement bone : loadedModel.get("minecraft:geometry").getAsJsonArray().get(0).getAsJsonObject().get("bones").getAsJsonArray()) {
@@ -111,6 +114,8 @@ public abstract class GenericModelImpl implements GenericModel {
 
             if (modelBonePart instanceof ModelBonePartArmourStand bonePart)
                 viewableBones.add(bonePart);
+            else if (modelBonePart instanceof ModelBonePartZombie bonePart)
+                viewableBones.add(bonePart);
             else if (modelBonePart instanceof ModelBoneHitbox hitbox)
                 hittableBones.add(hitbox);
             else if (modelBonePart instanceof ModelBoneVFX vfx)
@@ -118,10 +123,16 @@ public abstract class GenericModelImpl implements GenericModel {
         }
 
         drawBones();
+        setState("normal");
     }
 
     public void setNametagEntity(LivingEntity entity) {
         if (this.nametag != null) this.nametag.linkEntity(entity);
+    }
+
+    public LivingEntity getNametagEntity() {
+        if (this.nametag != null) return this.nametag.stand;
+        return null;
     }
 
     public void setPosition(Point pos) {
@@ -130,6 +141,10 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public void setGlobalRotation(double rotation) {
         this.globalRotation = rotation;
+    }
+
+    public Instance getInstance() {
+        return instance;
     }
 
     public void mountEntity(Entity entity) {

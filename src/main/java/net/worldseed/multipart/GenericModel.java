@@ -3,6 +3,7 @@ package net.worldseed.multipart;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
@@ -111,4 +112,7 @@ public interface GenericModel {
      * @param entity the entity
      */
     void setNametagEntity(LivingEntity entity);
+    LivingEntity getNametagEntity();
+
+    Instance getInstance();
 }
