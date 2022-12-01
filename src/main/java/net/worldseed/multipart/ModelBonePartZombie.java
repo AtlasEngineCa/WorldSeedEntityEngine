@@ -67,7 +67,6 @@ non-sealed class ModelBonePartZombie extends ModelBoneGeneric {
 
     public void spawn(Instance instance, Point position) {
         if (this.offset != null) {
-            this.stand.setHelmet(items.get("normal"));
             this.stand.setNoGravity(true);
             this.stand.setSilent(true);
             this.stand.setInvisible(true);
@@ -133,7 +132,6 @@ non-sealed class ModelBonePartZombie extends ModelBoneGeneric {
     public void setState(String state) {
         if (this.stand != null) {
             var item = this.items.get(state);
-
             if (item != null) {
                 this.stand.setHelmet(item);
             }
