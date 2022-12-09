@@ -12,6 +12,7 @@ import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemStack;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.events.EntityControlEvent;
 import net.worldseed.multipart.events.EntityDismountEvent;
@@ -131,6 +132,11 @@ non-sealed class ModelBonePartZombie extends ModelBoneGeneric {
     @Override
     public void setState(String state) {
         if (this.stand != null) {
+            if (state.equals("invisible")) {
+                this.stand.setHelmet(ItemStack.AIR);
+                return;
+            }
+
             var item = this.items.get(state);
             if (item != null) {
                 this.stand.setHelmet(item);

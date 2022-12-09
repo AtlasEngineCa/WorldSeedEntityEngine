@@ -2,12 +2,14 @@ package net.worldseed.multipart;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.animations.AnimationLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -123,7 +125,11 @@ public abstract class GenericModelImpl implements GenericModel {
         }
 
         drawBones();
-        setState("normal");
+        drawBones();
+
+        MinecraftServer.getSchedulerManager().scheduleTask(() -> {
+            setState("normal");
+        }, TaskSchedule.tick(5), TaskSchedule.stop());
     }
 
     public void setNametagEntity(LivingEntity entity) {
