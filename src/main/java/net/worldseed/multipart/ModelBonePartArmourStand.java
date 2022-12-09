@@ -93,37 +93,36 @@ non-sealed class ModelBonePartArmourStand extends ModelBoneGeneric {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
-        // TODO: Move this in to if (update). These calculations aren't needed every tick
-        Point p = this.offset.sub(0, 1.6, 0);
-        p = applyTransform(p);
-        p = calculateGlobalRotation(p);
-
-        Pos endPos = Pos.fromPoint(p);
-
-        Quaternion q = calculateFinalAngle(new Quaternion(getRotation()));
-        if (model.getGlobalRotation() != 0) {
-            Quaternion pq = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
-            q = pq.multiply(q);
-        }
-
-        Pos newPos;
-        if (super.model.getRenderType() == ModelEngine.RenderType.ARMOUR_STAND) {
-            newPos = endPos
-                .div(6.4, 6.4, 6.4)
-                .add(model.getPosition())
-                .sub(0, 1.4, 0)
-                .add(model.getGlobalOffset());
-
-        } else {
-            newPos = endPos
-                .div(6.4, 6.4, 6.4)
-                .div(1.426)
-                .add(model.getPosition())
-                .sub(0, 0.4, 0)
-                .add(model.getGlobalOffset());
-        }
-
         if (update) {
+            Point p = this.offset.sub(0, 1.6, 0);
+            p = applyTransform(p);
+            p = calculateGlobalRotation(p);
+
+            Pos endPos = Pos.fromPoint(p);
+
+            Quaternion q = calculateFinalAngle(new Quaternion(getRotation()));
+            if (model.getGlobalRotation() != 0) {
+                Quaternion pq = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
+                q = pq.multiply(q);
+            }
+
+            Pos newPos;
+            if (super.model.getRenderType() == ModelEngine.RenderType.ARMOUR_STAND) {
+                newPos = endPos
+                        .div(6.4, 6.4, 6.4)
+                        .add(model.getPosition())
+                        .sub(0, 1.4, 0)
+                        .add(model.getGlobalOffset());
+
+            } else {
+                newPos = endPos
+                        .div(6.4, 6.4, 6.4)
+                        .div(1.426)
+                        .add(model.getPosition())
+                        .sub(0, 0.4, 0)
+                        .add(model.getGlobalOffset());
+            }
+
             var rotation = q.toEulerYZX();
 
             Point halfStep = rotation.sub(lastRotation);

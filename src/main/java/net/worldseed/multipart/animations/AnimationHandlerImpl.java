@@ -71,10 +71,13 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
         var top = this.repeating.firstEntry();
 
         if (playingOnce != null) {
-            this.callbacks.get(playingOnce).accept(null);
+            if (this.callbacks.get(playingOnce) != null) {
+                this.callbacks.get(playingOnce).accept(null);
+                this.callbacks.remove(playingOnce);
+                this.callbackTimers.remove(playingOnce);
+            }
+
             this.animations.get(playingOnce).forEach(ModelAnimation::stop);
-            this.callbacks.remove(playingOnce);
-            this.callbackTimers.remove(playingOnce);
         }
 
         if (top != null && animation.equals(top.getValue())) {
@@ -93,10 +96,10 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
         Map.Entry<Integer, String> currentTop = this.repeating.firstEntry();
 
-        this.animations.get(animation).forEach(ModelAnimation::stop);
         this.repeating.remove(priority);
 
         Map.Entry<Integer, String> firstEntry = this.repeating.firstEntry();
+
         if (firstEntry != null && currentTop != null && !firstEntry.getKey().equals(currentTop.getKey())) {
             this.animations.get(firstEntry.getValue()).forEach(ModelAnimation::play);
         }
