@@ -73,15 +73,17 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
         if (playingOnce != null) {
             this.callbacks.get(playingOnce).accept(null);
             this.animations.get(playingOnce).forEach(ModelAnimation::stop);
+            this.callbacks.remove(playingOnce);
+            this.callbackTimers.remove(playingOnce);
         }
 
         if (top != null && animation.equals(top.getValue())) {
-            this.animations.get(animation).forEach(ModelAnimation::play);
             this.repeating.values().forEach(v -> {
                 if (!v.equals(animation)) {
                     this.animations.get(v).forEach(ModelAnimation::stop);
                 }
             });
+            this.animations.get(animation).forEach(ModelAnimation::play);
         }
     }
 
