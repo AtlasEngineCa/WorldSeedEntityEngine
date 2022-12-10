@@ -29,7 +29,9 @@ public class ModelEngine {
         ZOMBIE,
         SMALL_ZOMBIE,
         ARMOUR_STAND,
-        SMALL_ARMOUR_STAND
+        SMALL_ARMOUR_STAND,
+        ARMOUR_STAND_NO_INTERPOLATION,
+        SMALL_ARMOUR_STAND_NO_INTERPOLATION
     }
 
     /**

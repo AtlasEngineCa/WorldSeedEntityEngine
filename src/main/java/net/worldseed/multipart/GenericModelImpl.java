@@ -80,7 +80,7 @@ public abstract class GenericModelImpl implements GenericModel {
                 modelBonePart = new ModelBoneSeat(pivotPos, name, boneRotation, this, masterEntity);
                 this.seat = (ModelBoneSeat) modelBonePart;
             } else if (name.equals("head")) {
-                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
+                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND_NO_INTERPOLATION || renderType == ModelEngine.RenderType.ARMOUR_STAND_NO_INTERPOLATION) {
                     modelBonePart = new ModelBoneHeadArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
                 } else {
                     modelBonePart = new ModelBoneHeadZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
@@ -89,6 +89,8 @@ public abstract class GenericModelImpl implements GenericModel {
             } else {
                 if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
                     modelBonePart = new ModelBonePartArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                } else if (renderType == ModelEngine.RenderType.ARMOUR_STAND_NO_INTERPOLATION || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND_NO_INTERPOLATION) {
+                    modelBonePart = new ModelBonePartArmourStandNoInterpolation(pivotPos, name, boneRotation, this, renderType, masterEntity);
                 } else {
                     modelBonePart = new ModelBonePartZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
                 }

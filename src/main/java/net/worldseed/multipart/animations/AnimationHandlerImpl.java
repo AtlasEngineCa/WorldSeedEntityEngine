@@ -160,6 +160,7 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
             }
 
             if (callbacks.size() + repeating.size() == 0) return;
+
             this.model.drawBones();
 
             this.animations.forEach((animation, animations) -> {

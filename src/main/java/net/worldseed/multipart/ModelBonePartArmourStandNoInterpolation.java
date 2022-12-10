@@ -18,80 +18,27 @@ import net.worldseed.multipart.events.EntityDismountEvent;
 import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.mount.MobRidable;
 
-non-sealed class ModelBonePartArmourStand extends ModelBoneGeneric {
+class ModelBonePartArmourStandNoInterpolation extends ModelBonePartArmourStand {
     private Point lastRotation = Vec.ZERO;
     private Point halfRotation = Vec.ZERO;
     private boolean update = true;
 
-    public ModelBonePartArmourStand(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
-        super(pivot, name, rotation, model);
-
-        if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.ARMOR_STAND) {
-                @Override
-                public void tick(long time) {}
-            };
-
-            ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
-
-            if (renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
-                meta.setSmall(true);
-            }
-
-            meta.setHasNoBasePlate(true);
-
-            this.stand.setTag(Tag.String("WSEE"), "hitbox");
-            this.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
-                event.setCancelled(true);
-
-                if (forwardTo != null) {
-                    if (event.getDamageType() instanceof EntityDamage source) {
-                        forwardTo.damage(DamageType.fromEntity(source.getSource()), event.getDamage());
-                    }
-                }
-            }));
-
-            this.stand.eventNode().addListener(EntityDismountEvent.class, (event -> {
-                model.dismountEntity(event.getRider());
-            }));
-
-            this.stand.eventNode().addListener(EntityControlEvent.class, (event -> {
-                if (forwardTo instanceof MobRidable rideable) {
-                    rideable.getControlGoal().setForward(event.getForward());
-                    rideable.getControlGoal().setSideways(event.getSideways());
-                    rideable.getControlGoal().setJump(event.getJump());
-                }
-            }));
-
-            this.stand.eventNode().addListener(EntityInteractEvent.class, (event -> {
-                if (forwardTo != null) {
-                    EntityInteractEvent entityInteractEvent = new EntityInteractEvent(forwardTo, event.getInteracted());
-                    EventDispatcher.call(entityInteractEvent);
-                }
-            }));
-        }
+    public ModelBonePartArmourStandNoInterpolation(Point pivot, String name, Point rotation, GenericModel model, ModelEngine.RenderType renderType, LivingEntity forwardTo) {
+        super(pivot, name, rotation, model, renderType, forwardTo);
     }
 
-    public void spawn(Instance instance, Point position) {
-        if (this.offset != null) {
-            this.stand.setNoGravity(true);
-            this.stand.setSilent(true);
-            this.stand.setInvisible(true);
-
-            this.stand.setInstance(instance, position);
-        }
-    }
-
+    @Override
     void setBoneRotation(Point rotation) {
         ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
 
         meta.setHeadRotation(new Vec(
             rotation.x(),
-            0,
+            -rotation.y(),
             -rotation.z()
         ));
     }
 
+    @Override
     public void draw() {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
@@ -126,43 +73,30 @@ non-sealed class ModelBonePartArmourStand extends ModelBoneGeneric {
                         .add(model.getGlobalOffset());
             }
 
-            var rotation = q.toEulerYZX();
+            var rotation = q.toEuler();
 
             Point halfStep = rotation.sub(lastRotation);
 
             double halfStepX = halfStep.x() % 360;
+            double halfStepY = halfStep.y() % 360;
             double halfStepZ = halfStep.z() % 360;
 
             if (halfStepX > 180) halfStepX -= 360;
             if (halfStepX < -180) halfStepX += 360;
+            if (halfStepY > 180) halfStepY -= 360;
+            if (halfStepY < -180) halfStepY += 360;
             if (halfStepZ > 180) halfStepZ -= 360;
             if (halfStepZ < -180) halfStepZ += 360;
 
             double divisor = 2;
-            halfRotation = lastRotation.add(new Vec(halfStepX / divisor, 0, halfStepZ / divisor));
+            halfRotation = lastRotation.add(new Vec(halfStepX / divisor, halfStepY / divisor, halfStepZ / divisor));
 
-            stand.teleport(newPos.withYaw((float) -rotation.y()));
+            stand.teleport(newPos);
             setBoneRotation(lastRotation);
             lastRotation = rotation;
         } else {
             setBoneRotation(halfRotation);
         }
         update = !update;
-    }
-
-    @Override
-    public void setState(String state) {
-        if (this.stand != null) {
-            if (state.equals("invisible")) {
-                this.stand.setHelmet(ItemStack.AIR);
-                return;
-            }
-
-            var item = this.items.get(state);
-
-            if (item != null) {
-                this.stand.setHelmet(item);
-            }
-        }
     }
 }
