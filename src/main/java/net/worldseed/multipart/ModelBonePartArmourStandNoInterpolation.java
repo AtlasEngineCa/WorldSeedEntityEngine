@@ -57,13 +57,12 @@ class ModelBonePartArmourStandNoInterpolation extends ModelBonePartArmourStand {
             }
 
             Pos newPos;
-            if (super.model.getRenderType() == ModelEngine.RenderType.ARMOUR_STAND) {
+            if (super.model.getRenderType() == ModelEngine.RenderType.ARMOUR_STAND_NO_INTERPOLATION) {
                 newPos = endPos
                         .div(6.4, 6.4, 6.4)
                         .add(model.getPosition())
                         .sub(0, 1.4, 0)
                         .add(model.getGlobalOffset());
-
             } else {
                 newPos = endPos
                         .div(6.4, 6.4, 6.4)
