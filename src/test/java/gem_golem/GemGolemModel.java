@@ -28,7 +28,7 @@ public class GemGolemModel extends GenericModelImpl {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, LivingEntity masterEntity, LivingEntity nametag) {
-        super.init(instance, position, new ModelConfig(ModelConfig.ModelType.ZOMBIE, ModelConfig.InterpolationType.Y_INTERPOLATION, ModelConfig.Size.SMALL, ModelConfig.ItemSlot.HAND), masterEntity);
+        super.init(instance, position, new ModelConfig(ModelConfig.ModelType.ZOMBIE, ModelConfig.InterpolationType.Y_INTERPOLATION, ModelConfig.Size.NORMAL, ModelConfig.ItemSlot.HEAD), masterEntity);
         setNametagEntity(nametag);
     }
 }
