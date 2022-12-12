@@ -10,6 +10,7 @@ import java.util.Map;
 public class ModelGenerator {
     static JsonArray convertDatapoints(JsonObject obj) {
         JsonArrayBuilder builder = Json.createArrayBuilder();
+        if (obj.containsKey("effect")) return null;
 
         if (obj.get("x") instanceof JsonString)
             builder.add(Double.parseDouble(obj.getString("x")));

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.worldseed.multipart.ModelBone;
+import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.ModelEngine;
 
 import java.util.HashMap;
@@ -64,10 +64,6 @@ public class ModelAnimation {
         this.type = animationType;
         this.length = (int) (length * 20);
         this.name = animationName;
-
-        if (bone == null) {
-            throw new IllegalArgumentException("Cannot find bone " + boneName + " in model " + modelName + " for animation " + animationName);
-        }
 
         Map<Short, Point> found;
         if (this.type == AnimationLoader.AnimationType.ROTATION) {

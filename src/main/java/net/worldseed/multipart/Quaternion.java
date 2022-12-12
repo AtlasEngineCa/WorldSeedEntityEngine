@@ -71,7 +71,7 @@ final public class Quaternion {
         return ModelMath.toDegrees(new Vec(vx, vy, vz));
     }
 
-    Quaternion multiply(Quaternion q) {
+    public Quaternion multiply(Quaternion q) {
         double w = this.w * q.w - this.x * q.x - this.y * q.y - this.z * q.z;
         double x = this.w * q.x + this.x * q.w + this.y * q.z - this.z * q.y;
         double y = this.w * q.y - this.x * q.z + this.y * q.w + this.z * q.x;
