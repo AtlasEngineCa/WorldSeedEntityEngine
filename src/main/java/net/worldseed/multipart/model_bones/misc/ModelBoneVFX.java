@@ -10,7 +10,6 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneGeneric;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public class ModelBoneVFX extends ModelBoneGeneric {
     private Point position = Pos.ZERO;

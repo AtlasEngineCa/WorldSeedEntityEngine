@@ -5,12 +5,10 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityCreature;
-import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.*;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
+import net.minestom.server.entity.metadata.water.fish.PufferfishMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
@@ -67,16 +65,25 @@ public class GemGolemMob extends EntityCreature implements MobRidable {
         );
 
         setBoundingBox(3, 3, 3);
-        this.setInstance(instance, pos);
         this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.15f);
 
         this.eventNode().addListener(EntityInteractEvent.class, (event -> {
             this.model.mountEntity(event.getInteracted());
         }));
 
-        // No way to set size without modifying minestom
-        // PufferfishMeta meta = ((PufferfishMeta)this.getLivingEntityMeta());
-        // meta.setSize(20);
+        // Add the shadow for the entity
+        int size = 15;
+        var pfMeta = new PufferfishMeta(this, metadata) {
+            @Override
+            public void setState(State state) {
+                super.metadata.setIndex(OFFSET, Metadata.VarInt(size));
+            }
+        };
+
+        pfMeta.setState(PufferfishMeta.State.UNPUFFED);
+        this.entityMeta = pfMeta;
+
+        this.setInstance(instance, pos);
     }
 
     public void facePoint(Point point) {

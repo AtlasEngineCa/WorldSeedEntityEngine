@@ -155,8 +155,9 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
                     animations.get(entry.getKey()).forEach(ModelAnimation::stop);
                     callbackTimers.remove(entry.getKey());
-                    callbacks.get(entry.getKey()).accept(null);
-                    callbacks.remove(entry.getKey());
+
+                    var cb = callbacks.remove(entry.getKey());
+                    if (cb != null) cb.accept(null);
                 } else {
                     callbackTimers.put(entry.getKey(), entry.getValue() - 1);
                 }

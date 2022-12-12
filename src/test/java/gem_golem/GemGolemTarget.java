@@ -39,7 +39,6 @@ public class GemGolemTarget extends TargetSelector {
                 .stream()
                 .filter(entity -> entity instanceof Player)
                 .map(entity -> (Player) entity)
-                .filter(player -> player.getGameMode() == GameMode.SURVIVAL)
                 .min((p1, p2) -> (int) (p1.getDistance(entityCreaturePosition) - p2.getDistance(entityCreaturePosition)))
                 .filter(p -> p.getPosition().distance(entityCreaturePosition) < this.distance);
 

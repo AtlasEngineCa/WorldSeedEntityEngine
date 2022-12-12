@@ -15,8 +15,8 @@ import net.worldseed.multipart.model_bones.ModelBoneGeneric;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
 public class ModelBonePartZombie extends ModelBoneGeneric implements ModelBoneViewable {
-    private final Pos SMALL_SUB = new Pos(0, 0.66, 0);
-    private final Pos NORMAL_SUB = new Pos(0, 1.4, 0);
+    private final Pos SMALL_SUB = new Pos(0, 0.90, 0);
+    private final Pos NORMAL_SUB = new Pos(0, 1.7, 0);
 
     public ModelBonePartZombie(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
