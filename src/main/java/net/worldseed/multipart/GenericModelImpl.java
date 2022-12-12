@@ -2,15 +2,27 @@ package net.worldseed.multipart;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.animations.AnimationLoader;
+import net.worldseed.multipart.model_bones.ModelBone;
+import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneHead;
+import net.worldseed.multipart.model_bones.ModelBoneViewable;
+import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStand;
+import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStandHand;
+import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStand;
+import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStandHand;
+import net.worldseed.multipart.model_bones.misc.ModelBoneHitbox;
+import net.worldseed.multipart.model_bones.misc.ModelBoneNametag;
+import net.worldseed.multipart.model_bones.misc.ModelBoneSeat;
+import net.worldseed.multipart.model_bones.misc.ModelBoneVFX;
+import net.worldseed.multipart.model_bones.zombie.ModelBoneHeadZombie;
+import net.worldseed.multipart.model_bones.zombie.ModelBonePartZombie;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +34,7 @@ public abstract class GenericModelImpl implements GenericModel {
     private final Set<ModelBoneHitbox> hittableBones = new HashSet<>();
     private final HashMap<String, ModelBoneVFX> VFXBones = new HashMap<>();
 
-    private ModelEngine.RenderType renderType;
+    private ModelConfig config;
 
     private ModelBoneSeat seat;
     private ModelBoneHead head;
@@ -38,8 +50,8 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public ModelEngine.RenderType getRenderType() {
-        return renderType;
+    public ModelConfig config() {
+        return config;
     }
 
     @Override
@@ -47,16 +59,16 @@ public abstract class GenericModelImpl implements GenericModel {
         return position;
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType) {
-        init(instance, position, renderType, null);
+    public void init(@Nullable Instance instance, @NotNull Pos position, ModelConfig config) {
+        init(instance, position, config, null);
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelEngine.RenderType renderType, LivingEntity masterEntity) {
-        this.renderType = renderType;
+    public void init(@Nullable Instance instance, @NotNull Pos position, ModelConfig config, LivingEntity masterEntity) {
+        this.config = config;
         this.instance = instance;
+        this.position = position;
 
         JsonObject loadedModel = AnimationLoader.loadModel(getId());
-        this.position = new Vec(position.x(), position.y(), position.z());
         this.setGlobalRotation(position.yaw());
 
         // Build bones
@@ -80,19 +92,25 @@ public abstract class GenericModelImpl implements GenericModel {
                 modelBonePart = new ModelBoneSeat(pivotPos, name, boneRotation, this, masterEntity);
                 this.seat = (ModelBoneSeat) modelBonePart;
             } else if (name.equals("head")) {
-                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND_NO_INTERPOLATION || renderType == ModelEngine.RenderType.ARMOUR_STAND_NO_INTERPOLATION) {
-                    modelBonePart = new ModelBoneHeadArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                if (config.modelType() == ModelConfig.ModelType.ARMOUR_STAND) {
+                    if (config.itemSlot() == ModelConfig.ItemSlot.HEAD) {
+                        modelBonePart = new ModelBoneHeadArmourStand(pivotPos, name, boneRotation, this, config, masterEntity);
+                    } else {
+                        modelBonePart = new ModelBoneHeadArmourStandHand(pivotPos, name, boneRotation, this, config, masterEntity);
+                    }
                 } else {
-                    modelBonePart = new ModelBoneHeadZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                    modelBonePart = new ModelBoneHeadZombie(pivotPos, name, boneRotation, this, config, masterEntity);
                 }
                 this.head = (ModelBoneHead) modelBonePart;
             } else {
-                if (renderType == ModelEngine.RenderType.ARMOUR_STAND || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND) {
-                    modelBonePart = new ModelBonePartArmourStand(pivotPos, name, boneRotation, this, renderType, masterEntity);
-                } else if (renderType == ModelEngine.RenderType.ARMOUR_STAND_NO_INTERPOLATION || renderType == ModelEngine.RenderType.SMALL_ARMOUR_STAND_NO_INTERPOLATION) {
-                    modelBonePart = new ModelBonePartArmourStandNoInterpolation(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                if (config.modelType() == ModelConfig.ModelType.ARMOUR_STAND) {
+                    if (config.itemSlot() == ModelConfig.ItemSlot.HEAD) {
+                        modelBonePart = new ModelBonePartArmourStand(pivotPos, name, boneRotation, this, config, masterEntity);
+                    } else {
+                        modelBonePart = new ModelBonePartArmourStandHand(pivotPos, name, boneRotation, this, config, masterEntity);
+                    }
                 } else {
-                    modelBonePart = new ModelBonePartZombie(pivotPos, name, boneRotation, this, renderType, masterEntity);
+                    modelBonePart = new ModelBonePartZombie(pivotPos, name, boneRotation, this, config, masterEntity);
                 }
             }
 
@@ -107,6 +125,8 @@ public abstract class GenericModelImpl implements GenericModel {
 
             if (parentString != null) {
                 ModelBone child = this.parts.get(name);
+
+                if (child == null) continue;
                 ModelBone parentBone = this.parts.get(parentString);
                 child.setParent(parentBone);
                 parentBone.addChild(child);
@@ -114,24 +134,21 @@ public abstract class GenericModelImpl implements GenericModel {
         }
 
         for (ModelBone modelBonePart : this.parts.values()) {
-            modelBonePart.spawn(instance, this.position);
-
-            if (modelBonePart instanceof ModelBonePartArmourStand bonePart)
-                viewableBones.add(bonePart);
-            else if (modelBonePart instanceof ModelBonePartZombie bonePart)
-                viewableBones.add(bonePart);
+            if (modelBonePart instanceof ModelBoneViewable)
+                viewableBones.add((ModelBoneGeneric) modelBonePart);
             else if (modelBonePart instanceof ModelBoneHitbox hitbox)
                 hittableBones.add(hitbox);
             else if (modelBonePart instanceof ModelBoneVFX vfx)
                 VFXBones.put(vfx.getName(), vfx);
+
+            modelBonePart.spawn(instance, modelBonePart.calculatePosition()).whenCompleteAsync((a, e) -> {
+                drawBones();
+                drawBones();
+                drawBones();
+
+                setState("normal");
+            });
         }
-
-        drawBones();
-        drawBones();
-
-        MinecraftServer.getSchedulerManager().scheduleTask(() -> {
-            setState("normal");
-        }, TaskSchedule.tick(5), TaskSchedule.stop());
     }
 
     public void setNametagEntity(LivingEntity entity) {
@@ -139,7 +156,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public LivingEntity getNametagEntity() {
-        if (this.nametag != null) return this.nametag.stand;
+        if (this.nametag != null) return this.nametag.getStand();
         return null;
     }
 
@@ -232,7 +249,7 @@ public abstract class GenericModelImpl implements GenericModel {
         p = bone.simulateTransform(p, animation, time);
         p = bone.calculateRotation(p, new Vec(0, getGlobalRotation(), 0), getPivot());
 
-        if (this.renderType == ModelEngine.RenderType.ARMOUR_STAND || this.renderType == ModelEngine.RenderType.ZOMBIE) {
+        if (config.size() == ModelConfig.Size.NORMAL) {
             return p.div(6.4, 6.4, 6.4)
                     .add(getPosition())
                     .add(getGlobalOffset());

@@ -1,7 +1,7 @@
-import Commands.SpawnCommand;
-import Commands.SummonCommand;
-import Events.CombatEvent;
-import Events.PackEvent;
+import commands.SpawnCommand;
+import commands.SummonCommand;
+import events.CombatEvent;
+import events.PackEvent;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -131,7 +131,7 @@ public class Main {
             handler.addListener(PlayerSpawnEvent.class, event -> {
                 if (!event.isFirstSpawn()) return;
                 final Player player = event.getPlayer();
-                player.setGameMode(GameMode.SURVIVAL);
+                player.setGameMode(GameMode.CREATIVE);
                 player.setItemInMainHand(ItemStack.of(Material.DIAMOND_SWORD));
                 player.playSound(Sound.sound(SoundEvent.ENTITY_PLAYER_LEVELUP, Sound.Source.MASTER, 1f, 1f));
                 player.setEnableRespawnScreen(false);

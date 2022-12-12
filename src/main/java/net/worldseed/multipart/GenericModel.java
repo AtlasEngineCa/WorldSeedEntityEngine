@@ -4,6 +4,7 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
+import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
@@ -85,7 +86,7 @@ public interface GenericModel {
     @ApiStatus.Internal
     void drawBones();
 
-    ModelEngine.RenderType getRenderType();
+    ModelConfig config();
 
     /**
      * Set the model's head rotation

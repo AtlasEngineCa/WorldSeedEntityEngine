@@ -45,7 +45,7 @@ class Matrix3 {
     }
 }
 
-class ModelMath {
+public class ModelMath {
     private static final float DEGREE = 0.017453292519943295F;
     private static final float RADIAN = 57.29577951308232F;
 
@@ -56,7 +56,7 @@ class ModelMath {
         return vector.mul(RADIAN);
     }
 
-    static Point rotate(Point vector, Point rotation) {
+    public static Point rotate(Point vector, Point rotation) {
         Point rot = toRadians(rotation);
 
         double rotX = rot.x();

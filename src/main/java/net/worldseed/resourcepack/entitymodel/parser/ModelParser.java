@@ -60,20 +60,53 @@ public class ModelParser {
     }
 
     static JsonObject display(Point offset) {
-        JsonArrayBuilder translation = Json.createArrayBuilder();
-        translation.add(offset.x() * -4);
-        translation.add(offset.y() * 4);
-        translation.add(offset.z() * -4);
+        JsonArrayBuilder translationHead = Json.createArrayBuilder();
+        translationHead.add(offset.x() * -4);
+        translationHead.add(offset.y() * 4 - 1.6);
+        translationHead.add(offset.z() * -4);
 
-        JsonArrayBuilder scale = Json.createArrayBuilder();
-        scale.add(-4);
-        scale.add(4);
-        scale.add(-4);
+        JsonArrayBuilder translationArm = Json.createArrayBuilder();
+        translationArm.add(offset.x() * -4 - 1);
+        translationArm.add(offset.z() * 4 - 2);
+        translationArm.add(offset.y() * 4 + 10);
+
+        JsonArray translationHeadBuilt = translationHead.build();
+        JsonArray translationArmBuilt = translationArm.build();
+
+        JsonArrayBuilder scaleHead = Json.createArrayBuilder();
+        scaleHead.add(-4);
+        scaleHead.add(4);
+        scaleHead.add(-4);
+
+        JsonArrayBuilder scaleArm = Json.createArrayBuilder();
+        scaleArm.add(4);
+        scaleArm.add(4);
+        scaleArm.add(4);
+
+        JsonArray scaleHeadBuilt = scaleHead.build();
+        JsonArray scaleArmBuilt = scaleArm.build();
+
+        JsonArrayBuilder rotationArm = Json.createArrayBuilder();
+        rotationArm.add(90);
+        rotationArm.add(180);
+        rotationArm.add(0);
 
         JsonObjectBuilder head = Json.createObjectBuilder();
-        head.add("translation", translation);
-        head.add("scale", scale);
-        return Json.createObjectBuilder().add("head", head).build();
+        head.add("translation", translationHeadBuilt);
+        head.add("scale", scaleHeadBuilt);
+
+        JsonObjectBuilder arm = Json.createObjectBuilder();
+        arm.add("rotation", rotationArm);
+        arm.add("translation", translationArmBuilt);
+        arm.add("scale", scaleArmBuilt);
+
+        JsonObject builtHead = head.build();
+        JsonObject builtArm = arm.build();
+
+        return Json.createObjectBuilder()
+                .add("head", builtHead)
+                .add("thirdperson_righthand", builtArm)
+                .build();
     }
 
     public static Optional<Point> getPos(JsonArray pivot) {

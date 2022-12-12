@@ -40,15 +40,18 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
                 HashSet<ModelAnimation> animationSet = new HashSet<>();
                 for (Map.Entry<String, JsonElement> boneEntry : animation.getValue().getAsJsonObject().get("bones").getAsJsonObject().entrySet()) {
                     String boneName = boneEntry.getKey();
+                    var bone = model.getPart(boneName);
+                    if (bone == null) continue;
+
                     JsonElement animationRotation = boneEntry.getValue().getAsJsonObject().get("rotation");
                     JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
 
                     if (animationRotation != null) {
-                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, boneName, model.getPart(boneName), animationRotation, AnimationLoader.AnimationType.ROTATION, length);
+                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, boneName, bone, animationRotation, AnimationLoader.AnimationType.ROTATION, length);
                         animationSet.add(boneAnimation);
                     }
                     if (animationPosition != null) {
-                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, boneName, model.getPart(boneName), animationPosition, AnimationLoader.AnimationType.TRANSLATION, length);
+                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, boneName, bone, animationPosition, AnimationLoader.AnimationType.TRANSLATION, length);
                         animationSet.add(boneAnimation);
                     }
                 }

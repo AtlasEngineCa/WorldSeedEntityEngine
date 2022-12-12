@@ -18,21 +18,9 @@ public class ModelEngine {
     static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final static HashMap<String, HashMap<String, ItemStack>> blockMappings = new HashMap<>();
-    final static HashMap<String, Point> offsetMappings = new HashMap<>();
-    final static HashMap<String, Point> diffMappings = new HashMap<>();
+    public final static HashMap<String, Point> offsetMappings = new HashMap<>();
+    public final static HashMap<String, Point> diffMappings = new HashMap<>();
     private static Path modelPath;
-
-    /**
-     * Entity Type to use for rendering the mode. If you don't know what this is, use ARMOR_STAND
-     */
-    public enum RenderType {
-        ZOMBIE,
-        SMALL_ZOMBIE,
-        ARMOUR_STAND,
-        SMALL_ARMOUR_STAND,
-        ARMOUR_STAND_NO_INTERPOLATION,
-        SMALL_ARMOUR_STAND_NO_INTERPOLATION
-    }
 
     /**
      * Loads the model from the given path
@@ -76,7 +64,7 @@ public class ModelEngine {
         }).build();
     }
 
-    static HashMap<String, ItemStack> getItems(String model, String name) {
+    public static HashMap<String, ItemStack> getItems(String model, String name) {
         return blockMappings.get(model + "/" + name);
     }
 

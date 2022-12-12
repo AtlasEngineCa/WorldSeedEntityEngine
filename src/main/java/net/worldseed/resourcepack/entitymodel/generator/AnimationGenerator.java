@@ -19,7 +19,10 @@ public class AnimationGenerator {
 
             JsonObjectBuilder bones = Json.createObjectBuilder();
 
-            Collection<JsonValue> animators = animation.getJsonObject("animators").values();
+            var foundAnimations = animation.getJsonObject("animators");
+            if (foundAnimations == null) continue;
+
+            Collection<JsonValue> animators = foundAnimations.values();
 
             for (var animator_ : animators) {
                 JsonObject animator = animator_.asJsonObject();
@@ -37,6 +40,7 @@ public class AnimationGenerator {
 
                     double time = keyframe.getJsonNumber("time").doubleValue();
                     JsonArray dataPoints = ModelGenerator.convertDatapoints(keyframe.getJsonArray("data_points").get(0).asJsonObject());
+                    if (dataPoints == null) continue;
 
                     String interpolation = keyframe.getString("interpolation");
 
