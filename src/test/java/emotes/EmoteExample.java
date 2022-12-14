@@ -20,6 +20,6 @@ public class EmoteExample extends EmotePlayer {
     public EmoteExample(Instance instance, Pos pos, PlayerSkin skin) {
         super(instance, pos, skin);
         loadEmotes(ANIMATIONS);
-        this.animationHandler.playRepeat("dab");
+        getAnimationHandler().playRepeat("dab");
     }
 }
