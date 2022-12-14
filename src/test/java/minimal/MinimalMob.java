@@ -19,7 +19,7 @@ public class MinimalMob extends EntityCreature {
         model.init(instance, pos, this);
 
         this.animationHandler = new AnimationHandlerImpl(model);
-        this.animationHandler.playRepeat("wave");
+        this.animationHandler.playRepeat("dab");
 
         this.setInstance(instance, pos);
     }
