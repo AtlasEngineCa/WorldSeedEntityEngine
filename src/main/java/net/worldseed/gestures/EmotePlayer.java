@@ -14,7 +14,7 @@ import java.util.Map;
 
 public abstract class EmotePlayer extends EntityCreature {
     private final EmoteModel model;
-    protected final AnimationHandler animationHandler;
+    private final AnimationHandler animationHandler;
     private int emoteIndex = 0;
 
     public EmotePlayer(Instance instance, Pos pos, PlayerSkin skin, EntityType entityType) {
@@ -52,5 +52,9 @@ public abstract class EmotePlayer extends EntityCreature {
         this.model.destroy();
         this.animationHandler.destroy();
         super.remove();
+    }
+
+    protected AnimationHandler getAnimationHandler() {
+        return animationHandler;
     }
 }
