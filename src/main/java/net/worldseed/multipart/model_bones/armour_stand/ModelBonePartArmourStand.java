@@ -11,16 +11,16 @@ import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.ModelBone;
-import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
-public class ModelBonePartArmourStand extends ModelBoneGeneric implements ModelBoneViewable {
+public class ModelBonePartArmourStand extends ModelBoneImpl implements ModelBoneViewable {
     private Point lastRotation = Vec.ZERO;
     private Point halfRotation = Vec.ZERO;
     private boolean update = true;
 
-    private final Pos SMALL_SUB = new Pos(0, 0.655, 0);
-    private final Pos NORMAL_SUB = new Pos(0, 1.4, 0);
+    private final Pos SMALL_SUB = new Pos(0, 0.72, 0);
+    private final Pos NORMAL_SUB = new Pos(0, 1.426, 0);
 
     public ModelBonePartArmourStand(Point pivot, String name, Point rotation, GenericModel model, ModelConfig modelConfig, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -37,7 +37,7 @@ public class ModelBonePartArmourStand extends ModelBoneGeneric implements ModelB
                 meta.setSmall(true);
 
             meta.setHasNoBasePlate(true);
-            ModelBoneGeneric.hookPart(this, forwardTo);
+            ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
 

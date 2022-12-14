@@ -11,12 +11,12 @@ import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.ModelBone;
-import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
-public class ModelBonePartZombie extends ModelBoneGeneric implements ModelBoneViewable {
-    private final Pos SMALL_SUB = new Pos(0, 0.90, 0);
-    private final Pos NORMAL_SUB = new Pos(0, 1.7, 0);
+public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewable {
+    private final Pos SMALL_SUB = new Pos(0, 0.76, 0);
+    private final Pos NORMAL_SUB = new Pos(0, 1.5, 0);
 
     public ModelBonePartZombie(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -32,7 +32,7 @@ public class ModelBonePartZombie extends ModelBoneGeneric implements ModelBoneVi
                 meta.setBaby(true);
             }
 
-            ModelBoneGeneric.hookPart(this, forwardTo);
+            ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
 

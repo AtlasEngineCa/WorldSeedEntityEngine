@@ -1,7 +1,8 @@
-package net.worldseed.multipart.animations;
+package net.worldseed.multipart;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
 import net.worldseed.multipart.ModelEngine;
@@ -9,10 +10,12 @@ import net.worldseed.multipart.ModelEngine;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class AnimationLoader {
+public class ModelLoader {
     protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final Map<String, JsonObject> loadedAnimations = new HashMap<>();
     private static final Map<String, JsonObject> loadedModels = new HashMap<>();
@@ -93,5 +96,16 @@ public class AnimationLoader {
         Map<String, Map<Short, Point>> m = interpolationTranslateCache.get(model);
         if (m == null) return null;
         return m.get(key);
+    }
+
+    public static Map<String, JsonObject> parseAnimations(String animationString) {
+        Map<String, JsonObject> res = new LinkedHashMap<>();
+
+        JsonObject animations = GSON.fromJson(new StringReader(animationString), JsonObject.class);
+        for (Map.Entry<String, JsonElement> animation : animations.get("animations").getAsJsonObject().entrySet()) {
+            res.put(animation.getKey(), animation.getValue().getAsJsonObject());
+        }
+
+        return res;
     }
 }

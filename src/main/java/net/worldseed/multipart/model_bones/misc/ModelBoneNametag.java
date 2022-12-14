@@ -7,9 +7,9 @@ import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
-import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
-public class ModelBoneNametag extends ModelBoneGeneric {
+public class ModelBoneNametag extends ModelBoneImpl {
     public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, LivingEntity nametagEntity) {
         super(pivot, name, rotation, model);
 

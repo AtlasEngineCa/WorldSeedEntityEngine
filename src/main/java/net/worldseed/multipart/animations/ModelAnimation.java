@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.worldseed.multipart.ModelLoader;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.ModelEngine;
 
@@ -12,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ModelAnimation {
-    private final AnimationLoader.AnimationType type;
+    private final ModelLoader.AnimationType type;
 
     private static final Point RotationMul = new Vec(-1, -1, 1);
     private static final Point TranslationMul = new Vec(-1, 1, 1);
@@ -25,7 +26,7 @@ public class ModelAnimation {
 
     private final String name;
 
-    public AnimationLoader.AnimationType getType() {
+    public ModelLoader.AnimationType getType() {
         return type;
     }
 
@@ -43,7 +44,7 @@ public class ModelAnimation {
     Point calculateTransform(int tick, LinkedHashMap<Double, PointInterpolation> transform) {
         double toInterpolate = tick * 50.0 / 1000;
 
-        if (this.type == AnimationLoader.AnimationType.ROTATION) {
+        if (this.type == ModelLoader.AnimationType.ROTATION) {
             return Interpolator.interpolateRotation(toInterpolate, transform, length).mul(RotationMul);
         }
 
@@ -60,16 +61,16 @@ public class ModelAnimation {
     }
 
     record PointInterpolation(Point p, String lerp) {}
-    ModelAnimation(String modelName, String animationName, String boneName, ModelBone bone, JsonElement keyframes, AnimationLoader.AnimationType animationType, double length) {
+    ModelAnimation(String modelName, String animationName, String boneName, ModelBone bone, JsonElement keyframes, ModelLoader.AnimationType animationType, double length) {
         this.type = animationType;
         this.length = (int) (length * 20);
         this.name = animationName;
 
         Map<Short, Point> found;
-        if (this.type == AnimationLoader.AnimationType.ROTATION) {
-            found = AnimationLoader.getCacheRotation(modelName, bone.getName() + "/" + animationName);
+        if (this.type == ModelLoader.AnimationType.ROTATION) {
+            found = ModelLoader.getCacheRotation(modelName, bone.getName() + "/" + animationName);
         } else {
-            found = AnimationLoader.getCacheTranslation(modelName, bone.getName() + "/" + animationName);
+            found = ModelLoader.getCacheTranslation(modelName, bone.getName() + "/" + animationName);
         }
 
         if (found == null) {
@@ -93,12 +94,12 @@ public class ModelAnimation {
                 transform.put(0.0, new PointInterpolation(point, "linear"));
             }
 
-            if (this.type == AnimationLoader.AnimationType.ROTATION) {
+            if (this.type == ModelLoader.AnimationType.ROTATION) {
                 found = calculateAllTransforms(length, transform);
-                AnimationLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
+                ModelLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
             } else {
                 found = calculateAllTransforms(length, transform);
-                AnimationLoader.addToTranslationCache(modelName, bone.getName() + "/" + animationName, found);
+                ModelLoader.addToTranslationCache(modelName, bone.getName() + "/" + animationName, found);
             }
         }
 

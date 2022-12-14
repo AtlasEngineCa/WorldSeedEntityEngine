@@ -7,15 +7,17 @@ import net.minestom.server.timer.ExecutionType;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
+import net.worldseed.multipart.ModelLoader;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public abstract class AnimationHandlerImpl implements AnimationHandler {
-    private final Map<String, Set<ModelAnimation>> animations;
-    public final Map<String, Integer> animationTimes = new HashMap<>();
+public class AnimationHandlerImpl implements AnimationHandler {
+    private final Map<String, Integer> animationTimes = new HashMap<>();
+    private final Map<String, Integer> animationPriorities = new HashMap<>();
 
+    private final LinkedHashMap<String, Set<ModelAnimation>> animations = new LinkedHashMap<>();
     private final GenericModel model;
     private final Task task;
 
@@ -27,46 +29,47 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
-        JsonObject loadedAnimations = AnimationLoader.loadAnimations(model.getId());
+        loadDefaultAnimations();
+        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.ASYNC);
+    }
+
+    protected void loadDefaultAnimations() {
+        JsonObject loadedAnimations = ModelLoader.loadAnimations(model.getId());
         // Init animation
-        {
-            Map<String, HashSet<ModelAnimation>> animations = new HashMap<>();
-            Map<String, Double> animationTimes = new HashMap<>();
-            for (Map.Entry<String, JsonElement> animation : loadedAnimations.get("animations").getAsJsonObject().entrySet()) {
-                final String animationName = animation.getKey();
-                final JsonElement animationLength = animation.getValue().getAsJsonObject().get("animation_length");
-                final double length = animationLength == null ? 0 : animationLength.getAsDouble();
+        int i = 0;
+        for (Map.Entry<String, JsonElement> animation : loadedAnimations.get("animations").getAsJsonObject().entrySet()) {
+            registerAnimation(animation.getKey(), animation.getValue(), i);
+            i--;
+        }
+    }
 
-                HashSet<ModelAnimation> animationSet = new HashSet<>();
-                for (Map.Entry<String, JsonElement> boneEntry : animation.getValue().getAsJsonObject().get("bones").getAsJsonObject().entrySet()) {
-                    String boneName = boneEntry.getKey();
-                    var bone = model.getPart(boneName);
-                    if (bone == null) continue;
+    @Override
+    public void registerAnimation(String name, JsonElement animation, int priority) {
+        final JsonElement animationLength = animation.getAsJsonObject().get("animation_length");
+        final double length = animationLength == null ? 0 : animationLength.getAsDouble();
 
-                    JsonElement animationRotation = boneEntry.getValue().getAsJsonObject().get("rotation");
-                    JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
+        HashSet<ModelAnimation> animationSet = new HashSet<>();
+        for (Map.Entry<String, JsonElement> boneEntry : animation.getAsJsonObject().get("bones").getAsJsonObject().entrySet()) {
+            String boneName = boneEntry.getKey();
+            var bone = model.getPart(boneName);
+            if (bone == null) continue;
 
-                    if (animationRotation != null) {
-                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, boneName, bone, animationRotation, AnimationLoader.AnimationType.ROTATION, length);
-                        animationSet.add(boneAnimation);
-                    }
-                    if (animationPosition != null) {
-                        ModelAnimation boneAnimation = new ModelAnimation(model.getId(), animationName, boneName, bone, animationPosition, AnimationLoader.AnimationType.TRANSLATION, length);
-                        animationSet.add(boneAnimation);
-                    }
-                }
-                animationTimes.put(animationName, length);
-                animations.put(animationName, animationSet);
+            JsonElement animationRotation = boneEntry.getValue().getAsJsonObject().get("rotation");
+            JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
+
+            if (animationRotation != null) {
+                ModelAnimation boneAnimation = new ModelAnimation(model.getId(), name, boneName, bone, animationRotation, ModelLoader.AnimationType.ROTATION, length);
+                animationSet.add(boneAnimation);
             }
-            this.animations = Map.copyOf(animations);
-            // this.animationTimes = Map.copyOf(animationTimes);
-
-            animationTimes.forEach((name, time) -> {
-                this.animationTimes.put(name, (int) (time * 20));
-            });
+            if (animationPosition != null) {
+                ModelAnimation boneAnimation = new ModelAnimation(model.getId(), name, boneName, bone, animationPosition, ModelLoader.AnimationType.TRANSLATION, length);
+                animationSet.add(boneAnimation);
+            }
         }
 
-        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.ASYNC);
+        animationTimes.put(name, (int) (length * 20));
+        animationPriorities.put(name, priority);
+        animations.put(name, animationSet);
     }
 
     public void playRepeat(String animation) {
@@ -165,7 +168,7 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
 
             if (callbacks.size() + repeating.size() == 0) return;
 
-            this.model.drawBones();
+            this.model.draw();
 
             this.animations.forEach((animation, animations) -> {
                 animations.forEach(ModelAnimation::tick);
@@ -182,5 +185,10 @@ public abstract class AnimationHandlerImpl implements AnimationHandler {
     public String getPlaying() {
         var playing = this.repeating.firstEntry();
         return playing != null ? playing.getValue() : null;
+    }
+
+    @Override
+    public Map<String, Integer> animationPriorities() {
+        return animationPriorities;
     }
 }

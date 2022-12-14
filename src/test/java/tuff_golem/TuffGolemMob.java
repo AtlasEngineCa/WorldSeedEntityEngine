@@ -16,6 +16,7 @@ import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
+import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class TuffGolemMob extends EntityCreature {
         this.model = new TuffGolem();
         model.init(instance, pos, this);
 
-        this.animationHandler = new TuffGolemAnimationHandler(model);
+        this.animationHandler = new AnimationHandlerImpl(model);
         animationHandler.playRepeat("walk");
 
         addAIGroup(
@@ -50,10 +51,6 @@ public class TuffGolemMob extends EntityCreature {
         setBoundingBox(1, 4, 1);
         this.setInstance(instance, pos);
         this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.12f);
-
-        // No way to set size without modifying minestom
-        // PufferfishMeta meta = ((PufferfishMeta)this.getLivingEntityMeta());
-        // meta.setSize(20);
     }
 
     @Override
@@ -82,18 +79,11 @@ public class TuffGolemMob extends EntityCreature {
     @Override
     public void remove() {
         var viewers = Set.copyOf(this.getViewers());
-        this.animationHandler.playOnce("grab", (cb) -> {
-            this.model.destroy();
-            this.animationHandler.destroy();
-            ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 50);
-            viewers.forEach(v -> v.sendPacket(packet));
-        });
+        this.model.destroy();
+        this.animationHandler.destroy();
+        ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 50);
+        viewers.forEach(v -> v.sendPacket(packet));
 
         super.remove();
-    }
-
-    @Override
-    public @NotNull Set<Entity> getPassengers() {
-        return model.getPassengers();
     }
 }

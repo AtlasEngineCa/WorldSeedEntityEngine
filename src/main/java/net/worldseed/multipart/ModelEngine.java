@@ -7,7 +7,6 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.worldseed.multipart.animations.AnimationLoader;
 
 import java.io.Reader;
 import java.nio.file.Path;
@@ -34,7 +33,7 @@ public class ModelEngine {
         blockMappings.clear();
         offsetMappings.clear();
         diffMappings.clear();
-        AnimationLoader.clearCache();
+        ModelLoader.clearCache();
 
         map.entrySet().forEach(entry -> {
             HashMap<String, ItemStack> keys = new HashMap<>();

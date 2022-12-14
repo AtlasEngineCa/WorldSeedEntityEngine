@@ -1,4 +1,4 @@
-package tuff_golem;
+package minimal;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.LivingEntity;
@@ -8,13 +8,18 @@ import net.worldseed.multipart.ModelConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TuffGolem extends GenericModelImpl {
+public class Minimal extends GenericModelImpl {
     @Override
     public String getId() {
-        return "tuff_golem.bbmodel";
+        return "steve.bbmodel";
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, LivingEntity masterEntity) {
-        super.init(instance, position, ModelConfig.defaultConfig, masterEntity);
+        super.init(instance, position, new ModelConfig(
+                ModelConfig.ModelType.ARMOUR_STAND,
+                ModelConfig.InterpolationType.POSITION_INTERPOLATION,
+                ModelConfig.Size.NORMAL,
+                ModelConfig.ItemSlot.HEAD
+        ), masterEntity);
     }
 }

@@ -9,12 +9,11 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.*;
 import net.worldseed.multipart.model_bones.ModelBone;
-import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
-public class ModelBoneSeat extends ModelBoneGeneric {
+public class ModelBoneSeat extends ModelBoneImpl {
     public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
 
@@ -25,7 +24,7 @@ public class ModelBoneSeat extends ModelBoneGeneric {
             };
             this.stand.setTag(Tag.String("WSEE"), "seat");
 
-            ModelBoneGeneric.hookPart(this, forwardTo);
+            ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
 

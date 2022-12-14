@@ -2,17 +2,14 @@ package net.worldseed.multipart;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.timer.TaskSchedule;
-import net.worldseed.multipart.animations.AnimationLoader;
 import net.worldseed.multipart.model_bones.ModelBone;
-import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneHead;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStand;
@@ -31,12 +28,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public abstract class GenericModelImpl implements GenericModel {
-    private final HashMap<String, ModelBone> parts = new HashMap<>();
-    private final Set<ModelBoneGeneric> viewableBones = new HashSet<>();
-    private final Set<ModelBoneHitbox> hittableBones = new HashSet<>();
-    private final HashMap<String, ModelBoneVFX> VFXBones = new HashMap<>();
+    protected final LinkedHashMap<String, ModelBone> parts = new LinkedHashMap<>();
+    protected final Set<ModelBoneImpl> viewableBones = new LinkedHashSet<>();
+    protected final Set<ModelBoneHitbox> hittableBones = new LinkedHashSet<>();
+    protected final Map<String, ModelBoneVFX> VFXBones = new LinkedHashMap<>();
 
-    private ModelConfig config;
+    protected ModelConfig config;
 
     private ModelBoneSeat seat;
     private ModelBoneHead head;
@@ -44,7 +41,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private Point position;
     private double globalRotation;
-    private Instance instance;
+    protected Instance instance;
 
     @Override
     public double getGlobalRotation() {
@@ -70,9 +67,30 @@ public abstract class GenericModelImpl implements GenericModel {
         this.instance = instance;
         this.position = position;
 
-        JsonObject loadedModel = AnimationLoader.loadModel(getId());
+        JsonObject loadedModel = ModelLoader.loadModel(getId());
         this.setGlobalRotation(position.yaw());
 
+        loadBones(loadedModel, masterEntity);
+
+        for (ModelBone modelBonePart : this.parts.values()) {
+            if (modelBonePart instanceof ModelBoneViewable)
+                viewableBones.add((ModelBoneImpl) modelBonePart);
+            else if (modelBonePart instanceof ModelBoneHitbox hitbox)
+                hittableBones.add(hitbox);
+            else if (modelBonePart instanceof ModelBoneVFX vfx)
+                VFXBones.put(vfx.getName(), vfx);
+
+            modelBonePart.spawn(instance, modelBonePart.calculatePosition()).join();
+        }
+
+        draw();
+        draw();
+        draw();
+
+        this.setState("normal");
+    }
+
+    protected void loadBones(JsonObject loadedModel, LivingEntity masterEntity) {
         // Build bones
         for (JsonElement bone : loadedModel.get("minecraft:geometry").getAsJsonArray().get(0).getAsJsonObject().get("bones").getAsJsonArray()) {
             JsonElement pivot = bone.getAsJsonObject().get("pivot");
@@ -134,23 +152,6 @@ public abstract class GenericModelImpl implements GenericModel {
                 parentBone.addChild(child);
             }
         }
-
-        for (ModelBone modelBonePart : this.parts.values()) {
-            if (modelBonePart instanceof ModelBoneViewable)
-                viewableBones.add((ModelBoneGeneric) modelBonePart);
-            else if (modelBonePart instanceof ModelBoneHitbox hitbox)
-                hittableBones.add(hitbox);
-            else if (modelBonePart instanceof ModelBoneVFX vfx)
-                VFXBones.put(vfx.getName(), vfx);
-
-            modelBonePart.spawn(instance, modelBonePart.calculatePosition()).join();
-        }
-
-        drawBones();
-        drawBones();
-        drawBones();
-
-        this.setState("normal");
     }
 
     public void setNametagEntity(LivingEntity entity) {
@@ -191,7 +192,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public void setState(String state) {
-        for (ModelBoneGeneric part : viewableBones) {
+        for (ModelBoneImpl part : viewableBones) {
             part.setState(state);
         }
     }
@@ -204,7 +205,7 @@ public abstract class GenericModelImpl implements GenericModel {
         return this.seat;
     }
 
-    public void drawBones() {
+    public void draw() {
         for (ModelBone modelBonePart : this.parts.values()) {
             if (modelBonePart.getParent() == null)
                 modelBonePart.draw();
@@ -223,7 +224,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public void removeHitboxes() {
-        hittableBones.forEach(ModelBoneGeneric::destroy);
+        hittableBones.forEach(ModelBoneImpl::destroy);
         hittableBones.clear();
     }
 
@@ -261,5 +262,20 @@ public abstract class GenericModelImpl implements GenericModel {
                     .add(getPosition())
                     .add(getGlobalOffset());
         }
+    }
+
+    public Pos getPivot() {
+        return Pos.ZERO;
+    }
+    public Pos getGlobalOffset() {
+        return Pos.ZERO;
+    }
+
+    public Point getDiff(String boneName) {
+        return ModelEngine.diffMappings.get(getId() + "/" + boneName);
+    }
+
+    public Point getOffset(String boneName) {
+        return ModelEngine.offsetMappings.get(getId() + "/" + boneName);
     }
 }
