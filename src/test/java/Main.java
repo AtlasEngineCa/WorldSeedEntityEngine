@@ -1,5 +1,5 @@
+import commands.PlayerEmoteCommand;
 import commands.SpawnCommand;
-import commands.SummonCommand;
 import events.CombatEvent;
 import events.PackEvent;
 import net.kyori.adventure.sound.Sound;
@@ -17,6 +17,7 @@ import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
+import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
@@ -78,7 +79,7 @@ public class Main {
             CommandManager manager = MinecraftServer.getCommandManager();
             manager.setUnknownCommandCallback((sender, c) -> sender.sendMessage("Command not found."));
             manager.register(new SpawnCommand());
-            manager.register(new SummonCommand());
+            manager.register(new PlayerEmoteCommand());
         }
 
         // Events
@@ -99,7 +100,7 @@ public class Main {
                         NamedTextColor.GREEN
                 ));
 
-                player.sendMessage(Component.text("Run /spawn", NamedTextColor.YELLOW));
+                player.sendMessage(Component.text("Run /spawn or /emote", NamedTextColor.YELLOW));
             });
 
             handler.addListener(PlayerPacketEvent.class, event -> {
@@ -177,6 +178,7 @@ public class Main {
         }
 
         OpenToLAN.open();
+        MojangAuth.init();
 
         minecraftServer.start("0.0.0.0", 25565);
         System.out.println("Server startup done!");

@@ -62,7 +62,7 @@ public class ModelParser {
     static JsonObject display(Point offset) {
         JsonArrayBuilder translationHead = Json.createArrayBuilder();
         translationHead.add(offset.x() * -4);
-        translationHead.add(offset.y() * 4 - 1.6);
+        translationHead.add(offset.y() * 4 - 6.5);
         translationHead.add(offset.z() * -4);
 
         JsonArrayBuilder translationArm = Json.createArrayBuilder();

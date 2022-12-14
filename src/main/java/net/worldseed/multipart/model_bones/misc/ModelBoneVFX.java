@@ -7,11 +7,11 @@ import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.model_bones.ModelBone;
-import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
 import java.util.concurrent.CompletableFuture;
 
-public class ModelBoneVFX extends ModelBoneGeneric {
+public class ModelBoneVFX extends ModelBoneImpl {
     private Point position = Pos.ZERO;
 
     public Point getPosition() {

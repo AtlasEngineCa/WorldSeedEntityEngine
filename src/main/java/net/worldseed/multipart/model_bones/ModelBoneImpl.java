@@ -13,7 +13,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.*;
-import net.worldseed.multipart.animations.AnimationLoader.AnimationType;
+import net.worldseed.multipart.ModelLoader.AnimationType;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.worldseed.multipart.events.EntityControlEvent;
 import net.worldseed.multipart.events.EntityDismountEvent;
@@ -24,9 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
-public abstract class ModelBoneGeneric implements ModelBone {
+public abstract class ModelBoneImpl implements ModelBone {
     protected final HashMap<String, ItemStack> items;
     final Point diff;
     final Point pivot;
@@ -62,13 +61,13 @@ public abstract class ModelBoneGeneric implements ModelBone {
         return this.name;
     }
 
-    public ModelBoneGeneric(Point pivot, String name, Point rotation, GenericModel model) {
+    public ModelBoneImpl(Point pivot, String name, Point rotation, GenericModel model) {
         this.name = name;
         this.rotation = rotation;
         this.model = model;
 
-        this.diff = ModelEngine.diffMappings.get(model.getId() + "/" + name);
-        this.offset = ModelEngine.offsetMappings.get(model.getId() + "/" + name);
+        this.diff = model.getDiff(name);
+        this.offset = model.getOffset(name);
 
         if (this.diff != null)
             this.pivot = pivot.add(this.diff);
@@ -208,7 +207,7 @@ public abstract class ModelBoneGeneric implements ModelBone {
         return this.offset;
     }
 
-    public static void hookPart(ModelBoneGeneric part, LivingEntity forwardTo) {
+    public static void hookPart(ModelBoneImpl part, LivingEntity forwardTo) {
         if (part.stand == null || part.model == null) return;
 
         part.stand.setTag(Tag.String("WSEE"), "part");

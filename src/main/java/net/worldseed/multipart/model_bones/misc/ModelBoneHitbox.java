@@ -10,9 +10,9 @@ import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.model_bones.ModelBone;
-import net.worldseed.multipart.model_bones.ModelBoneGeneric;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
-public class ModelBoneHitbox extends ModelBoneGeneric {
+public class ModelBoneHitbox extends ModelBoneImpl {
     public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
 
@@ -28,7 +28,7 @@ public class ModelBoneHitbox extends ModelBoneGeneric {
             SlimeMeta meta = (SlimeMeta) this.stand.getEntityMeta();
             meta.setSize(size);
 
-            ModelBoneGeneric.hookPart(this, forwardTo);
+            ModelBoneImpl.hookPart(this, forwardTo);
             this.stand.setTag(Tag.String("WSEE"), "hitbox");
         }
     }

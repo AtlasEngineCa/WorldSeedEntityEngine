@@ -84,7 +84,7 @@ public interface GenericModel {
     ModelBone getPart(String boneName);
 
     @ApiStatus.Internal
-    void drawBones();
+    void draw();
 
     ModelConfig config();
 
@@ -116,4 +116,7 @@ public interface GenericModel {
     LivingEntity getNametagEntity();
 
     Instance getInstance();
+
+    Point getOffset(String bone);
+    Point getDiff(String bone);
 }

@@ -17,6 +17,7 @@ import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
+import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.mount.MobRidable;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ public class GemGolemMob extends EntityCreature implements MobRidable {
         this.model = new GemGolemModel();
         model.init(instance, pos, this, nametag);
 
-        this.animationHandler = new AnimationHandlerGemGolem(model);
+        this.animationHandler = new AnimationHandlerImpl(model);
         animationHandler.playRepeat("idle_extended");
 
         this.controlGoal = new GemGolemControlGoal(this, animationHandler);

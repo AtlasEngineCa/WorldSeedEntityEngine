@@ -80,7 +80,7 @@ public class ModelConfig {
     public static ModelConfig defaultConfig =
             new ModelConfig(ModelType.ARMOUR_STAND,
                     InterpolationType.POSITION_INTERPOLATION,
-                    Size.SMALL,
+                    Size.NORMAL,
                     ItemSlot.HEAD
             );
 }

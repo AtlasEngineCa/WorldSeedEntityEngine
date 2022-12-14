@@ -6,7 +6,7 @@ import net.minestom.server.entity.LivingEntity;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.model_bones.ModelBoneHead;
-import net.worldseed.multipart.animations.AnimationLoader;
+import net.worldseed.multipart.ModelLoader;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
@@ -23,7 +23,7 @@ public class ModelBoneHeadArmourStand extends ModelBonePartArmourStand implement
 
         for (ModelAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
-                if (currentAnimation.getType() == AnimationLoader.AnimationType.ROTATION) {
+                if (currentAnimation.getType() == ModelLoader.AnimationType.ROTATION) {
                     Point calculatedTransform = currentAnimation.getTransform();
                     netTransform = netTransform.add(calculatedTransform);
                 }

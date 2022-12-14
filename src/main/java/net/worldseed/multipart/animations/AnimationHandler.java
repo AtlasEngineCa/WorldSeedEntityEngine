@@ -1,11 +1,15 @@
 package net.worldseed.multipart.animations;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
 public interface AnimationHandler {
+    void registerAnimation(String name, JsonElement animation, int priority);
+
     /**
      * Play an animation on repeat
      * @param animation name of animation to play
