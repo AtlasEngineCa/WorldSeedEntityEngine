@@ -1,0 +1,29 @@
+{
+  "parent": "minecraft:item/template_skull",
+  "overrides": [
+    {
+      "predicate": { "custom_model_data": 1 },
+      "model": "worldseed:emotes/_head"
+    },
+    {
+      "predicate": { "custom_model_data": 2 },
+      "model": "worldseed:emotes/body"
+    },
+    {
+      "predicate": { "custom_model_data": 3 },
+      "model": "worldseed:emotes/rightarm"
+    },
+    {
+      "predicate": { "custom_model_data": 4 },
+      "model": "worldseed:emotes/leftarm"
+    },
+    {
+      "predicate": { "custom_model_data": 5 },
+      "model": "worldseed:emotes/rightleg"
+    },
+    {
+      "predicate": { "custom_model_data": 6 },
+      "model": "worldseed:emotes/leftleg"
+    }
+  ]
+}
