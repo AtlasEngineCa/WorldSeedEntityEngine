@@ -17,6 +17,7 @@ import net.worldseed.multipart.model_bones.ModelBoneViewable;
 public class ModelBonePartArmourStandHand extends ModelBoneImpl implements ModelBoneViewable {
     private Point lastRotation = Vec.ZERO;
     private Point halfRotation = Vec.ZERO;
+    private Point newRotation = Vec.ZERO;
     private boolean update = true;
 
     private final Pos SMALL_SUB = new Pos(0, 0.66, 0);
@@ -80,7 +81,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
                 .add(model.getGlobalOffset());
 
         if (model.config().interpolationType() == ModelConfig.InterpolationType.Y_INTERPOLATION) {
-            return newPos.withYaw((float) -rotation.y());
+            return newPos.withYaw((float) -newRotation.y());
         } else {
             return newPos;
         }
@@ -105,6 +106,8 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
 
         if (update) {
             Point rotation = calculateRotation();
+            newRotation = rotation;
+
             Point halfStep = rotation.sub(lastRotation);
 
             double halfStepX = halfStep.x() % 360;
