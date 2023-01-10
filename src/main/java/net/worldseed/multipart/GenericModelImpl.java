@@ -6,6 +6,7 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.model_bones.ModelBone;
@@ -16,10 +17,7 @@ import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStand
 import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStandHand;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStand;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStandHand;
-import net.worldseed.multipart.model_bones.misc.ModelBoneHitbox;
-import net.worldseed.multipart.model_bones.misc.ModelBoneNametag;
-import net.worldseed.multipart.model_bones.misc.ModelBoneSeat;
-import net.worldseed.multipart.model_bones.misc.ModelBoneVFX;
+import net.worldseed.multipart.model_bones.misc.*;
 import net.worldseed.multipart.model_bones.zombie.ModelBoneHeadZombie;
 import net.worldseed.multipart.model_bones.zombie.ModelBonePartZombie;
 import org.jetbrains.annotations.NotNull;
@@ -91,6 +89,9 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     protected void loadBones(JsonObject loadedModel, LivingEntity masterEntity) {
+        Map<ModelBoneLoader, String> boneLoaders = new LinkedHashMap<>();
+        ModelBoneLoaderGlobal globalLoader = null;
+
         // Build bones
         for (JsonElement bone : loadedModel.get("minecraft:geometry").getAsJsonArray().get(0).getAsJsonObject().get("bones").getAsJsonArray()) {
             JsonElement pivot = bone.getAsJsonObject().get("pivot");
@@ -99,13 +100,27 @@ public abstract class GenericModelImpl implements GenericModel {
             Point boneRotation = ModelEngine.getPos(bone.getAsJsonObject().get("rotation")).orElse(Pos.ZERO).mul(-1, -1, 1);
             Point pivotPos = ModelEngine.getPos(pivot).orElse(Pos.ZERO).mul(-1,1,1);
 
-            ModelBone modelBonePart;
+            ModelBone modelBonePart = null;
 
             if (name.equals("nametag")) {
                 this.nametag = new ModelBoneNametag(pivotPos, name, boneRotation, this, null);
                 modelBonePart = nametag;
             } else if (name.contains("hitbox")) {
                 modelBonePart = new ModelBoneHitbox(pivotPos, name, boneRotation, this, masterEntity);
+            } else if (name.contains("globalloader")) {
+                if (config.modelType() == ModelConfig.ModelType.ZOMBIE) {
+                    globalLoader = new ModelBoneLoaderGlobal(pivotPos, name, boneRotation, this, masterEntity);
+                    modelBonePart = globalLoader;
+                }
+            } else if (name.contains("loader")) {
+                if (config.modelType() == ModelConfig.ModelType.ZOMBIE) {
+                    String[] splitName = name.split("_");
+
+                    if (splitName.length > 2) {
+                        modelBonePart = new ModelBoneLoader(pivotPos, name, boneRotation, this, masterEntity);
+                        boneLoaders.put((ModelBoneLoader) modelBonePart, String.join("_", List.of(splitName).subList(2, splitName.length)));
+                    }
+                }
             } else if (name.contains("vfx")) {
                 modelBonePart = new ModelBoneVFX(pivotPos, name, boneRotation, this);
             } else if (name.contains("seat")) {
@@ -134,7 +149,7 @@ public abstract class GenericModelImpl implements GenericModel {
                 }
             }
 
-            this.parts.put(name, modelBonePart);
+            if (modelBonePart != null) this.parts.put(name, modelBonePart);
         }
 
         // Link parents
@@ -150,6 +165,20 @@ public abstract class GenericModelImpl implements GenericModel {
                 ModelBone parentBone = this.parts.get(parentString);
                 child.setParent(parentBone);
                 parentBone.addChild(child);
+            }
+        }
+
+        for (var loader : boneLoaders.entrySet()) {
+            loader.getKey().setLoading(this.parts.get(loader.getValue()).getEntity());
+        }
+
+        if (globalLoader != null) {
+            for (var bone : this.parts.values()) {
+                if (bone.getEntity() != null) {
+                    if (bone.getEntity().getEntityType().equals(EntityType.ZOMBIE)) {
+                        globalLoader.addLoading(bone.getEntity());
+                    }
+                }
             }
         }
     }
