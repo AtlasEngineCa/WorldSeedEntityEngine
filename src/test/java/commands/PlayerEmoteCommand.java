@@ -11,7 +11,7 @@ public class PlayerEmoteCommand extends Command {
 
         setDefaultExecutor((sender, context) -> {
             final Player player = (Player) sender;
-            PlayerSkin skin = PlayerSkin.fromUsername(player.getUsername());
+            PlayerSkin skin = PlayerSkin.fromUsername("Sg_Voltage");
             new EmoteExample(player.getInstance(), player.getPosition(), skin);
         });
     }
