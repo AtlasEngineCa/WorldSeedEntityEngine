@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones.misc;
 
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -37,7 +38,7 @@ public class ModelBoneLoader extends ModelBoneImpl {
                     if (holder != null) {
                         holder.addViewer(player);
                         holder.updateNewViewer(player);
-                        player.scheduleNextTick(e -> player.sendPacket(new AttachEntityPacket(holder, this)));
+                        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> player.sendPacket(new AttachEntityPacket(holder, this)));
                     }
                 }
 
@@ -90,7 +91,7 @@ public class ModelBoneLoader extends ModelBoneImpl {
     public void setLoading(Entity entity) {
         entity.setAutoViewable(false);
         this.holder = entity;
-        entity.scheduleNextTick(e -> entity.sendPacketToViewers(new AttachEntityPacket(entity, stand)));
+        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> entity.sendPacketToViewers(new AttachEntityPacket(entity, stand)));
     }
 
     @Override
