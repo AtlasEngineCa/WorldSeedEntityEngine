@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones;
 
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -195,7 +196,7 @@ public abstract class ModelBoneImpl implements ModelBone {
         if (this.offset != null && this.stand != null) {
             this.stand.setNoGravity(true);
             this.stand.setSilent(true);
-            this.stand.setInvisible(true);
+            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> this.stand.setInvisible(true));
 
             return this.stand.setInstance(instance, position);
         }

@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones.misc;
 
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModelBoneLoaderGlobal extends ModelBoneImpl {
-    private List<Entity> holder = new ArrayList<>();
+    private final List<Entity> holder = new ArrayList<>();
 
     public ModelBoneLoaderGlobal(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -40,7 +41,7 @@ public class ModelBoneLoaderGlobal extends ModelBoneImpl {
                     for (Entity e : holder) {
                         e.addViewer(player);
                         e.updateNewViewer(player);
-                        player.scheduleNextTick(p -> player.sendPacket(new AttachEntityPacket(e, this)));
+                        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> player.sendPacket(new AttachEntityPacket(e, this)));
                     }
                 }
 
@@ -93,7 +94,7 @@ public class ModelBoneLoaderGlobal extends ModelBoneImpl {
     public void addLoading(Entity entity) {
         entity.setAutoViewable(false);
         this.holder.add(entity);
-        entity.scheduleNextTick(e -> entity.sendPacketToViewers(new AttachEntityPacket(entity, stand)));
+        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> entity.sendPacketToViewers(new AttachEntityPacket(entity, stand)));
     }
 
     @Override
