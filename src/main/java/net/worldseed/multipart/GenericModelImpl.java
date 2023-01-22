@@ -2,6 +2,7 @@ package net.worldseed.multipart;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -9,6 +10,8 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
+import net.worldseed.multipart.animations.AnimationHandlerImpl;
+import net.worldseed.multipart.events.AnimationCompleteEvent;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneHead;
@@ -40,6 +43,7 @@ public abstract class GenericModelImpl implements GenericModel {
     private Point position;
     private double globalRotation;
     protected Instance instance;
+    private LivingEntity parent;
 
     @Override
     public double getGlobalRotation() {
@@ -56,6 +60,12 @@ public abstract class GenericModelImpl implements GenericModel {
         return position;
     }
 
+    public void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction) {
+        if (this.parent != null) {
+            MinecraftServer.getGlobalEventHandler().call(new AnimationCompleteEvent(this.parent, animation, direction));
+        }
+    }
+
     public void init(@Nullable Instance instance, @NotNull Pos position, ModelConfig config) {
         init(instance, position, config, null);
     }
@@ -64,6 +74,7 @@ public abstract class GenericModelImpl implements GenericModel {
         this.config = config;
         this.instance = instance;
         this.position = position;
+        this.parent = masterEntity;
 
         JsonObject loadedModel = ModelLoader.loadModel(getId());
         this.setGlobalRotation(position.yaw());

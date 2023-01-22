@@ -25,6 +25,7 @@ public class ModelAnimation {
     private short tick = 0;
 
     private final String name;
+    private AnimationHandlerImpl.AnimationDirection direction = AnimationHandlerImpl.AnimationDirection.FORWARD;
 
     public ModelLoader.AnimationType getType() {
         return type;
@@ -36,8 +37,13 @@ public class ModelAnimation {
 
     void tick() {
         if (playing) {
-            this.tick++;
-            if (tick > length) tick = 0;
+            if (direction == AnimationHandlerImpl.AnimationDirection.FORWARD) {
+                tick++;
+                if (tick > length) tick = 0;
+            } else if (direction == AnimationHandlerImpl.AnimationDirection.BACKWARD) {
+                tick--;
+                if (tick < 0) tick = (short) length;
+            }
         }
     }
 
@@ -58,6 +64,10 @@ public class ModelAnimation {
 
     public Point getTransformAtTime(int time) {
         return this.interpolationCache.getOrDefault((short) time, Pos.ZERO);
+    }
+
+    public void setDirection(AnimationHandlerImpl.AnimationDirection direction) {
+        this.direction = direction;
     }
 
     record PointInterpolation(Point p, String lerp) {}
@@ -121,10 +131,12 @@ public class ModelAnimation {
     void stop() {
         this.tick = 0;
         this.playing = false;
+        this.direction = AnimationHandler.AnimationDirection.FORWARD;
     }
 
     void play() {
-        this.tick = 0;
+        if (this.direction == AnimationHandler.AnimationDirection.FORWARD) this.tick = 0;
+        else if (this.direction == AnimationHandler.AnimationDirection.BACKWARD) this.tick = (short) (length - 1);
         this.playing = true;
     }
 
