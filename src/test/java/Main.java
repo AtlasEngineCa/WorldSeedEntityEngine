@@ -178,7 +178,7 @@ public class Main {
         }
 
         OpenToLAN.open();
-        // MojangAuth.init();
+        MojangAuth.init();
 
         minecraftServer.start("0.0.0.0", 25565);
         System.out.println("Server startup done!");
