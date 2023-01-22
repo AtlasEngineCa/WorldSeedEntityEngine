@@ -8,6 +8,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public interface AnimationHandler {
+    enum AnimationDirection {
+        FORWARD,
+        BACKWARD,
+        PAUSE
+    }
+
     void registerAnimation(String name, JsonElement animation, int priority);
 
     /**
@@ -15,6 +21,7 @@ public interface AnimationHandler {
      * @param animation name of animation to play
      */
     void playRepeat(String animation);
+    void playRepeat(String animation, AnimationDirection direction);
 
     /**
      * Stop a repeating animation
@@ -28,13 +35,7 @@ public interface AnimationHandler {
      * @param cb callback to call when animation is finished
      */
     void playOnce(String animation, Consumer<Void> cb);
-
-    /**
-     * Play an animation once without stopping other playing animations.
-     * @param animation name of animation to play
-     * @param cb callback to call when animation is finished
-     */
-    void playOnceConcurrent(String animation, Consumer<Void> cb);
+    void playOnce(String animation, AnimationHandlerImpl.AnimationDirection direction, Consumer<Void> cb);
 
     /**
      * Destroy the animation handler

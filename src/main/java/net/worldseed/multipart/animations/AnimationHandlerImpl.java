@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 public class AnimationHandlerImpl implements AnimationHandler {
     private final Map<String, Integer> animationTimes = new HashMap<>();
     private final Map<String, Integer> animationPriorities = new HashMap<>();
+    private final Map<String, AnimationDirection> direction = new HashMap<>();
 
     private final LinkedHashMap<String, Set<ModelAnimation>> animations = new LinkedHashMap<>();
     private final GenericModel model;
@@ -73,6 +74,11 @@ public class AnimationHandlerImpl implements AnimationHandler {
     }
 
     public void playRepeat(String animation) {
+        playRepeat(animation, AnimationDirection.FORWARD);
+    }
+
+    @Override
+    public void playRepeat(String animation, AnimationDirection direction) {
         this.repeating.put(this.animationPriorities().get(animation), animation);
         var top = this.repeating.firstEntry();
 
@@ -92,6 +98,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
                     this.animations.get(v).forEach(ModelAnimation::stop);
                 }
             });
+            this.animations.get(animation).forEach(a -> a.setDirection(direction));
             this.animations.get(animation).forEach(ModelAnimation::play);
         }
     }
@@ -112,35 +119,47 @@ public class AnimationHandlerImpl implements AnimationHandler {
     }
 
     public void playOnce(String animation, Consumer<Void> cb) {
-        if (this.callbacks.containsKey(animation)) {
-            this.callbacks.get(animation).accept(null);
-        }
-
-        if (playingOnce != null) {
-            this.animations.get(playingOnce).forEach(ModelAnimation::stop);
-        }
-
-        playingOnce = animation;
-
-        this.callbacks.put(animation, cb);
-        this.callbackTimers.put(animation, animationTimes.get(animation));
-        this.animations.get(animation).forEach(ModelAnimation::play);
-
-        this.repeating.values().forEach(v -> {
-            if (!v.equals(animation)) {
-                this.animations.get(v).forEach(ModelAnimation::stop);
-            }
-        });
+        this.playOnce(animation, AnimationDirection.FORWARD, cb);
     }
 
-    public void playOnceConcurrent(String animation, Consumer<Void> cb) {
+    @Override
+    public void playOnce(String animation, AnimationDirection direction, Consumer<Void> cb) {
+        AnimationDirection currentDirection = this.direction.get(animation);
+        this.direction.put(animation, direction);
+
         if (this.callbacks.containsKey(animation)) {
             this.callbacks.get(animation).accept(null);
         }
 
-        this.callbacks.put(animation, cb);
-        this.callbackTimers.put(animation, animationTimes.get(animation));
-        this.animations.get(animation).forEach(ModelAnimation::play);
+        int callbackTimer = this.callbackTimers.getOrDefault(animation, 0);
+
+
+        if (animation.equals(this.playingOnce) && direction == AnimationDirection.PAUSE && callbackTimer > 0) {
+            // Pause. Only call if we're not stopped
+            playingOnce = animation;
+            this.animations.get(animation).forEach(a -> a.setDirection(direction));
+            this.callbacks.put(animation, cb);
+        } else if (animation.equals(this.playingOnce) && currentDirection != direction) {
+            playingOnce = animation;
+            this.animations.get(animation).forEach(a -> a.setDirection(direction));
+            this.callbacks.put(animation, cb);
+            if (currentDirection != AnimationDirection.PAUSE)
+                this.callbackTimers.put(animation, animationTimes.get(animation) - callbackTimer + 1);
+        } else if (direction != AnimationDirection.PAUSE) {
+            if (playingOnce != null) this.animations.get(playingOnce).forEach(ModelAnimation::stop);
+            playingOnce = animation;
+
+            this.callbacks.put(animation, cb);
+            this.callbackTimers.put(animation, animationTimes.get(animation));
+            this.animations.get(animation).forEach(a -> a.setDirection(direction));
+            this.animations.get(animation).forEach(ModelAnimation::play);
+
+            this.repeating.values().forEach(v -> {
+                if (!v.equals(animation)) {
+                    this.animations.get(v).forEach(ModelAnimation::stop);
+                }
+            });
+        }
     }
 
     private void tick() {
@@ -156,18 +175,21 @@ public class AnimationHandlerImpl implements AnimationHandler {
                         this.playingOnce = null;
                     }
 
+                    this.model.triggerAnimationEnd(entry.getKey(), this.direction.get(entry.getKey()));
+
                     animations.get(entry.getKey()).forEach(ModelAnimation::stop);
                     callbackTimers.remove(entry.getKey());
 
                     var cb = callbacks.remove(entry.getKey());
                     if (cb != null) cb.accept(null);
                 } else {
-                    callbackTimers.put(entry.getKey(), entry.getValue() - 1);
+                    if (this.direction.get(entry.getKey()) != AnimationDirection.PAUSE) {
+                        callbackTimers.put(entry.getKey(), entry.getValue() - 1);
+                    }
                 }
             }
 
             if (callbacks.size() + repeating.size() == 0) return;
-
             this.model.draw();
 
             this.animations.forEach((animation, animations) -> {

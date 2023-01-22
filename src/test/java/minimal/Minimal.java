@@ -11,14 +11,14 @@ import org.jetbrains.annotations.Nullable;
 public class Minimal extends GenericModelImpl {
     @Override
     public String getId() {
-        return "steve.bbmodel";
+        return "door.bbmodel";
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, LivingEntity masterEntity) {
         super.init(instance, position, new ModelConfig(
-                ModelConfig.ModelType.ARMOUR_STAND,
+                ModelConfig.ModelType.ZOMBIE,
                 ModelConfig.InterpolationType.POSITION_INTERPOLATION,
-                ModelConfig.Size.NORMAL,
+                ModelConfig.Size.SMALL,
                 ModelConfig.ItemSlot.HEAD
         ), masterEntity);
     }

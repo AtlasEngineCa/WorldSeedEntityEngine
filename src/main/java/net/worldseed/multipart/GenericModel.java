@@ -4,10 +4,12 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
+import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface GenericModel {
@@ -119,4 +121,6 @@ public interface GenericModel {
 
     Point getOffset(String bone);
     Point getDiff(String bone);
+
+    void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction);
 }
