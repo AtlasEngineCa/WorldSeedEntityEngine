@@ -210,6 +210,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
     }
 
     public String getPlaying() {
+        if (this.playingOnce != null) return this.playingOnce;
         var playing = this.repeating.firstEntry();
         return playing != null ? playing.getValue() : null;
     }
