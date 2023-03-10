@@ -79,6 +79,11 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
     @Override
     public void playRepeat(String animation, AnimationDirection direction) {
+        if (this.repeating.containsKey(this.animationPriorities().get(animation))
+                && this.direction.get(animation) == direction) return;
+
+        this.direction.put(animation, direction);
+
         this.repeating.put(this.animationPriorities().get(animation), animation);
         var top = this.repeating.firstEntry();
 
