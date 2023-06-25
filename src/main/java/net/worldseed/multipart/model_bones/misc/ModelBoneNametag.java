@@ -3,6 +3,7 @@ package net.worldseed.multipart.model_bones.misc;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
@@ -33,7 +34,7 @@ public class ModelBoneNametag extends ModelBoneImpl {
         stand.teleport(calculatePosition());
     }
 
-    public LivingEntity getStand() {
+    public Entity getStand() {
         return stand;
     }
 

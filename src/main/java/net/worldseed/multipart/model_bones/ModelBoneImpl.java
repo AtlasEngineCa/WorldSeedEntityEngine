@@ -37,7 +37,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     protected Point offset;
     protected Point rotation;
     ModelBone parent;
-    protected LivingEntity stand;
+    protected Entity stand;
 
     protected final ArrayList<ModelBone> children = new ArrayList<>();
     protected final GenericModel model;
@@ -184,12 +184,13 @@ public abstract class ModelBoneImpl implements ModelBone {
 
     @Override
     public void destroy() {
+        this.children.forEach(c -> c.destroy());
+        this.children.clear();
+
         if (this.stand != null) {
             this.stand.setInvisible(true);
             this.stand.remove();
         }
-
-        this.children.clear();
     }
 
     public CompletableFuture<Void> spawn(Instance instance, Point position) {

@@ -21,6 +21,7 @@ import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -69,6 +70,7 @@ public class Main {
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer lobby = instanceManager.createInstanceContainer(DimensionType.OVERWORLD);
+        lobby.setChunkSupplier(LightingChunk::new);
         lobby.enableAutoChunkLoad(true);
         lobby.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.STONE));
         lobby.setTimeRate(0);

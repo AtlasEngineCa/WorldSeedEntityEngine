@@ -35,10 +35,12 @@ public class ModelBoneLoader extends ModelBoneImpl {
                 public void updateNewViewer(@NotNull Player player) {
                     super.updateNewViewer(player);
 
-                    if (holder != null) {
+                    if (holder != null && !this.isRemoved()) {
                         holder.addViewer(player);
                         holder.updateNewViewer(player);
-                        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> player.sendPacket(new AttachEntityPacket(holder, this)));
+                        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
+                            player.sendPacket(new AttachEntityPacket(holder, this));
+                        });
                     }
                 }
 
@@ -46,7 +48,7 @@ public class ModelBoneLoader extends ModelBoneImpl {
                 public void updateOldViewer(@NotNull Player player) {
                     super.updateOldViewer(player);
 
-                    if (holder != null) {
+                    if (holder != null && !this.isRemoved()) {
                         holder.removeViewer(player);
                         holder.updateOldViewer(player);
                     }
