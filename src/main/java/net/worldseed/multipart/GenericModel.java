@@ -115,7 +115,7 @@ public interface GenericModel {
      * @param entity the entity
      */
     void setNametagEntity(LivingEntity entity);
-    LivingEntity getNametagEntity();
+    Entity getNametagEntity();
 
     Instance getInstance();
 

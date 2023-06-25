@@ -65,6 +65,11 @@ public class ModelParser {
         translationHead.add(offset.y() * 4 - 6.5);
         translationHead.add(offset.z() * -4);
 
+        JsonArrayBuilder translationDisplay = Json.createArrayBuilder();
+        translationDisplay.add(offset.x() * -4);
+        translationDisplay.add(offset.y() * 4);
+        translationDisplay.add(offset.z() * -4);
+
         JsonArrayBuilder translationArm = Json.createArrayBuilder();
         translationArm.add(offset.x() * -4 - 1);
         translationArm.add(offset.z() * 4 - 2);
@@ -72,6 +77,7 @@ public class ModelParser {
 
         JsonArray translationHeadBuilt = translationHead.build();
         JsonArray translationArmBuilt = translationArm.build();
+        JsonArray translationDisplayBuilt = translationDisplay.build();
 
         JsonArrayBuilder scaleHead = Json.createArrayBuilder();
         scaleHead.add(-4);
@@ -100,12 +106,18 @@ public class ModelParser {
         arm.add("translation", translationArmBuilt);
         arm.add("scale", scaleArmBuilt);
 
+        JsonObjectBuilder display = Json.createObjectBuilder();
+        display.add("translation", translationDisplayBuilt);
+        display.add("scale", scaleHeadBuilt);
+
         JsonObject builtHead = head.build();
         JsonObject builtArm = arm.build();
+        JsonObject builtDisplay = display.build();
 
         return Json.createObjectBuilder()
                 .add("head", builtHead)
                 .add("thirdperson_righthand", builtArm)
+                .add("fixed", builtDisplay)
                 .build();
     }
 

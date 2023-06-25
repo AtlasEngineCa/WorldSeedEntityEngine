@@ -9,7 +9,8 @@ public class ModelConfig {
         /**
          * X, Y rotation. No Z
          */
-        ZOMBIE
+        ZOMBIE,
+        DISPLAY_ITEM
     }
 
     public enum InterpolationType {
@@ -78,7 +79,7 @@ public class ModelConfig {
     }
 
     public static ModelConfig defaultConfig =
-            new ModelConfig(ModelType.ARMOUR_STAND,
+            new ModelConfig(ModelType.DISPLAY_ITEM,
                     InterpolationType.POSITION_INTERPOLATION,
                     Size.NORMAL,
                     ItemSlot.HEAD

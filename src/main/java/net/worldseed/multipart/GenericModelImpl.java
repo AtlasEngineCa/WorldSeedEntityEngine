@@ -20,6 +20,8 @@ import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStand
 import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStandHand;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStand;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStandHand;
+import net.worldseed.multipart.model_bones.display_entity.ModelBoneHeadDisplay;
+import net.worldseed.multipart.model_bones.display_entity.ModelBonePartDisplay;
 import net.worldseed.multipart.model_bones.misc.*;
 import net.worldseed.multipart.model_bones.zombie.ModelBoneHeadZombie;
 import net.worldseed.multipart.model_bones.zombie.ModelBonePartZombie;
@@ -144,8 +146,10 @@ public abstract class GenericModelImpl implements GenericModel {
                     } else {
                         modelBonePart = new ModelBoneHeadArmourStandHand(pivotPos, name, boneRotation, this, config, masterEntity);
                     }
-                } else {
+                } else if (config.modelType() == ModelConfig.ModelType.ZOMBIE) {
                     modelBonePart = new ModelBoneHeadZombie(pivotPos, name, boneRotation, this, config, masterEntity);
+                } else {
+                    modelBonePart = new ModelBoneHeadDisplay(pivotPos, name, boneRotation, this, config, masterEntity);
                 }
                 this.head = (ModelBoneHead) modelBonePart;
             } else {
@@ -155,8 +159,10 @@ public abstract class GenericModelImpl implements GenericModel {
                     } else {
                         modelBonePart = new ModelBonePartArmourStandHand(pivotPos, name, boneRotation, this, config, masterEntity);
                     }
-                } else {
+                } else if (config.modelType() == ModelConfig.ModelType.ZOMBIE) {
                     modelBonePart = new ModelBonePartZombie(pivotPos, name, boneRotation, this, config, masterEntity);
+                } else {
+                    modelBonePart = new ModelBonePartDisplay(pivotPos, name, boneRotation, this, config, masterEntity);
                 }
             }
 
@@ -198,7 +204,7 @@ public abstract class GenericModelImpl implements GenericModel {
         if (this.nametag != null) this.nametag.linkEntity(entity);
     }
 
-    public LivingEntity getNametagEntity() {
+    public Entity getNametagEntity() {
         if (this.nametag != null) return this.nametag.getStand();
         return null;
     }

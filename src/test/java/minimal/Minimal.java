@@ -16,8 +16,8 @@ public class Minimal extends GenericModelImpl {
 
     public void init(@Nullable Instance instance, @NotNull Pos position, LivingEntity masterEntity) {
         super.init(instance, position, new ModelConfig(
-                ModelConfig.ModelType.ARMOUR_STAND,
-                ModelConfig.InterpolationType.POSITION_INTERPOLATION,
+                ModelConfig.ModelType.DISPLAY_ITEM,
+                ModelConfig.InterpolationType.Y_INTERPOLATION,
                 ModelConfig.Size.NORMAL,
                 ModelConfig.ItemSlot.HEAD
         ), masterEntity);

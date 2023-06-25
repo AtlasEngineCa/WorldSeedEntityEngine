@@ -1,11 +1,12 @@
-package net.worldseed.multipart.model_bones.zombie;
+package net.worldseed.multipart.model_bones.display_entity;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.entity.metadata.monster.zombie.ZombieMeta;
+import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.item.ItemStack;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
@@ -14,24 +15,23 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
-public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewable {
-    private final Pos SMALL_SUB = new Pos(0, 0.76, 0);
-    private final Pos NORMAL_SUB = new Pos(0, 1.5, 0);
+public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
+    int sendTick = 0;
 
-    public ModelBonePartZombie(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
+    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.ZOMBIE) {
+            this.stand = new Entity(EntityType.ITEM_DISPLAY) {
                 @Override
                 public void tick(long time) {}
             };
 
-            if (config.size() == ModelConfig.Size.SMALL) {
-                ZombieMeta meta = (ZombieMeta) this.stand.getEntityMeta();
-                meta.setBaby(true);
-            }
+            var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
+            meta.setScale(new Vec(1, 1, 1));
+            meta.setDisplayContext(ItemDisplayMeta.DisplayContext.FIXED);
+            meta.setInterpolationDuration(3);
             ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
@@ -39,7 +39,6 @@ public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewa
     @Override
     public Pos calculatePosition() {
         if (this.offset == null) return Pos.ZERO;
-        var rotation = calculateRotation();
 
         Point p = this.offset;
         p = applyTransform(p);
@@ -47,18 +46,7 @@ public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewa
 
         Pos endPos = Pos.fromPoint(p);
 
-        double divisor = model.config().size() == ModelConfig.Size.SMALL ? 1.426 : 1;
-
-        Pos sub = model.config().size() == ModelConfig.Size.SMALL
-                ? SMALL_SUB : NORMAL_SUB;
-
-        return endPos
-                .div(6.4, 6.4, 6.4)
-                .div(divisor)
-                .add(model.getPosition())
-                .sub(sub)
-                .add(model.getGlobalOffset())
-                .withView((float) -rotation.y(), (float) rotation.x());
+        return Pos.fromPoint(endPos).div(4);
     }
 
     @Override
@@ -76,24 +64,37 @@ public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewa
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
-        var position = calculatePosition();
+        sendTick++;
 
-        // TODO: I think this sends two packets?
-        stand.setView(position.yaw(), position.pitch());
-        stand.teleport(position);
+        if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
+            var position = calculatePosition();
+            Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
+            if (model.getGlobalRotation() != 0) {
+                Quaternion pq = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
+                q = pq.multiply(q);
+            }
+
+            meta.setNotifyAboutChanges(false);
+            meta.setInterpolationStartDelta(0);
+            meta.setRightRotation(new float[] {(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
+            meta.setTranslation(position);
+            meta.setNotifyAboutChanges(true);
+        }
+
+        stand.teleport(Pos.fromPoint(model.getPosition()));
     }
 
     @Override
     public void setState(String state) {
-        if (this.stand != null && this.stand instanceof LivingEntity e) {
+        if (this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             if (state.equals("invisible")) {
-                e.setHelmet(ItemStack.AIR);
+                meta.setItemStack(ItemStack.AIR);
                 return;
             }
 
             var item = this.items.get(state);
             if (item != null) {
-                e.setHelmet(item);
+                meta.setItemStack(item);
             }
         }
     }

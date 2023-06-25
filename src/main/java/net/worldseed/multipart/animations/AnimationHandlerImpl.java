@@ -87,16 +87,6 @@ public class AnimationHandlerImpl implements AnimationHandler {
         this.repeating.put(this.animationPriorities().get(animation), animation);
         var top = this.repeating.firstEntry();
 
-        if (playingOnce != null) {
-            if (this.callbacks.get(playingOnce) != null) {
-                this.callbacks.get(playingOnce).accept(null);
-                this.callbacks.remove(playingOnce);
-                this.callbackTimers.remove(playingOnce);
-            }
-
-            this.animations.get(playingOnce).forEach(ModelAnimation::stop);
-        }
-
         if (top != null && animation.equals(top.getValue())) {
             this.repeating.values().forEach(v -> {
                 if (!v.equals(animation)) {
@@ -104,7 +94,9 @@ public class AnimationHandlerImpl implements AnimationHandler {
                 }
             });
             this.animations.get(animation).forEach(a -> a.setDirection(direction));
-            this.animations.get(animation).forEach(ModelAnimation::play);
+            if (playingOnce == null) {
+                this.animations.get(animation).forEach(ModelAnimation::play);
+            }
         }
     }
 
@@ -118,7 +110,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
         Map.Entry<Integer, String> firstEntry = this.repeating.firstEntry();
 
-        if (firstEntry != null && currentTop != null && !firstEntry.getKey().equals(currentTop.getKey())) {
+        if (this.playingOnce == null && firstEntry != null && currentTop != null && !firstEntry.getKey().equals(currentTop.getKey())) {
             this.animations.get(firstEntry.getValue()).forEach(ModelAnimation::play);
         }
     }
@@ -137,7 +129,6 @@ public class AnimationHandlerImpl implements AnimationHandler {
         }
 
         int callbackTimer = this.callbackTimers.getOrDefault(animation, 0);
-
 
         if (animation.equals(this.playingOnce) && direction == AnimationDirection.PAUSE && callbackTimer > 0) {
             // Pause. Only call if we're not stopped

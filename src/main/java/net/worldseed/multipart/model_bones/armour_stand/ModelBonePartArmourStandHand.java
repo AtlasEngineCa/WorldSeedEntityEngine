@@ -138,16 +138,16 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
 
     @Override
     public void setState(String state) {
-        if (this.stand != null) {
+        if (this.stand != null && this.stand instanceof LivingEntity e) {
             if (state.equals("invisible")) {
-                this.stand.setItemInMainHand(ItemStack.AIR);
+                e.setItemInMainHand(ItemStack.AIR);
                 return;
             }
 
             var item = this.items.get(state);
 
             if (item != null) {
-                this.stand.setItemInMainHand(item);
+                e.setItemInMainHand(item);
             }
         }
     }
