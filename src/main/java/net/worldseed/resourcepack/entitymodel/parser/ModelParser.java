@@ -246,22 +246,22 @@ public class ModelParser {
                 Element newElement = new Element(cubeFrom, cubeTo, uvs, rotationInfo);
                 elements.add(newElement);
 
-                var item =
-                        new ItemId(
-                                bbModel.id(),
-                                boneName,
-                                new Vec(cubeMinX + cubeDiff.x() - 8, cubeMinY + cubeDiff.y() - 8, cubeMinZ + cubeDiff.z() - 8),
-                                cubeDiff,
-                                index
-                        );
-                if (!mappings.containsKey((item.name + "/" + item.bone))) {
-                    mappings.put(item.name + "/" + item.bone, new MappingEntry(new HashMap<>(), item.offset, item.diff));
+                if (!mappings.containsKey(bbModel.id() + "/" + boneName) || mappings.get(bbModel.id() + "/" + boneName).map.get(state.name()) == null) {
+                    var item =
+                            new ItemId(
+                                    bbModel.id(),
+                                    boneName,
+                                    new Vec(cubeMinX + cubeDiff.x() - 8, cubeMinY + cubeDiff.y() - 8, cubeMinZ + cubeDiff.z() - 8),
+                                    cubeDiff,
+                                    ++index
+                            );
+
+                    if (mappings.get(item.name + "/" + item.bone) == null)
+                        mappings.put(item.name + "/" + item.bone, new MappingEntry(new HashMap<>(), item.offset, item.diff));
+
+                    mappings.get(item.name + "/" + item.bone).map.put(state.name(), item.id);
+                    predicates.add(createPredicate(item.id, bbModel.id(), state.name(), item.bone));
                 }
-
-                mappings.get(item.name + "/" + item.bone).map.put(state.name(), item.id);
-                predicates.add(createPredicate(item.id, bbModel.id(), state.name(), item.bone));
-
-                index++;
 
                 JsonObjectBuilder boneInfo = Json.createObjectBuilder();
                 boneInfo.add("textures", builtTextures);

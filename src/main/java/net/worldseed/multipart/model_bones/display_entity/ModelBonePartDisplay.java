@@ -89,6 +89,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             if (state.equals("invisible")) {
                 meta.setItemStack(ItemStack.AIR);
+                meta.setViewRange(100);
                 return;
             }
 
