@@ -53,7 +53,7 @@ Currently WSEE only supports [Minestom](https://github.com/Minestom/Minestom)
 <!-- GETTING STARTED -->
 ## Getting Started
 
-A full, runnable example server can be found in [here](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/tree/master/src/test/java)
+A full, runnable example server can be found [here](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/tree/master/src/test/java)
 
 ### Adding as a dependency
 
