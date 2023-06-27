@@ -85,10 +85,11 @@ Learn what this project is, how it works and how you can use it on your server
 
 ## FAQ
 
-Q: Why are my bones positioned incorrectly in minecraft?
+Q: Why are my bones positioned incorrectly in minecraft?\
 A: Entities used for bones will be placed at the pivot point of the bone in blockbench. To fix this, move the pivot point closer to the bone
 
-Q: Why are my hitboxes in the wrong place?
+
+Q: Why are my hitboxes in the wrong place?\
 A: Slime entities for hitboxes are placed at the bone pivot point, not the block location.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
