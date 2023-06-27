@@ -83,11 +83,13 @@ Some restrictions are imposed by Minecraft
 ## [Wiki](https://github.com/WorldSeedGames/WorldSeedEntityEngine/wiki)
 Learn what this project is, how it works and how you can use it on your server
 
-## Important Notes
+## FAQ
 
-Entities used for bones will be placed at the pivot point of the bone in blockbench. **THIS IS IMPORTANT TO REMEMBER WHEN PLACING HITBOXES**
+Q: Why are my bones positioned incorrectly in minecraft?
+A: Entities used for bones will be placed at the pivot point of the bone in blockbench. To fix this, move the pivot point closer to the bone
 
-Slime entities for hitboxes are placed at the bone pivot point, not the block location.
+Q: Why are my hitboxes in the wrong place?
+A: Slime entities for hitboxes are placed at the bone pivot point, not the block location.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
