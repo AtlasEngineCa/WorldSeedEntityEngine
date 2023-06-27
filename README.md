@@ -88,9 +88,11 @@ Learn what this project is, how it works and how you can use it on your server
 Q: Why are my bones positioned incorrectly in minecraft?\
 A: Entities used for bones will be placed at the pivot point of the bone in blockbench. To fix this, move the pivot point closer to the bone
 
-
 Q: Why are my hitboxes in the wrong place?\
 A: Slime entities for hitboxes are placed at the bone pivot point, not the block location.
+
+Q: Why is my model not working?\
+A: Make sure you have the type set to `Bedrock Model` in blockbench
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
