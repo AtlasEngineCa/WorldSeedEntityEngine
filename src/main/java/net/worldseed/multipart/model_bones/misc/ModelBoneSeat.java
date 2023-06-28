@@ -68,7 +68,7 @@ public class ModelBoneSeat extends ModelBoneImpl {
 
     @Override
     public Point calculateRotation() {
-        Quaternion q = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
+        Quaternion q = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
         return q.toEulerYZX();
     }
 
