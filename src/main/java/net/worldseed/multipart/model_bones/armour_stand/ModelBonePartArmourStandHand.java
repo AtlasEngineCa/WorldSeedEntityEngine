@@ -90,11 +90,8 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
     @Override
     public Point calculateRotation() {
         Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
-        if (model.getGlobalRotation() != 0) {
-            Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
-            q = pq.multiply(q);
-
-        }
+        Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
+        q = pq.multiply(q);
 
         return model.config().interpolationType() == ModelConfig.InterpolationType.Y_INTERPOLATION
                 ? q.toEulerYZX() : q.toEuler();
