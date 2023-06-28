@@ -30,7 +30,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
             meta.setScale(new Vec(1, 1, 1));
-            meta.setDisplayContext(ItemDisplayMeta.DisplayContext.FIXED);
+            meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
             meta.setInterpolationDuration(3);
             ModelBoneImpl.hookPart(this, forwardTo);
         }
@@ -39,40 +39,27 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     @Override
     public Pos calculatePosition() {
         if (this.offset == null) return Pos.ZERO;
-
         Point p = this.offset;
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
-
-        Pos endPos = Pos.fromPoint(p);
-
-        return Pos.fromPoint(endPos).div(4);
+        return Pos.fromPoint(p).div(4).withView(0, 0);
     }
 
     @Override
     public Point calculateRotation() {
         Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
-        if (model.getGlobalRotation() != 0) {
-            Quaternion pq = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
-            q = pq.multiply(q);
-        }
-
-        return q.toEulerYZX();
+        return q.toEuler();
     }
 
     public void draw() {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
-        sendTick++;
-
         if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             var position = calculatePosition();
             Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
-            if (model.getGlobalRotation() != 0) {
-                Quaternion pq = new Quaternion(new Vec(0, this.model.getGlobalRotation(), 0));
-                q = pq.multiply(q);
-            }
+            Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
+            q = pq.multiply(q);
 
             meta.setNotifyAboutChanges(false);
             meta.setInterpolationStartDelta(0);
@@ -81,7 +68,9 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             meta.setNotifyAboutChanges(true);
         }
 
-        stand.teleport(Pos.fromPoint(model.getPosition()));
+        sendTick++;
+
+        stand.teleport(Pos.fromPoint(model.getPosition()).withView(0, 0));
     }
 
     @Override

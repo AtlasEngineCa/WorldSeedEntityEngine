@@ -79,7 +79,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     }
 
     public Point calculateGlobalRotation(Point endPos) {
-        return calculateRotation(endPos, new Vec(0, model.getGlobalRotation(), 0), this.model.getPivot());
+        return calculateRotation(endPos, new Vec(0, 180 - model.getGlobalRotation(), 0), this.model.getPivot());
     }
 
     public Point calculateRotation(Point p, Point rotation, Point pivot) {

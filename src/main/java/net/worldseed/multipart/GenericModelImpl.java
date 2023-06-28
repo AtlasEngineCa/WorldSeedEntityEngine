@@ -296,7 +296,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
         Point p = bone.getOffset();
         p = bone.simulateTransform(p, animation, time);
-        p = bone.calculateRotation(p, new Vec(0, getGlobalRotation(), 0), getPivot());
+        p = bone.calculateRotation(p, new Vec(0, 180 - getGlobalRotation(), 0), getPivot());
 
         if (config.size() == ModelConfig.Size.NORMAL) {
             return p.div(6.4, 6.4, 6.4)
