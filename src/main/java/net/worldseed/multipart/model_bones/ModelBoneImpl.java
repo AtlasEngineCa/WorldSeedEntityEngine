@@ -197,7 +197,6 @@ public abstract class ModelBoneImpl implements ModelBone {
         if (this.offset != null && this.stand != null) {
             this.stand.setNoGravity(true);
             this.stand.setSilent(true);
-            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> this.stand.setInvisible(true));
 
             return this.stand.setInstance(instance, position);
         }
