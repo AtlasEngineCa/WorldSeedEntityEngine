@@ -1,5 +1,6 @@
 package net.worldseed.multipart;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minestom.server.MinecraftServer;
@@ -13,8 +14,8 @@ import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import net.worldseed.multipart.events.AnimationCompleteEvent;
 import net.worldseed.multipart.model_bones.ModelBone;
-import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneHead;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStand;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStandHand;
@@ -119,7 +120,7 @@ public abstract class GenericModelImpl implements GenericModel {
                 this.nametag = new ModelBoneNametag(pivotPos, name, boneRotation, this, null);
                 modelBonePart = nametag;
             } else if (name.contains("hitbox")) {
-                modelBonePart = new ModelBoneHitbox(pivotPos, name, boneRotation, this, masterEntity);
+                addHitboxParts(pivotPos, name, boneRotation, this, masterEntity, bone.getAsJsonObject().getAsJsonArray("cubes"), this.parts);
             } else if (name.contains("globalloader")) {
                 if (config.modelType() == ModelConfig.ModelType.ZOMBIE) {
                     globalLoader = new ModelBoneLoaderGlobal(pivotPos, name, boneRotation, this, masterEntity);
@@ -198,6 +199,22 @@ public abstract class GenericModelImpl implements GenericModel {
                 }
             }
         }
+    }
+
+    private void addHitboxParts(Point pivotPos, String name, Point boneRotation, GenericModelImpl genericModel, LivingEntity masterEntity, JsonArray cubes, LinkedHashMap<String, ModelBone> parts) {
+        if (cubes.size() < 1) return;
+
+        var cube = cubes.get(0);
+        JsonArray sizeArray = cube.getAsJsonObject().get("size").getAsJsonArray();
+        JsonArray p = cube.getAsJsonObject().get("pivot").getAsJsonArray();
+
+        Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat());
+        Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat());
+
+        var newOffset = pivotPoint.mul(-1, 1, 1);
+
+        ModelBone created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, masterEntity, newOffset, sizePoint.x(), sizePoint.y(), cubes, true);
+        parts.put(name, created);
     }
 
     public void setNametagEntity(LivingEntity entity) {

@@ -33,6 +33,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
             };
 
             ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
+            stand.setInvisible(true);
 
             if (config.size() == ModelConfig.Size.SMALL)
                 meta.setSmall(true);

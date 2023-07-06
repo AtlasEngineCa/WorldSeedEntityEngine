@@ -32,6 +32,7 @@ public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewa
                 meta.setBaby(true);
             }
 
+            stand.setInvisible(true);
             ModelBoneImpl.hookPart(this, forwardTo);
         }
     }

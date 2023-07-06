@@ -23,6 +23,7 @@ public class ModelBoneSeat extends ModelBoneImpl {
                 public void tick(long time) {}
             };
             this.stand.setTag(Tag.String("WSEE"), "seat");
+            stand.setInvisible(true);
 
             ModelBoneImpl.hookPart(this, forwardTo);
         }
