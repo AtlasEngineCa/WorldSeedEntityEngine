@@ -57,7 +57,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
             Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat());
             Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat());
 
-            int maxSize = (int) Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z());
+            int maxSize = Math.min(Math.max((int) Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 10), 50);
 
             // Convert sizePoint in to smaller squares
             for (int x = 0; x < sizePoint.x() / maxSize; ++x) {
