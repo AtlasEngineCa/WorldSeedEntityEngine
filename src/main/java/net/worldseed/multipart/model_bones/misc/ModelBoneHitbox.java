@@ -131,6 +131,8 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         }
         if (this.offset == null) return;
 
-        stand.teleport(calculatePosition().add(model.getPosition()));
+        try {
+            stand.teleport(calculatePosition().add(model.getPosition()));
+        } catch (Exception ignored) { }
     }
 }
