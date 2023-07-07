@@ -1,6 +1,5 @@
 package net.worldseed.multipart.model_bones.display_entity;
 
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -13,8 +12,6 @@ import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.packet.server.play.SetPassengersPacket;
-import net.minestom.server.timer.ExecutionType;
-import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
@@ -52,6 +49,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
+    public void destroy() {
+        super.destroy();
+        if (this.baseStand != null) {
+            this.baseStand.remove();
+        }
+    }
+
+    @Override
     public Pos calculatePosition() {
         return Pos.fromPoint(model.getPosition()).withView(0, 0);
     }
@@ -72,8 +77,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     public void draw() {
         if (this.baseStand != null && !baseStand.getPosition().samePoint(model.getPosition())) {
-            this.baseStand.teleport(Pos.fromPoint(model.getPosition()).add(0, 1, 0));
-            if (this.stand != null) this.stand.teleport(Pos.fromPoint(model.getPosition()));
+            this.baseStand.teleport(Pos.fromPoint(model.getPosition()));
         }
 
         this.children.forEach(ModelBone::draw);
@@ -134,6 +138,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
                 ArmorStandMeta meta = (ArmorStandMeta) this.baseStand.getEntityMeta();
                 meta.setMarker(true);
 
+                this.baseStand.setInvisible(true);
                 this.baseStand.setNoGravity(true);
                 this.baseStand.setInstance(instance, position).join();
             }
