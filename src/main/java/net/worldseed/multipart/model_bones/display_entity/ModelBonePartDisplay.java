@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones.display_entity;
 
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -7,9 +8,9 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
+import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
-import net.worldseed.multipart.BundlePacket;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
@@ -21,8 +22,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
     int sendTick = 0;
-    Point rootPosition = null;
-    Point movingTowards = null;
+    private Entity baseStand;
+    private Pos lastPos = null;
 
     public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -38,8 +39,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             meta.setScale(new Vec(1, 1, 1));
             meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
             meta.setInterpolationDuration(3);
+            meta.setViewRange(1000);
             ModelBoneImpl.hookPart(this, forwardTo);
         }
+    }
+
+    private Entity getBaseStand() {
+        if (this.getParent() instanceof ModelBonePartDisplay display) return display.getBaseStand();
+        return baseStand;
     }
 
     @Override
@@ -57,64 +64,27 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         return q.toEuler();
     }
 
-    private static final BundlePacket bundlePacket = new BundlePacket();
-
-    private void updateRoot() {
-        if (this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
-            var position = calculatePosition();
-            rootPosition = movingTowards;
-
-            var viewers = this.stand.getViewers();
-
-            meta.setInterpolationDuration(-1);
-
-            viewers.forEach(viewer -> viewer.sendPacket(bundlePacket));
-
-            Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
-            Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
-            q = pq.multiply(q);
-
-            meta.setNotifyAboutChanges(false);
-            meta.setInterpolationStartDelta(0);
-            meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
-            meta.setNotifyAboutChanges(true);
-
-            meta.setTranslation(Pos.ZERO);
-            stand.teleport(Pos.fromPoint(movingTowards));
-
-            viewers.forEach(viewer -> viewer.sendPacket(bundlePacket));
-            meta.setInterpolationDuration(3);
-            
-            movingTowards = position;
-        }
-    }
-
     public void draw() {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
         var position = calculatePosition();
-        var finalPosition = model.getPosition().add(position);
 
         if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
-            if (rootPosition.distanceSquared(finalPosition) > 00) {
-                updateRoot();
-                return;
-            }
-
             Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
             Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
             q = pq.multiply(q);
 
-            var diff = finalPosition.sub(rootPosition);
-
             meta.setNotifyAboutChanges(false);
             meta.setInterpolationStartDelta(0);
             meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
-            meta.setTranslation(diff);
+            meta.setTranslation(position);
             meta.setNotifyAboutChanges(true);
+        }
 
-            movingTowards = finalPosition;
+        if (this.getParent() == null && !lastPos.samePoint(model.getPosition())) {
+            this.baseStand.teleport(Pos.fromPoint(model.getPosition()).add(0, 1, 0));
+            this.lastPos = Pos.fromPoint(model.getPosition());
         }
 
         sendTick++;
@@ -122,9 +92,31 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
-        this.rootPosition = position.add(model.getPosition());
-        movingTowards = rootPosition;
-        return super.spawn(instance, position);
+        this.lastPos = Pos.fromPoint(position);
+
+        return super.spawn(instance, position).whenCompleteAsync((v, e) -> {
+            if (e != null) {
+                e.printStackTrace();
+                return;
+            }
+
+            if (this.getParent() == null) {
+                this.baseStand = new Entity(EntityType.ARMOR_STAND);
+                ArmorStandMeta meta = (ArmorStandMeta) this.baseStand.getEntityMeta();
+                meta.setMarker(true);
+
+                this.baseStand.setInstance(instance, position).join();
+
+                if (this.stand != null) {
+                    this.baseStand.setNoGravity(true);
+                    this.baseStand.addPassenger(this.stand);
+                }
+            }
+
+            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
+                getBaseStand().addPassenger(this.stand);
+            });
+        });
     }
 
     @Override
@@ -132,7 +124,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             if (state.equals("invisible")) {
                 meta.setItemStack(ItemStack.AIR);
-                meta.setViewRange(500);
                 return;
             }
 
