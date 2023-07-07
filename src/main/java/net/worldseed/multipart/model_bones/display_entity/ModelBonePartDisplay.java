@@ -23,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
     int sendTick = 0;
     private Entity baseStand;
-    private Pos lastPos = null;
 
     public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -66,6 +65,11 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     public void draw() {
         this.children.forEach(ModelBone::draw);
+
+        if (this.baseStand != null && !baseStand.getPosition().samePoint(model.getPosition())) {
+            this.baseStand.teleport(Pos.fromPoint(model.getPosition()).add(0, 1, 0));
+        }
+
         if (this.offset == null) return;
 
         if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
@@ -81,39 +85,33 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             meta.setNotifyAboutChanges(true);
         }
 
-        if (this.getParent() == null && !lastPos.samePoint(model.getPosition())) {
-            this.baseStand.teleport(Pos.fromPoint(model.getPosition()).add(0, 1, 0));
-            this.lastPos = Pos.fromPoint(model.getPosition());
-        }
-
         sendTick++;
     }
 
     @Override
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
-        this.lastPos = Pos.fromPoint(position);
-
         return super.spawn(instance, position).whenCompleteAsync((v, e) -> {
             if (e != null) {
                 e.printStackTrace();
                 return;
             }
 
-            if (this.getParent() == null) {
+            if (!(this.getParent() instanceof ModelBonePartDisplay display)) {
                 this.baseStand = new Entity(EntityType.ARMOR_STAND);
                 ArmorStandMeta meta = (ArmorStandMeta) this.baseStand.getEntityMeta();
                 meta.setMarker(true);
 
-                this.baseStand.setInstance(instance, position).join();
+                this.baseStand.setInstance(instance, position.add(1)).join();
+                this.baseStand.setNoGravity(true);
 
-                if (this.stand != null) {
-                    this.baseStand.setNoGravity(true);
-                    this.baseStand.addPassenger(this.stand);
-                }
+                System.out.println("Spawned base stand for " + this.stand);
             }
 
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
+                if (getBaseStand() == null || this.stand == null) return;
                 getBaseStand().addPassenger(this.stand);
+
+                System.out.println("Mounted " + this.stand + " on " + getBaseStand());
             });
         });
     }
