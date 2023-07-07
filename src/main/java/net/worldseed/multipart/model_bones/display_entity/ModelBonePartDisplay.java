@@ -7,17 +7,23 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.network.packet.server.play.SetPassengersPacket;
+import net.minestom.server.timer.ExecutionType;
+import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
@@ -33,6 +39,8 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
                 public void tick(long time) {}
             };
 
+            this.stand.setAutoViewable(false);
+
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
             meta.setScale(new Vec(1, 1, 1));
@@ -43,13 +51,12 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         }
     }
 
-    private Entity getBaseStand() {
-        if (this.getParent() instanceof ModelBonePartDisplay display) return display.getBaseStand();
-        return baseStand;
-    }
-
     @Override
     public Pos calculatePosition() {
+        return Pos.fromPoint(model.getPosition()).withView(0, 0);
+    }
+
+    private Pos calculatePositionInternal() {
         if (this.offset == null) return Pos.ZERO;
         Point p = this.offset;
         p = applyTransform(p);
@@ -64,16 +71,16 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     public void draw() {
-        this.children.forEach(ModelBone::draw);
-
         if (this.baseStand != null && !baseStand.getPosition().samePoint(model.getPosition())) {
             this.baseStand.teleport(Pos.fromPoint(model.getPosition()).add(0, 1, 0));
+            if (this.stand != null) this.stand.teleport(Pos.fromPoint(model.getPosition()));
         }
 
+        this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
         if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
-            var position = calculatePosition();
+            var position = calculatePositionInternal();
             Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
             Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
             q = pq.multiply(q);
@@ -96,19 +103,40 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
                 return;
             }
 
-            if (!(this.getParent() instanceof ModelBonePartDisplay display)) {
-                this.baseStand = new Entity(EntityType.ARMOR_STAND);
+            if (!(this.getParent() instanceof ModelBonePartDisplay)) {
+                this.baseStand = new Entity(EntityType.ARMOR_STAND) {
+                    @Override
+                    public void tick(long time) {
+                    }
+
+                    @Override
+                    public void updateNewViewer(@NotNull Player player) {
+                        super.updateNewViewer(player);
+
+                        List<Integer> parts = model.getParts().stream().filter(e -> e.getEntityType() == EntityType.ITEM_DISPLAY).map(e -> {
+                            e.addViewer(player);
+                            return e.getEntityId();
+                        }).toList();
+
+                        SetPassengersPacket packet = new SetPassengersPacket(baseStand.getEntityId(), parts);
+                        player.sendPacket(packet);
+                    }
+
+                    @Override
+                    public void updateOldViewer(@NotNull Player player) {
+                        super.updateOldViewer(player);
+
+                        model.getParts().stream().filter(e -> e.getEntityType() == EntityType.ITEM_DISPLAY).forEach(e -> {
+                            e.removeViewer(player);
+                        });
+                    }
+                };
                 ArmorStandMeta meta = (ArmorStandMeta) this.baseStand.getEntityMeta();
                 meta.setMarker(true);
 
-                this.baseStand.setInstance(instance, position.add(1)).join();
                 this.baseStand.setNoGravity(true);
+                this.baseStand.setInstance(instance, position).join();
             }
-
-            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
-                if (getBaseStand() == null || this.stand == null) return;
-                getBaseStand().addPassenger(this.stand);
-            });
         });
     }
 
