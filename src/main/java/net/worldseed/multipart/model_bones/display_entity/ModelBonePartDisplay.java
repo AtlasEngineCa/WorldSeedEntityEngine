@@ -68,9 +68,8 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
-        var position = calculatePosition();
-
         if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
+            var position = calculatePosition();
             Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
             Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
             q = pq.multiply(q);
