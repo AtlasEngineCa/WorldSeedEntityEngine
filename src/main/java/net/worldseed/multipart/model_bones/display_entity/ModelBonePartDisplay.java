@@ -7,7 +7,9 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
+import net.worldseed.multipart.BundlePacket;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
@@ -15,8 +17,12 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
+import java.util.concurrent.CompletableFuture;
+
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
     int sendTick = 0;
+    Point rootPosition = null;
+    Point movingTowards = null;
 
     public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
         super(pivot, name, rotation, model);
@@ -51,26 +57,74 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         return q.toEuler();
     }
 
-    public void draw() {
-        this.children.forEach(ModelBone::draw);
-        if (this.offset == null) return;
+    private static final BundlePacket bundlePacket = new BundlePacket();
 
-        if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
+    private void updateRoot() {
+        if (this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             var position = calculatePosition();
+            rootPosition = movingTowards;
+
+            var viewers = this.stand.getViewers();
+
+            meta.setInterpolationDuration(-1);
+
+            viewers.forEach(viewer -> viewer.sendPacket(bundlePacket));
+
             Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
             Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
             q = pq.multiply(q);
 
             meta.setNotifyAboutChanges(false);
             meta.setInterpolationStartDelta(0);
-            meta.setRightRotation(new float[] {(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
-            meta.setTranslation(position);
+            meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
             meta.setNotifyAboutChanges(true);
+
+            meta.setTranslation(Pos.ZERO);
+            stand.teleport(Pos.fromPoint(movingTowards));
+
+            viewers.forEach(viewer -> viewer.sendPacket(bundlePacket));
+            meta.setInterpolationDuration(3);
+            
+            movingTowards = position;
+        }
+    }
+
+    public void draw() {
+        this.children.forEach(ModelBone::draw);
+        if (this.offset == null) return;
+
+        var position = calculatePosition();
+        var finalPosition = model.getPosition().add(position);
+
+        if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
+            if (rootPosition.distanceSquared(finalPosition) > 00) {
+                updateRoot();
+                return;
+            }
+
+            Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
+            Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
+            q = pq.multiply(q);
+
+            var diff = finalPosition.sub(rootPosition);
+
+            meta.setNotifyAboutChanges(false);
+            meta.setInterpolationStartDelta(0);
+            meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
+            meta.setTranslation(diff);
+            meta.setNotifyAboutChanges(true);
+
+            movingTowards = finalPosition;
         }
 
         sendTick++;
+    }
 
-        stand.teleport(Pos.fromPoint(model.getPosition()).withView(0, 0));
+    @Override
+    public CompletableFuture<Void> spawn(Instance instance, Point position) {
+        this.rootPosition = position.add(model.getPosition());
+        movingTowards = rootPosition;
+        return super.spawn(instance, position);
     }
 
     @Override
@@ -78,7 +132,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             if (state.equals("invisible")) {
                 meta.setItemStack(ItemStack.AIR);
-                meta.setViewRange(100);
+                meta.setViewRange(500);
                 return;
             }
 
