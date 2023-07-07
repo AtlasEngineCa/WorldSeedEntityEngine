@@ -53,9 +53,13 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         for (var cube : cubes) {
             JsonArray sizeArray = cube.getAsJsonObject().get("size").getAsJsonArray();
             JsonArray p = cube.getAsJsonObject().get("pivot").getAsJsonArray();
+            JsonArray origin = cube.getAsJsonObject().get("origin").getAsJsonArray();
 
             Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat());
             Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat());
+            Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat());
+
+            Point originPivotDiff = pivotPoint.sub(originPoint);
 
             int maxSize = Math.min(Math.max((int) Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 10), 50);
 
@@ -66,7 +70,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                         var relativeSize = new Vec(maxSize, maxSize, maxSize);
                         var relativePivotPoint = new Vec(x * maxSize, y * maxSize, z * maxSize);
 
-                        var newOffset = pivotPoint.mul(-1, 1, 1).sub(sizePoint.x() / 2, sizePoint.y() / 2, sizePoint.z() / 2);
+                        if ((relativePivotPoint.x() + relativeSize.x()/2) > sizePoint.x()) relativePivotPoint = relativePivotPoint.sub((relativePivotPoint.x() + relativeSize.x()/2) - sizePoint.x(), 0, 0);
+                        if ((relativePivotPoint.y() + relativeSize.y()) > sizePoint.y()) relativePivotPoint = relativePivotPoint.sub(0, (relativePivotPoint.y() + relativeSize.y()) - sizePoint.y(), 0);
+                        if ((relativePivotPoint.z() + relativeSize.z()/2) > sizePoint.z()) relativePivotPoint = relativePivotPoint.sub(0, 0, (relativePivotPoint.z() + relativeSize.z()/2) - sizePoint.z());
+
+                        var newOffset = pivotPoint.mul(-1, 1, 1).sub(sizePoint.x() / 2, originPivotDiff.y(), sizePoint.z() / 2);
                         newOffset = newOffset.add(relativePivotPoint).add(relativeSize.x() / 2, 0, relativeSize.z() / 2);
 
                         ModelBone created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, masterEntity, newOffset, relativeSize.x(), relativeSize.y(), cubes, false);
