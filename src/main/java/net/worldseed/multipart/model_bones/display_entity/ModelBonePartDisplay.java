@@ -103,15 +103,11 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
                 this.baseStand.setInstance(instance, position.add(1)).join();
                 this.baseStand.setNoGravity(true);
-
-                System.out.println("Spawned base stand for " + this.stand);
             }
 
             MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
                 if (getBaseStand() == null || this.stand == null) return;
                 getBaseStand().addPassenger(this.stand);
-
-                System.out.println("Mounted " + this.stand + " on " + getBaseStand());
             });
         });
     }
