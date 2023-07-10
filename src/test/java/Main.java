@@ -10,14 +10,14 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.Audiences;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.GlobalEventHandler;
-import net.minestom.server.event.player.*;
+import net.minestom.server.event.player.PlayerChatEvent;
+import net.minestom.server.event.player.PlayerDisconnectEvent;
+import net.minestom.server.event.player.PlayerLoginEvent;
+import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
@@ -26,21 +26,19 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.monitoring.TickMonitor;
-import net.minestom.server.network.packet.client.play.ClientSteerVehiclePacket;
 import net.minestom.server.sound.SoundEvent;
-import net.minestom.server.tag.Tag;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.MathUtils;
 import net.minestom.server.world.DimensionType;
-import net.worldseed.multipart.events.EntityDismountEvent;
-import net.worldseed.multipart.events.EntityControlEvent;
-import net.worldseed.multipart.events.EntityInteractEvent;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.resourcepack.PackBuilder;
 import org.apache.commons.io.FileUtils;
 import org.zeroturnaround.zip.ZipUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -105,32 +103,6 @@ public class Main {
                 player.sendMessage(Component.text("Run /spawn or /emote", NamedTextColor.YELLOW));
             });
 
-            handler.addListener(PlayerPacketEvent.class, event -> {
-                if (event.getPacket() instanceof ClientSteerVehiclePacket packet) {
-                    Entity ridingEntity = event.getPlayer().getVehicle();
-
-                    if (packet.flags() == 2 && ridingEntity != null) {
-                        EntityDismountEvent entityRideEvent = new EntityDismountEvent(ridingEntity, event.getPlayer());
-                        EventDispatcher.call(entityRideEvent);
-                    }
-
-                    if (packet.flags() == 1 && ridingEntity != null) {
-                        EventDispatcher.call(new EntityControlEvent(ridingEntity, packet.forward(), packet.sideways(), true));
-                    }
-
-                    if (packet.flags() == 0 && ridingEntity != null) {
-                        EventDispatcher.call(new EntityControlEvent(ridingEntity, packet.forward(), packet.sideways(), false));
-                    }
-                }
-            });
-
-            handler.addListener(PlayerEntityInteractEvent.class, event -> {
-                if (event.getTarget().getTag(Tag.String("WSEE")) != null) {
-                    EntityInteractEvent entityInteractEvent = new EntityInteractEvent(event.getTarget(), event.getPlayer());
-                    EventDispatcher.call(entityInteractEvent);
-                }
-            });
-
             handler.addListener(PlayerSpawnEvent.class, event -> {
                 if (!event.isFirstSpawn()) return;
                 final Player player = event.getPlayer();
@@ -180,7 +152,6 @@ public class Main {
         }
 
         OpenToLAN.open();
-        MojangAuth.init();
 
         minecraftServer.start("0.0.0.0", 25565);
         System.out.println("Server startup done!");

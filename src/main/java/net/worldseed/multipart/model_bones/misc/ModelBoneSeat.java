@@ -5,32 +5,40 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.*;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBoneSeat extends ModelBoneImpl {
-    public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo) {
+
+    @Override
+    public void addViewer(Player player) {
+        if (this.stand != null) this.stand.addViewer(player);
+    }
+
+    @Override
+    public void removeViewer(Player player) {
+        if (this.stand != null) this.stand.removeViewer(player);
+    }
+
+    public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.ZOMBIE) {
-                @Override
-                public void tick(long time) {}
-            };
+            this.stand = new BoneEntity(EntityType.ZOMBIE, model);
             this.stand.setTag(Tag.String("WSEE"), "seat");
             stand.setInvisible(true);
-
-            ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
 
     @Override
-    public void setState(String state) {}
+    public void setState(String state) { }
 
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
         if (this.offset != null) {

@@ -14,8 +14,8 @@ import net.worldseed.multipart.model_bones.zombie.ModelBonePartZombie;
 public class ModelBoneHeadDisplay extends ModelBonePartDisplay implements ModelBoneHead, ModelBoneViewable {
     private double headRotation;
 
-    public ModelBoneHeadDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
-        super(pivot, name, rotation, model, config, forwardTo);
+    public ModelBoneHeadDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config) {
+        super(pivot, name, rotation, model, config);
     }
 
     @Override

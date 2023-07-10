@@ -4,12 +4,13 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.item.ItemStack;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
@@ -23,14 +24,21 @@ public class ModelBonePartArmourStand extends ModelBoneImpl implements ModelBone
     private final Pos SMALL_SUB = new Pos(0, 0.72, 0);
     private final Pos NORMAL_SUB = new Pos(0, 1.426, 0);
 
-    public ModelBonePartArmourStand(Point pivot, String name, Point rotation, GenericModel model, ModelConfig modelConfig, LivingEntity forwardTo) {
+    @Override
+    public void addViewer(Player player) {
+        if (this.stand != null) this.stand.addViewer(player);
+    }
+
+    @Override
+    public void removeViewer(Player player) {
+        if (this.stand != null) this.stand.removeViewer(player);
+    }
+
+    public ModelBonePartArmourStand(Point pivot, String name, Point rotation, GenericModel model, ModelConfig modelConfig) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.ARMOR_STAND) {
-                @Override
-                public void tick(long time) {}
-            };
+            this.stand = new BoneEntity(EntityType.ARMOR_STAND, model);
 
             ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
             stand.setInvisible(true);
@@ -39,7 +47,6 @@ public class ModelBonePartArmourStand extends ModelBoneImpl implements ModelBone
                 meta.setSmall(true);
 
             meta.setHasNoBasePlate(true);
-            ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
 
@@ -138,16 +145,16 @@ public class ModelBonePartArmourStand extends ModelBoneImpl implements ModelBone
 
     @Override
     public void setState(String state) {
-        if (this.stand != null && this.stand instanceof LivingEntity e) {
+        if (this.stand != null) {
             if (state.equals("invisible")) {
-                e.setHelmet(ItemStack.AIR);
+                stand.setHelmet(ItemStack.AIR);
                 return;
             }
 
             var item = this.items.get(state);
 
             if (item != null) {
-                e.setHelmet(item);
+                stand.setHelmet(item);
             }
         }
     }

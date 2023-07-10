@@ -2,6 +2,7 @@ package net.worldseed.multipart.model_bones;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.Player;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.minestom.server.coordinate.Point;
@@ -25,7 +26,7 @@ public interface ModelBone {
     void setParent(ModelBone parent);
 
     String getName();
-    Entity getEntity();
+    BoneEntity getEntity();
     Point getOffset();
     ModelBone getParent();
     Point getPropogatedRotation();
@@ -37,4 +38,7 @@ public interface ModelBone {
 
     void addChild(ModelBone child);
     void addAnimation(ModelAnimation animation);
+
+    void addViewer(Player player);
+    void removeViewer(Player player);
 }

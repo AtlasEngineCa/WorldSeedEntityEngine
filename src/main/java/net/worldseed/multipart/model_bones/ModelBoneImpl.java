@@ -1,10 +1,8 @@
 package net.worldseed.multipart.model_bones;
 
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.damage.EntityDamage;
@@ -16,10 +14,10 @@ import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.*;
 import net.worldseed.multipart.ModelLoader.AnimationType;
 import net.worldseed.multipart.animations.ModelAnimation;
-import net.worldseed.multipart.events.EntityControlEvent;
-import net.worldseed.multipart.events.EntityDismountEvent;
-import net.worldseed.multipart.events.EntityInteractEvent;
-import net.worldseed.multipart.mount.MobRidable;
+import net.worldseed.multipart.events.ModelControlEvent;
+import net.worldseed.multipart.events.ModelDismountEvent;
+import net.worldseed.multipart.events.ModelInteractEvent;
+import net.worldseed.multipart.mount.ModelRidable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,13 +35,13 @@ public abstract class ModelBoneImpl implements ModelBone {
     protected Point offset;
     protected Point rotation;
     ModelBone parent;
-    protected Entity stand;
+    protected BoneEntity stand;
 
     protected final ArrayList<ModelBone> children = new ArrayList<>();
     protected final GenericModel model;
 
     @Override
-    public Entity getEntity() {
+    public BoneEntity getEntity() {
         return stand;
     }
 
@@ -184,11 +182,10 @@ public abstract class ModelBoneImpl implements ModelBone {
 
     @Override
     public void destroy() {
-        this.children.forEach(c -> c.destroy());
+        this.children.forEach(ModelBone::destroy);
         this.children.clear();
 
         if (this.stand != null) {
-            this.stand.setInvisible(true);
             this.stand.remove();
         }
     }
@@ -206,40 +203,6 @@ public abstract class ModelBoneImpl implements ModelBone {
     @Override
     public Point getOffset() {
         return this.offset;
-    }
-
-    public static void hookPart(ModelBoneImpl part, LivingEntity forwardTo) {
-        if (part.stand == null || part.model == null) return;
-
-        part.stand.setTag(Tag.String("WSEE"), "part");
-        part.stand.eventNode().addListener(EntityDamageEvent.class, (event -> {
-            event.setCancelled(true);
-
-            if (forwardTo != null) {
-                if (event.getDamageType() instanceof EntityDamage source) {
-                    forwardTo.damage(DamageType.fromEntity(source.getSource()), event.getDamage());
-                }
-            }
-        }));
-
-        part.stand.eventNode().addListener(EntityDismountEvent.class, (event -> {
-            part.model.dismountEntity(event.getRider());
-        }));
-
-        part.stand.eventNode().addListener(EntityControlEvent.class, (event -> {
-            if (forwardTo instanceof MobRidable rideable) {
-                rideable.getControlGoal().setForward(event.getForward());
-                rideable.getControlGoal().setSideways(event.getSideways());
-                rideable.getControlGoal().setJump(event.getJump());
-            }
-        }));
-
-        part.stand.eventNode().addListener(EntityInteractEvent.class, (event -> {
-            if (forwardTo != null) {
-                EntityInteractEvent entityInteractEvent = new EntityInteractEvent(forwardTo, event.getInteracted());
-                EventDispatcher.call(entityInteractEvent);
-            }
-        }));
     }
 
     public abstract Pos calculatePosition();

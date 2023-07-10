@@ -1,5 +1,5 @@
 package net.worldseed.multipart.mount;
 
-public interface MobRidable {
+public interface ModelRidable {
     ControlGoal getControlGoal();
 }

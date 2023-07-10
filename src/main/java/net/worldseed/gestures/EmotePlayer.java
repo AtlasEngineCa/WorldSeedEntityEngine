@@ -7,12 +7,20 @@ import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
+import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 
 import java.util.Map;
 
 public abstract class EmotePlayer extends EntityCreature {
+    private static final ModelConfig modelConfig = new ModelConfig(
+            ModelConfig.ModelType.ARMOUR_STAND,
+            ModelConfig.InterpolationType.POSITION_INTERPOLATION,
+            ModelConfig.Size.NORMAL,
+            ModelConfig.ItemSlot.HAND
+    );
+
     private final EmoteModel model;
     private final AnimationHandler animationHandler;
     private int emoteIndex = 0;
@@ -21,7 +29,7 @@ public abstract class EmotePlayer extends EntityCreature {
         super(entityType);
 
         this.model = new EmoteModel(skin);
-        model.init(instance, pos, this);
+        model.init(instance, pos, modelConfig);
 
         this.animationHandler = new AnimationHandlerImpl(model) {
             @Override

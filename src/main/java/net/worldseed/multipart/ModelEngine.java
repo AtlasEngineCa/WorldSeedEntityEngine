@@ -2,11 +2,27 @@ package net.worldseed.multipart;
 
 import com.google.gson.*;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.damage.EntityDamage;
+import net.minestom.server.event.EventDispatcher;
+import net.minestom.server.event.EventListener;
+import net.minestom.server.event.entity.EntityDamageEvent;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.network.packet.client.play.ClientSteerVehiclePacket;
+import net.worldseed.multipart.events.ModelControlEvent;
+import net.worldseed.multipart.events.ModelDamageEvent;
+import net.worldseed.multipart.events.ModelDismountEvent;
+import net.worldseed.multipart.events.ModelInteractEvent;
+import net.worldseed.multipart.model_bones.BoneEntity;
+import net.worldseed.multipart.mount.ModelRidable;
 
 import java.io.Reader;
 import java.nio.file.Path;
@@ -48,6 +64,49 @@ public class ModelEngine {
             offsetMappings.put(entry.getKey(), getPos(entry.getValue().getAsJsonObject().get("offset").getAsJsonArray()).orElse(Pos.ZERO));
             diffMappings.put(entry.getKey(), getPos(entry.getValue().getAsJsonObject().get("diff").getAsJsonArray()).orElse(Pos.ZERO));
         });
+    }
+
+    private static final EventListener<PlayerPacketEvent> playerListener = EventListener.of(PlayerPacketEvent.class, event -> {
+        if (event.getPacket() instanceof ClientSteerVehiclePacket packet) {
+            Entity ridingEntity = event.getPlayer().getVehicle();
+
+            if (ridingEntity instanceof BoneEntity bone) {
+                if (packet.flags() == 2) {
+                    ModelDismountEvent entityRideEvent = new ModelDismountEvent(bone.getModel(), event.getPlayer());
+                    EventDispatcher.call(entityRideEvent);
+                }
+
+                if (packet.flags() == 1) {
+                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), true));
+                }
+
+                if (packet.flags() == 0) {
+                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), false));
+                }
+            }
+        }
+    });
+
+    private static final EventListener<PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
+        if (event.getTarget() instanceof BoneEntity bone) {
+            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event.getPlayer());
+            EventDispatcher.call(modelInteractEvent);
+        }
+    });
+
+    private static final EventListener<EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
+        if (event.getEntity() instanceof BoneEntity bone) {
+            event.setCancelled(true);
+            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(bone.getModel(), event);
+            MinecraftServer.getGlobalEventHandler().call(modelDamageEvent);
+        }
+    });
+
+    static {
+        MinecraftServer.getGlobalEventHandler()
+                .addListener(playerListener)
+                .addListener(playerInteractListener)
+                .addListener(entityDamageListener);
     }
 
     private static ItemStack generateBoneItem(int model_id) {

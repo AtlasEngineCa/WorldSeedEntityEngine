@@ -1,25 +1,24 @@
 package net.worldseed.multipart.events;
 
-import net.minestom.server.entity.Entity;
-import net.minestom.server.event.trait.EntityEvent;
+import net.worldseed.multipart.GenericModel;
 import org.jetbrains.annotations.NotNull;
 
-public class EntityControlEvent implements EntityEvent {
-    private final Entity entity;
+public class ModelControlEvent implements ModelEvent {
+    private final GenericModel model;
     private final float forward;
     private final float sideways;
     private final boolean jump;
 
-    public EntityControlEvent(@NotNull Entity entity, float forward, float sideways, boolean jump) {
-        this.entity = entity;
+    public ModelControlEvent(@NotNull GenericModel model, float forward, float sideways, boolean jump) {
+        this.model = model;
         this.forward = forward;
         this.sideways = sideways;
         this.jump = jump;
     }
 
     @Override
-    public @NotNull Entity getEntity() {
-        return entity;
+    public @NotNull GenericModel getModel() {
+        return model;
     }
 
     public float getForward() {

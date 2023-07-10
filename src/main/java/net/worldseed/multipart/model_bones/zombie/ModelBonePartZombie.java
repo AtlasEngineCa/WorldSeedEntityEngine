@@ -5,11 +5,13 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.monster.zombie.ZombieMeta;
 import net.minestom.server.item.ItemStack;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
@@ -18,14 +20,21 @@ public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewa
     private final Pos SMALL_SUB = new Pos(0, 0.76, 0);
     private final Pos NORMAL_SUB = new Pos(0, 1.5, 0);
 
-    public ModelBonePartZombie(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
+    @Override
+    public void addViewer(Player player) {
+        if (this.stand != null) this.stand.addViewer(player);
+    }
+
+    @Override
+    public void removeViewer(Player player) {
+        if (this.stand != null) this.stand.removeViewer(player);
+    }
+
+    public ModelBonePartZombie(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {
-            this.stand = new LivingEntity(EntityType.ZOMBIE) {
-                @Override
-                public void tick(long time) {}
-            };
+            this.stand = new BoneEntity(EntityType.ZOMBIE, model);
 
             if (config.size() == ModelConfig.Size.SMALL) {
                 ZombieMeta meta = (ZombieMeta) this.stand.getEntityMeta();
@@ -33,7 +42,6 @@ public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewa
             }
 
             stand.setInvisible(true);
-            ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
 
@@ -84,15 +92,15 @@ public class ModelBonePartZombie extends ModelBoneImpl implements ModelBoneViewa
 
     @Override
     public void setState(String state) {
-        if (this.stand != null && this.stand instanceof LivingEntity e) {
+        if (this.stand != null) {
             if (state.equals("invisible")) {
-                e.setHelmet(ItemStack.AIR);
+                this.stand.setHelmet(ItemStack.AIR);
                 return;
             }
 
             var item = this.items.get(state);
             if (item != null) {
-                e.setHelmet(item);
+                this.stand.setHelmet(item);
             }
         }
     }
