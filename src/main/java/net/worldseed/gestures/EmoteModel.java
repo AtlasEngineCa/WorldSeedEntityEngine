@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
@@ -64,9 +63,7 @@ public class EmoteModel extends GenericModelImpl {
 
     @Override
     public boolean addViewer(@NotNull Player player) {
-        standBones.forEach(bone -> {
-            bone.addViewer(player);
-        });
+        standBones.forEach(bone -> bone.addViewer(player));
         return super.addViewer(player);
     }
 
