@@ -136,6 +136,18 @@ public class GemGolemMob extends EntityCreature implements ModelRidable {
         super.remove();
     }
 
+    @Override
+    public void updateNewViewer(@NotNull Player player) {
+        super.updateNewViewer(player);
+        this.model.addViewer(player);
+    }
+
+    @Override
+    public void updateOldViewer(@NotNull Player player) {
+        super.updateOldViewer(player);
+        this.model.removeViewer(player);
+    }
+
     public void setSleeping(boolean sleeping) {
         this.sleeping = sleeping;
     }

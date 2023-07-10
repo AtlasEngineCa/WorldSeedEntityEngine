@@ -1,25 +1,22 @@
 package net.worldseed.gestures;
 
 import com.google.gson.JsonObject;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.EntityCreature;
-import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.PlayerSkin;
+import net.minestom.server.entity.*;
+import net.minestom.server.event.entity.EntityDamageEvent;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
-import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
+import net.worldseed.multipart.events.ModelDamageEvent;
+import net.worldseed.multipart.events.ModelInteractEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public abstract class EmotePlayer extends EntityCreature {
-    private static final ModelConfig modelConfig = new ModelConfig(
-            ModelConfig.ModelType.ARMOUR_STAND,
-            ModelConfig.InterpolationType.POSITION_INTERPOLATION,
-            ModelConfig.Size.NORMAL,
-            ModelConfig.ItemSlot.HAND
-    );
 
     private final EmoteModel model;
     private final AnimationHandler animationHandler;
@@ -28,16 +25,35 @@ public abstract class EmotePlayer extends EntityCreature {
     public EmotePlayer(Instance instance, Pos pos, PlayerSkin skin, EntityType entityType) {
         super(entityType);
 
-        this.model = new EmoteModel(skin);
-        model.init(instance, pos, modelConfig);
+        Entity self = this;
+        this.model = new EmoteModel(skin) {
+            @Override
+            public void setPosition(Pos pos) {
+                super.setPosition(pos);
+                if (self.getInstance() != null) self.teleport(pos);
+            }
+        };
+
+        model.init(instance, pos);
+
+        setBoundingBox(0.8, 1.8, 0.8);
+        this.setInvisible(true);
+        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.001f);
+        this.setInstance(instance, pos).join();
 
         this.animationHandler = new AnimationHandlerImpl(model) {
             @Override
             protected void loadDefaultAnimations() {}
         };
 
-        setBoundingBox(0.8, 1.8, 0.8);
-        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.001f);
+        this.eventNode().addListener(EntityDamageEvent.class, (event) -> {
+            event.setCancelled(true);
+            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(model, event);
+            MinecraftServer.getGlobalEventHandler().call(modelDamageEvent);
+        }).addListener(PlayerEntityInteractEvent.class, (event) -> {
+            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(model, event);
+            MinecraftServer.getGlobalEventHandler().call(modelInteractEvent);
+        });
     }
 
     public EmotePlayer(Instance instance, Pos pos, PlayerSkin skin) {
@@ -60,6 +76,18 @@ public abstract class EmotePlayer extends EntityCreature {
         this.model.destroy();
         this.animationHandler.destroy();
         super.remove();
+    }
+
+    @Override
+    public void updateNewViewer(@NotNull Player player) {
+        super.updateNewViewer(player);
+        this.model.addViewer(player);
+    }
+
+    @Override
+    public void updateOldViewer(@NotNull Player player) {
+        super.updateOldViewer(player);
+        this.model.removeViewer(player);
     }
 
     protected AnimationHandler getAnimationHandler() {

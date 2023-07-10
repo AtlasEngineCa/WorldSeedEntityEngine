@@ -1,15 +1,10 @@
 package net.worldseed.multipart.model_bones;
 
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.metadata.EntityMeta;
-import net.minestom.server.entity.metadata.ObjectDataProvider;
 import net.minestom.server.network.packet.server.LazyPacket;
-import net.minestom.server.network.packet.server.play.EntityHeadLookPacket;
 import net.minestom.server.network.packet.server.play.SpawnEntityPacket;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
@@ -46,5 +41,8 @@ public class BoneEntity extends LivingEntity {
 
         player.sendPacket(spawnPacket);
         player.sendPacket(new LazyPacket(this::getMetadataPacket));
+
+        if (this.getEntityType() == EntityType.ZOMBIE || this.getEntityType() == EntityType.ARMOR_STAND)
+            player.sendPacket(getEquipmentsPacket());
     }
 }

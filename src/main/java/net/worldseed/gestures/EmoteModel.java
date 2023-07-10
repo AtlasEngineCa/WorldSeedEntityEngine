@@ -8,6 +8,7 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
@@ -61,6 +62,20 @@ public class EmoteModel extends GenericModelImpl {
     private final List<ModelBone> standBones = new ArrayList<>();
     private final PlayerSkin skin;
 
+    @Override
+    public boolean addViewer(@NotNull Player player) {
+        standBones.forEach(bone -> {
+            bone.addViewer(player);
+        });
+        return super.addViewer(player);
+    }
+
+    @Override
+    public boolean removeViewer(@NotNull Player player) {
+        standBones.forEach(bone -> bone.removeViewer(player));
+        return super.removeViewer(player);
+    }
+
     public EmoteModel(PlayerSkin skin) {
         this.skin = skin;
     }
@@ -70,7 +85,7 @@ public class EmoteModel extends GenericModelImpl {
         return null;
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelConfig config) {
+    private void init_(@Nullable Instance instance, @NotNull Pos position, ModelConfig config) {
         this.config = config;
         this.instance = instance;
         this.setPosition(position);
@@ -92,7 +107,7 @@ public class EmoteModel extends GenericModelImpl {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position) {
-        this.init(instance, position, new ModelConfig(
+        this.init_(instance, position, new ModelConfig(
             ModelConfig.ModelType.ARMOUR_STAND,
             ModelConfig.InterpolationType.POSITION_INTERPOLATION,
             ModelConfig.Size.NORMAL,
@@ -116,8 +131,8 @@ public class EmoteModel extends GenericModelImpl {
 
     private void setHeads(Map<Integer, ItemStack> heads) {
         for (int i = 0; i < SPAWN_ORDER.length; ++i) {
-            Entity f = standBones.get(i).getEntity();
-            ((LivingEntity) f).setItemInMainHand(heads.get(i+1));
+            LivingEntity f = standBones.get(i).getEntity();
+            f.setItemInMainHand(heads.get(i+1));
         }
     }
 
