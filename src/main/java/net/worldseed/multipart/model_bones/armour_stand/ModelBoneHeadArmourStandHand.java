@@ -13,8 +13,8 @@ import net.worldseed.multipart.model_bones.ModelBoneViewable;
 public class ModelBoneHeadArmourStandHand extends ModelBonePartArmourStandHand implements ModelBoneHead, ModelBoneViewable {
     private double headRotation;
 
-    public ModelBoneHeadArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
-        super(pivot, name, rotation, model, config, forwardTo);
+    public ModelBoneHeadArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config) {
+        super(pivot, name, rotation, model, config);
     }
 
     @Override

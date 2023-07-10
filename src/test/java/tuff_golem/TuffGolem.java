@@ -14,7 +14,7 @@ public class TuffGolem extends GenericModelImpl {
         return "tuff_golem.bbmodel";
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, LivingEntity masterEntity) {
-        super.init(instance, position, ModelConfig.defaultConfig, masterEntity);
+    public void init(@Nullable Instance instance, @NotNull Pos position) {
+        super.init(instance, position, ModelConfig.defaultConfig);
     }
 }

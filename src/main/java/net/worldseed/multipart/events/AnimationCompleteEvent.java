@@ -1,24 +1,18 @@
 package net.worldseed.multipart.events;
 
-import net.minestom.server.entity.Entity;
-import net.minestom.server.event.trait.EntityEvent;
+import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import org.jetbrains.annotations.NotNull;
 
-public class AnimationCompleteEvent implements EntityEvent {
-    private final Entity entity;
+public class AnimationCompleteEvent implements ModelEvent {
     private final String animation;
     private final AnimationHandlerImpl.AnimationDirection direction;
+    private final GenericModel model;
 
-    public AnimationCompleteEvent(@NotNull Entity entity, String animation, AnimationHandlerImpl.AnimationDirection direction) {
-        this.entity = entity;
+    public AnimationCompleteEvent(@NotNull GenericModel model, String animation, AnimationHandlerImpl.AnimationDirection direction) {
         this.animation = animation;
         this.direction = direction;
-    }
-
-    @Override
-    public @NotNull Entity getEntity() {
-        return entity;
+        this.model = model;
     }
 
     public String animation() {
@@ -27,5 +21,10 @@ public class AnimationCompleteEvent implements EntityEvent {
 
     public AnimationHandlerImpl.AnimationDirection direction() {
         return direction;
+    }
+
+    @Override
+    public GenericModel getModel() {
+        return model;
     }
 }

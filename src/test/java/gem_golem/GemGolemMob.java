@@ -16,16 +16,18 @@ import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
+import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
-import net.worldseed.multipart.events.EntityInteractEvent;
-import net.worldseed.multipart.mount.MobRidable;
+import net.worldseed.multipart.events.ModelInteractEvent;
+import net.worldseed.multipart.model_bones.BoneEntity;
+import net.worldseed.multipart.mount.ModelRidable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
 
-public class GemGolemMob extends EntityCreature implements MobRidable {
+public class GemGolemMob extends EntityCreature implements ModelRidable {
     private final GemGolemModel model;
     private final AnimationHandler animationHandler;
     private final GemGolemControlGoal controlGoal;
@@ -35,7 +37,9 @@ public class GemGolemMob extends EntityCreature implements MobRidable {
     public GemGolemMob(Instance instance, Pos pos) {
         super(EntityType.PUFFERFISH);
 
-        LivingEntity nametag = new LivingEntity(EntityType.ARMOR_STAND);
+        this.model = new GemGolemModel();
+
+        BoneEntity nametag = new BoneEntity(EntityType.ARMOR_STAND, model);
         nametag.setCustomNameVisible(true);
         nametag.setCustomName(Component.text("Gem Golem"));
         nametag.setNoGravity(true);
@@ -45,8 +49,7 @@ public class GemGolemMob extends EntityCreature implements MobRidable {
         ArmorStandMeta meta = (ArmorStandMeta) nametag.getEntityMeta();
         meta.setMarker(true);
 
-        this.model = new GemGolemModel();
-        model.init(instance, pos, this, nametag);
+        model.init(instance, pos, nametag);
 
         this.animationHandler = new AnimationHandlerImpl(model);
         animationHandler.playRepeat("idle_extended");
@@ -68,7 +71,7 @@ public class GemGolemMob extends EntityCreature implements MobRidable {
         setBoundingBox(3, 3, 3);
         this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.15f);
 
-        this.eventNode().addListener(EntityInteractEvent.class, (event -> {
+        model.eventNode().addListener(ModelInteractEvent.class, (event -> {
             this.model.mountEntity(event.getInteracted());
         }));
 

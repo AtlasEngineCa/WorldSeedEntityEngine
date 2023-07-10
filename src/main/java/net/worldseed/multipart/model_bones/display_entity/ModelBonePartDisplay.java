@@ -5,7 +5,6 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
@@ -15,6 +14,7 @@ import net.minestom.server.network.packet.server.play.SetPassengersPacket;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
@@ -27,16 +27,23 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     int sendTick = 0;
     private Entity baseStand;
 
-    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config, LivingEntity forwardTo) {
+    @Override
+    public void addViewer(Player player) {
+        if (this.stand != null) this.stand.addViewer(player);
+        if (this.baseStand != null) this.baseStand.addViewer(player);
+    }
+
+    @Override
+    public void removeViewer(Player player) {
+        if (this.stand != null) this.stand.removeViewer(player);
+        if (this.baseStand != null) this.baseStand.removeViewer(player);
+    }
+
+    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {
-            this.stand = new Entity(EntityType.ITEM_DISPLAY) {
-                @Override
-                public void tick(long time) {}
-            };
-
-            this.stand.setAutoViewable(false);
+            this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model);
 
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
@@ -44,7 +51,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
             meta.setInterpolationDuration(3);
             meta.setViewRange(1000);
-            ModelBoneImpl.hookPart(this, forwardTo);
         }
     }
 
@@ -108,31 +114,18 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             }
 
             if (!(this.getParent() instanceof ModelBonePartDisplay)) {
-                this.baseStand = new Entity(EntityType.ARMOR_STAND) {
-                    @Override
-                    public void tick(long time) {
-                    }
-
+                this.baseStand = new BoneEntity(EntityType.ARMOR_STAND, model) {
                     @Override
                     public void updateNewViewer(@NotNull Player player) {
                         super.updateNewViewer(player);
 
-                        List<Integer> parts = model.getParts().stream().filter(e -> e.getEntityType() == EntityType.ITEM_DISPLAY).map(e -> {
-                            e.addViewer(player);
-                            return e.getEntityId();
-                        }).toList();
-
+                        List<Integer> parts = model.getParts().stream()
+                                .map(ModelBone::getEntity)
+                                .filter(e -> e != null && e.getEntityType() == EntityType.ITEM_DISPLAY)
+                                .map(Entity::getEntityId)
+                                .toList();
                         SetPassengersPacket packet = new SetPassengersPacket(baseStand.getEntityId(), parts);
                         player.sendPacket(packet);
-                    }
-
-                    @Override
-                    public void updateOldViewer(@NotNull Player player) {
-                        super.updateOldViewer(player);
-
-                        model.getParts().stream().filter(e -> e.getEntityType() == EntityType.ITEM_DISPLAY).forEach(e -> {
-                            e.removeViewer(player);
-                        });
                     }
                 };
                 ArmorStandMeta meta = (ArmorStandMeta) this.baseStand.getEntityMeta();

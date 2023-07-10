@@ -1,18 +1,21 @@
 package net.worldseed.multipart;
 
+import net.minestom.server.Viewable;
 import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.event.EventHandler;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
+import net.worldseed.multipart.events.ModelEvent;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public interface GenericModel {
+public interface GenericModel extends Viewable, EventHandler<ModelEvent> {
     /**
      * Get the ID of the model
      * @return the model ID
@@ -47,13 +50,13 @@ public interface GenericModel {
      * Get the position the model is being drawn at
      * @return the model position
      */
-    Point getPosition();
+    Pos getPosition();
 
     /**
      * Set the position of the model
      * @param pos new model position
      */
-    void setPosition(Point pos);
+    void setPosition(Pos pos);
 
     /**
      * Set the state of the model. By default, `normal` and `hit` are supported
@@ -96,7 +99,7 @@ public interface GenericModel {
      */
     void setHeadRotation(double rotation);
 
-    List<Entity> getParts();
+    List<ModelBone> getParts();
 
     ModelBone getSeat();
 
@@ -114,7 +117,7 @@ public interface GenericModel {
      * Takes over control of entity movement.
      * @param entity the entity
      */
-    void setNametagEntity(LivingEntity entity);
+    void setNametagEntity(BoneEntity entity);
     Entity getNametagEntity();
 
     Instance getInstance();

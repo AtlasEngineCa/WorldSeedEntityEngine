@@ -33,7 +33,7 @@ public class TuffGolemMob extends EntityCreature {
         this.player = player;
 
         this.model = new TuffGolem();
-        model.init(instance, pos, this);
+        model.init(instance, pos);
 
         this.animationHandler = new AnimationHandlerImpl(model);
         animationHandler.playRepeat("walk");

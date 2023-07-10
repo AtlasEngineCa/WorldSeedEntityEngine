@@ -3,6 +3,7 @@ package net.worldseed.multipart.model_bones.misc;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
@@ -12,6 +13,13 @@ import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBoneVFX extends ModelBoneImpl {
+
+    @Override
+    public void addViewer(Player player) {}
+
+    @Override
+    public void removeViewer(Player player) { }
+
     private Point position = Pos.ZERO;
 
     public Point getPosition() {

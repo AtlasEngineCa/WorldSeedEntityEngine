@@ -70,13 +70,13 @@ public class EmoteModel extends GenericModelImpl {
         return null;
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelConfig config, LivingEntity masterEntity) {
+    public void init(@Nullable Instance instance, @NotNull Pos position, ModelConfig config) {
         this.config = config;
         this.instance = instance;
         this.setPosition(position);
 
         this.setGlobalRotation(position.yaw());
-        loadBones(MODEL_JSON, masterEntity);
+        loadBones(MODEL_JSON);
 
         for (String boneName : SPAWN_ORDER) {
             ModelBone bone = this.parts.get(boneName);
@@ -91,13 +91,13 @@ public class EmoteModel extends GenericModelImpl {
         draw();
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, LivingEntity masterEntity) {
+    public void init(@Nullable Instance instance, @NotNull Pos position) {
         this.init(instance, position, new ModelConfig(
             ModelConfig.ModelType.ARMOUR_STAND,
             ModelConfig.InterpolationType.POSITION_INTERPOLATION,
             ModelConfig.Size.NORMAL,
             ModelConfig.ItemSlot.HAND
-        ), masterEntity);
+        ));
 
         Map<Integer, ItemStack> heads = new HashMap<>();
         for (int i = 1; i <= SPAWN_ORDER.length; ++i) {

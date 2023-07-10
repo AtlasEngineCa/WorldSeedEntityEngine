@@ -5,13 +5,26 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelConfig;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
 public class ModelBoneNametag extends ModelBoneImpl {
-    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, LivingEntity nametagEntity) {
+
+    @Override
+    public void addViewer(Player player) {
+        if (this.stand != null) this.stand.addViewer(player);
+    }
+
+    @Override
+    public void removeViewer(Player player) {
+        if (this.stand != null) this.stand.removeViewer(player);
+    }
+
+    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null && nametagEntity != null) {
@@ -23,7 +36,7 @@ public class ModelBoneNametag extends ModelBoneImpl {
     @Override
     public void setState(String state) { }
 
-    public void linkEntity(LivingEntity entity) {
+    public void linkEntity(BoneEntity entity) {
         this.stand = entity;
         this.stand.setTag(Tag.String("WSEE"), "nametag");
     }
