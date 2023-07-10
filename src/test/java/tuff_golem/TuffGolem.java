@@ -1,10 +1,8 @@
 package tuff_golem;
 
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.GenericModelImpl;
-import net.worldseed.multipart.ModelConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +13,6 @@ public class TuffGolem extends GenericModelImpl {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position) {
-        super.init(instance, position, ModelConfig.defaultConfig);
+        super.init(instance, position);
     }
 }

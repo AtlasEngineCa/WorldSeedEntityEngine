@@ -2,20 +2,17 @@ package net.worldseed.multipart.model_bones.display_entity;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.LivingEntity;
 import net.worldseed.multipart.GenericModel;
-import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.ModelLoader;
 import net.worldseed.multipart.animations.ModelAnimation;
 import net.worldseed.multipart.model_bones.ModelBoneHead;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
-import net.worldseed.multipart.model_bones.zombie.ModelBonePartZombie;
 
 public class ModelBoneHeadDisplay extends ModelBonePartDisplay implements ModelBoneHead, ModelBoneViewable {
     private double headRotation;
 
-    public ModelBoneHeadDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config) {
-        super(pivot, name, rotation, model, config);
+    public ModelBoneHeadDisplay(Point pivot, String name, Point rotation, GenericModel model) {
+        super(pivot, name, rotation, model);
     }
 
     @Override

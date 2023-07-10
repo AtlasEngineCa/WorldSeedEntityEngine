@@ -14,7 +14,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.metadata.PlayerHeadMeta;
 import net.worldseed.multipart.GenericModelImpl;
-import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -82,8 +81,7 @@ public class EmoteModel extends GenericModelImpl {
         return null;
     }
 
-    private void init_(@Nullable Instance instance, @NotNull Pos position, ModelConfig config) {
-        this.config = config;
+    private void init_(@Nullable Instance instance, @NotNull Pos position) {
         this.instance = instance;
         this.setPosition(position);
 
@@ -104,12 +102,7 @@ public class EmoteModel extends GenericModelImpl {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position) {
-        this.init_(instance, position, new ModelConfig(
-            ModelConfig.ModelType.ARMOUR_STAND,
-            ModelConfig.InterpolationType.POSITION_INTERPOLATION,
-            ModelConfig.Size.NORMAL,
-            ModelConfig.ItemSlot.HAND
-        ));
+        this.init_(instance, position);
 
         Map<Integer, ItemStack> heads = new HashMap<>();
         for (int i = 1; i <= SPAWN_ORDER.length; ++i) {

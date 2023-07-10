@@ -60,16 +60,8 @@ public class ModelBoneSeat extends ModelBoneImpl {
         p = calculateGlobalRotation(p);
         Pos endPos = Pos.fromPoint(p);
 
-        double divisor;
-        if (model.config().itemSlot() == ModelConfig.ItemSlot.HEAD) {
-            divisor = model.config().size() == ModelConfig.Size.SMALL ? 1.426 : 1;
-        } else {
-            divisor = model.config().size() == ModelConfig.Size.SMALL ? 1.25 : 0.624;
-        }
-
         return endPos
-                .div(6.4, 6.4, 6.4)
-                .div(divisor)
+                .div(4, 4, 4)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset())
                 .withView((float) -rotation.y(), (float) rotation.x());

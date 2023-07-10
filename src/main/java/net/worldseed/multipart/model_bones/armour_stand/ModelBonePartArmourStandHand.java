@@ -8,7 +8,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.item.ItemStack;
 import net.worldseed.multipart.GenericModel;
-import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
@@ -34,7 +33,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
         if (this.stand != null) this.stand.removeViewer(player);
     }
 
-    public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config) {
+    public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {
@@ -43,9 +42,6 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
             ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
             stand.setInvisible(true);
 
-            if (config.size() == ModelConfig.Size.SMALL)
-                meta.setSmall(true);
-
             meta.setHasNoBasePlate(true);
         }
     }
@@ -53,19 +49,11 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
     protected void setBoneRotation(Point rotation) {
         ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
 
-        if (model.config().interpolationType() == ModelConfig.InterpolationType.Y_INTERPOLATION) {
-            meta.setRightArmRotation(new Vec(
-                    rotation.x(),
-                    0,
-                    -rotation.z()
-            ));
-        } else {
-            meta.setRightArmRotation(new Vec(
-                    rotation.x(),
-                    -rotation.y(),
-                    -rotation.z()
-            ));
-        }
+        meta.setRightArmRotation(new Vec(
+                rotation.x(),
+                -rotation.y(),
+                -rotation.z()
+        ));
     }
 
     @Override
@@ -76,23 +64,16 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
         p = calculateGlobalRotation(p);
         Pos endPos = Pos.fromPoint(p);
 
-        double divisor = model.config().size() == ModelConfig.Size.SMALL ? 1.25 : 0.624;
-
-        Pos sub = model.config().size() == ModelConfig.Size.SMALL
-                ? SMALL_SUB : NORMAL_SUB;
+        double divisor = 0.624;
 
         Pos newPos = endPos
                 .div(6.4, 6.4, 6.4)
                 .div(divisor)
-                .sub(sub)
+                .sub(NORMAL_SUB)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset());
 
-        if (model.config().interpolationType() == ModelConfig.InterpolationType.Y_INTERPOLATION) {
-            return newPos.withYaw((float) -newRotation.y());
-        } else {
-            return newPos;
-        }
+        return newPos;
     }
 
     @Override
@@ -101,8 +82,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
         Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
         q = pq.multiply(q);
 
-        return model.config().interpolationType() == ModelConfig.InterpolationType.Y_INTERPOLATION
-                ? q.toEulerYZX() : q.toEuler();
+        return q.toEuler();
     }
 
     public void draw() {
@@ -126,10 +106,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
             if (halfStepZ > 180) halfStepZ -= 360;
             if (halfStepZ < -180) halfStepZ += 360;
 
-            if (model.config().interpolationType() == ModelConfig.InterpolationType.Y_INTERPOLATION)
-                halfRotation = lastRotation.add(new Vec(halfStepX / 2, 0, halfStepZ / 2));
-            else
-                halfRotation = lastRotation.add(new Vec(halfStepX / 2, halfStepY / 2, halfStepZ / 2));
+            halfRotation = lastRotation.add(new Vec(halfStepX / 2, halfStepY / 2, halfStepZ / 2));
 
             stand.teleport(calculatePosition());
             setBoneRotation(lastRotation);
