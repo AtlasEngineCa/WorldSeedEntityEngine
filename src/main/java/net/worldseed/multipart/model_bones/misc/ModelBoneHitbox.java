@@ -5,14 +5,16 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.other.InteractionMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.animations.ModelAnimation;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,20 +22,38 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModelBoneHitbox extends ModelBoneImpl {
     Pos actualPosition = Pos.ZERO;
-    List<ModelBone> illegitimateChildren = new ArrayList<>();
+    List<ModelBoneHitbox> illegitimateChildren = new ArrayList<>();
 
-    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, LivingEntity forwardTo, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent) {
+    public void addViewer(Player player) {
+        if (this.stand != null) this.stand.addViewer(player);
+        illegitimateChildren.forEach(modelBone -> modelBone.addViewer(player));
+    }
+
+    public void removeViewer(Player player) {
+        if (this.stand != null) this.stand.removeViewer(player);
+        illegitimateChildren.forEach(modelBone -> modelBone.removeViewer(player));
+    }
+
+    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent) {
         super(pivot, name, rotation, model);
 
         if (parent) {
-            generateStands(cubes, pivot, name, rotation, model, forwardTo);
+            generateStands(cubes, pivot, name, rotation, model);
             this.offset = null;
         }
         else {
             if (this.offset != null) {
-                this.stand = new LivingEntity(EntityType.INTERACTION) {
+                this.stand = new BoneEntity(EntityType.INTERACTION, model) {
                     @Override
-                    public void tick(long time) {
+                    public void updateNewViewer(@NotNull Player player) {
+                        super.updateNewViewer(player);
+                        illegitimateChildren.forEach(modelBone -> modelBone.addViewer(player));
+                    }
+
+                    @Override
+                    public void updateOldViewer(@NotNull Player player) {
+                        super.updateOldViewer(player);
+                        illegitimateChildren.forEach(modelBone -> modelBone.removeViewer(player));
                     }
                 };
 
@@ -43,13 +63,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                 InteractionMeta meta = (InteractionMeta) this.stand.getEntityMeta();
                 meta.setHeight((float) (sizeY / 4f));
                 meta.setWidth((float) (sizeX / 4f));
-
-                ModelBoneImpl.hookPart(this, forwardTo);
             }
         }
     }
 
-    public void generateStands(JsonArray cubes, Point pivotPos, String name, Point boneRotation, GenericModel genericModel, LivingEntity masterEntity) {
+    public void generateStands(JsonArray cubes, Point pivotPos, String name, Point boneRotation, GenericModel genericModel) {
         for (var cube : cubes) {
             JsonArray sizeArray = cube.getAsJsonObject().get("size").getAsJsonArray();
             JsonArray p = cube.getAsJsonObject().get("pivot").getAsJsonArray();
@@ -61,7 +79,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
             Point originPivotDiff = pivotPoint.sub(originPoint);
 
-            int maxSize = Math.min(Math.max((int) Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 10), 50);
+            int maxSize = Math.min(Math.max((int) Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 5), 50);
 
             // Convert sizePoint in to smaller squares
             for (int x = 0; x < sizePoint.x() / maxSize; ++x) {
@@ -77,7 +95,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                         var newOffset = pivotPoint.mul(-1, 1, 1).sub(sizePoint.x() / 2, originPivotDiff.y(), sizePoint.z() / 2);
                         newOffset = newOffset.add(relativePivotPoint).add(relativeSize.x() / 2, 0, relativeSize.z() / 2);
 
-                        ModelBone created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, masterEntity, newOffset, relativeSize.x(), relativeSize.y(), cubes, false);
+                        ModelBoneHitbox created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, newOffset, relativeSize.x(), relativeSize.y(), cubes, false);
                         illegitimateChildren.add(created);
                     }
                 }
@@ -104,7 +122,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     }
 
     @Override
-    public void setState(String state) {}
+    public void setState(String state) { }
 
     @Override
     public Pos calculatePosition() {
