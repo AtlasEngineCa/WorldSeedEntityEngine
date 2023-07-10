@@ -15,13 +15,11 @@ import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.SendablePacket;
+import net.worldseed.gestures.EmoteModel;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import net.worldseed.multipart.events.AnimationCompleteEvent;
 import net.worldseed.multipart.events.ModelEvent;
 import net.worldseed.multipart.model_bones.*;
-import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStand;
-import net.worldseed.multipart.model_bones.armour_stand.ModelBoneHeadArmourStandHand;
-import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStand;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStandHand;
 import net.worldseed.multipart.model_bones.display_entity.ModelBoneHeadDisplay;
 import net.worldseed.multipart.model_bones.display_entity.ModelBonePartDisplay;
@@ -29,8 +27,6 @@ import net.worldseed.multipart.model_bones.misc.ModelBoneHitbox;
 import net.worldseed.multipart.model_bones.misc.ModelBoneNametag;
 import net.worldseed.multipart.model_bones.misc.ModelBoneSeat;
 import net.worldseed.multipart.model_bones.misc.ModelBoneVFX;
-import net.worldseed.multipart.model_bones.zombie.ModelBoneHeadZombie;
-import net.worldseed.multipart.model_bones.zombie.ModelBonePartZombie;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,8 +37,6 @@ public abstract class GenericModelImpl implements GenericModel {
     protected final Set<ModelBoneImpl> viewableBones = new LinkedHashSet<>();
     protected final Set<ModelBoneHitbox> hittableBones = new LinkedHashSet<>();
     protected final Map<String, ModelBoneVFX> VFXBones = new LinkedHashMap<>();
-
-    protected ModelConfig config;
 
     private ModelBoneSeat seat;
     private ModelBoneHead head;
@@ -77,11 +71,6 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public ModelConfig config() {
-        return config;
-    }
-
-    @Override
     public Pos getPosition() {
         return position;
     }
@@ -90,8 +79,7 @@ public abstract class GenericModelImpl implements GenericModel {
         MinecraftServer.getGlobalEventHandler().call(new AnimationCompleteEvent(this, animation, direction));
     }
 
-    public void init(@Nullable Instance instance, @NotNull Pos position, ModelConfig config) {
-        this.config = config;
+    public void init(@Nullable Instance instance, @NotNull Pos position) {
         this.instance = instance;
         this.position = position;
 
@@ -140,29 +128,12 @@ public abstract class GenericModelImpl implements GenericModel {
                 modelBonePart = new ModelBoneSeat(pivotPos, name, boneRotation, this);
                 this.seat = (ModelBoneSeat) modelBonePart;
             } else if (name.equals("head")) {
-                if (config.modelType() == ModelConfig.ModelType.ARMOUR_STAND) {
-                    if (config.itemSlot() == ModelConfig.ItemSlot.HEAD) {
-                        modelBonePart = new ModelBoneHeadArmourStand(pivotPos, name, boneRotation, this, config);
-                    } else {
-                        modelBonePart = new ModelBoneHeadArmourStandHand(pivotPos, name, boneRotation, this, config);
-                    }
-                } else if (config.modelType() == ModelConfig.ModelType.ZOMBIE) {
-                    modelBonePart = new ModelBoneHeadZombie(pivotPos, name, boneRotation, this, config);
-                } else {
-                    modelBonePart = new ModelBoneHeadDisplay(pivotPos, name, boneRotation, this, config);
-                }
-                this.head = (ModelBoneHead) modelBonePart;
+                this.head = new ModelBoneHeadDisplay(pivotPos, name, boneRotation, this);
             } else {
-                if (config.modelType() == ModelConfig.ModelType.ARMOUR_STAND) {
-                    if (config.itemSlot() == ModelConfig.ItemSlot.HEAD) {
-                        modelBonePart = new ModelBonePartArmourStand(pivotPos, name, boneRotation, this, config);
-                    } else {
-                        modelBonePart = new ModelBonePartArmourStandHand(pivotPos, name, boneRotation, this, config);
-                    }
-                } else if (config.modelType() == ModelConfig.ModelType.ZOMBIE) {
-                    modelBonePart = new ModelBonePartZombie(pivotPos, name, boneRotation, this, config);
+                if (this instanceof EmoteModel) {
+                    modelBonePart = new ModelBonePartArmourStandHand(pivotPos, name, boneRotation, this);
                 } else {
-                    modelBonePart = new ModelBonePartDisplay(pivotPos, name, boneRotation, this, config);
+                    modelBonePart = new ModelBonePartDisplay(pivotPos, name, boneRotation, this);
                 }
             }
 
@@ -300,16 +271,9 @@ public abstract class GenericModelImpl implements GenericModel {
         p = bone.simulateTransform(p, animation, time);
         p = bone.calculateRotation(p, new Vec(0, 180 - getGlobalRotation(), 0), getPivot());
 
-        if (config.size() == ModelConfig.Size.NORMAL) {
-            return p.div(6.4, 6.4, 6.4)
-                    .add(getPosition())
-                    .add(getGlobalOffset());
-        } else {
-            return p.div(6.4, 6.4, 6.4)
-                    .div(1.426)
-                    .add(getPosition())
-                    .add(getGlobalOffset());
-        }
+        return p.div(6.4, 6.4, 6.4)
+                .add(getPosition())
+                .add(getGlobalOffset());
     }
 
     public Pos getPivot() {

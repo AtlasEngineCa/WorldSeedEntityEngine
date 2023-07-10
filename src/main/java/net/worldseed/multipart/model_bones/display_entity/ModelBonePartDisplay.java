@@ -12,7 +12,6 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.packet.server.play.SetPassengersPacket;
 import net.worldseed.multipart.GenericModel;
-import net.worldseed.multipart.ModelConfig;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
@@ -39,7 +38,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.baseStand != null) this.baseStand.removeViewer(player);
     }
 
-    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, ModelConfig config) {
+    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model) {
         super(pivot, name, rotation, model);
 
         if (this.offset != null) {

@@ -91,8 +91,6 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent> {
     @ApiStatus.Internal
     void draw();
 
-    ModelConfig config();
-
     /**
      * Set the model's head rotation
      * @param rotation rotation of head
