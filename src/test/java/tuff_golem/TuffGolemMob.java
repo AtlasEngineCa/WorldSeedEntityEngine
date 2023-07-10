@@ -76,6 +76,18 @@ public class TuffGolemMob extends EntityCreature {
     }
 
     @Override
+    public void updateNewViewer(@NotNull Player player) {
+        super.updateNewViewer(player);
+        this.model.addViewer(player);
+    }
+
+    @Override
+    public void updateOldViewer(@NotNull Player player) {
+        super.updateOldViewer(player);
+        this.model.removeViewer(player);
+    }
+
+    @Override
     public void remove() {
         var viewers = Set.copyOf(this.getViewers());
         this.model.destroy();

@@ -1,6 +1,8 @@
 package net.worldseed.multipart.events;
 
 import net.minestom.server.entity.Entity;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.worldseed.gestures.EmoteModel;
 import net.worldseed.multipart.GenericModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +13,11 @@ public class ModelInteractEvent implements ModelEvent {
     public ModelInteractEvent(@NotNull GenericModel model, Entity interactor) {
         this.model = model;
         this.interactor = interactor;
+    }
+
+    public ModelInteractEvent(EmoteModel model, PlayerEntityInteractEvent event) {
+        this.model = model;
+        this.interactor = event.getPlayer();
     }
 
     @Override
