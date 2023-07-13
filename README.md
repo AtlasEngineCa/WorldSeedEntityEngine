@@ -18,7 +18,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/WorldSeedMMO/WorldSeedEntityEngine">
+  <a href="https://github.com/AtlasEngineCa/WorldSeedEntityEngine">
     <img src=".github/icon.png" alt="Logo" width="180" height="180">
   </a>
 
@@ -29,23 +29,23 @@
     <br />
     <br />
     <br />
-    <a href="https://github.com/WorldSeedMMO/WorldSeedEntityEngine/issues">Report Bug</a>
+    <a href="https://github.com/AtlasEngineCa/WorldSeedEntityEngine/issues">Report Bug</a>
     ·
-    <a href="https://github.com/WorldSeedMMO/WorldSeedEntityEngine/issues">Request Feature</a>
+    <a href="https://github.com/AtlasEngineCa/WorldSeedEntityEngine/issues">Request Feature</a>
   </p>
 </div>
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 <div align="center">
-  <a href="https://github.com/WorldSeedMMO/WorldSeedEntityEngine">
+  <a href="https://github.com/AtlasEngineCa/WorldSeedEntityEngine">
     <img src=".github/demo.gif" alt="Logo" width="320" height="240">
   </a>
   </div>
 
 This is a library that allows users to add bedrock models from blockbench in to **Vanilla Minecraft**!
 
-WSEE lets you create multipart entities with Armor Stands, as well as Zombies for much smoother animations.
+WSEE lets you create multipart entities, using display entities.
 The framework provided allows users to easily create multipart entities, define animations, and write AI that fully utilises the entity's animations.
 
 Currently WSEE only supports [Minestom](https://github.com/Minestom/Minestom)
@@ -53,7 +53,7 @@ Currently WSEE only supports [Minestom](https://github.com/Minestom/Minestom)
 <!-- GETTING STARTED -->
 ## Getting Started
 
-A full, runnable example server can be found [here](https://github.com/WorldSeedMMO/WorldSeedEntityEngine/tree/master/src/test/java)
+A full, runnable example server can be found [here](https://github.com/AtlasEngineCa/WorldSeedEntityEngine/tree/master/src/test/java)
 
 ### Adding as a dependency
 
@@ -80,16 +80,13 @@ Some restrictions are imposed by Minecraft
 - Cubes can only be rotated on one axis, and can only have rotation values of 0, -22.5, 22.5, 45 or -45. This does not effect bones (these show up as folders in blockbench)
 - Bones can only be 64 blocks in size
 
-## [Wiki](https://github.com/WorldSeedGames/WorldSeedEntityEngine/wiki)
+## [Wiki](https://github.com/AtlasEngineCa/WorldSeedEntityEngine/wiki)
 Learn what this project is, how it works and how you can use it on your server
 
 ## FAQ
 
 Q: Why are my bones positioned incorrectly in minecraft?\
 A: Entities used for bones will be placed at the pivot point of the bone in blockbench. To fix this, move the pivot point closer to the bone
-
-Q: Why are my hitboxes in the wrong place?\
-A: Slime entities for hitboxes are placed at the bone pivot point, not the block location.
 
 Q: Why is my model not working?\
 A: Make sure you have the type set to `Bedrock Model` in blockbench
@@ -98,13 +95,13 @@ A: Make sure you have the type set to `Bedrock Model` in blockbench
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/WorldSeedMMO/WorldSeedEntityEngine.svg?style=for-the-badge
-[contributors-url]: https://github.com/WorldSeedMMO/WorldSeedEntityEngine/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/WorldSeedMMO/WorldSeedEntityEngine.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/AtlasEngineCa/WorldSeedEntityEngine.svg?style=for-the-badge
+[contributors-url]: https://github.com/AtlasEngineCa/WorldSeedEntityEngine/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/AtlasEngineCa/WorldSeedEntityEngine.svg?style=for-the-badge
 [forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/WorldSeedMMO/WorldSeedEntityEngine.svg?style=for-the-badge
-[stars-url]: https://github.com/WorldSeedMMO/WorldSeedEntityEngine/stargazers
-[issues-shield]: https://img.shields.io/github/issues/WorldSeedMMO/WorldSeedEntityEngine.svg?style=for-the-badge
-[issues-url]: https://github.com/WorldSeedMMO/WorldSeedEntityEngine/issues
-[license-shield]: https://img.shields.io/github/license/WorldSeedMMO/WorldSeedEntityEngine?style=for-the-badge
-[license-url]: https://github.com/WorldSeedMMO/WorldSeedEntityEngine/blob/master/LICENSE
+[stars-shield]: https://img.shields.io/github/stars/AtlasEngineCa/WorldSeedEntityEngine.svg?style=for-the-badge
+[stars-url]: https://github.com/AtlasEngineCa/WorldSeedEntityEngine/stargazers
+[issues-shield]: https://img.shields.io/github/issues/AtlasEngineCa/WorldSeedEntityEngine.svg?style=for-the-badge
+[issues-url]: https://github.com/AtlasEngineCa/WorldSeedEntityEngine/issues
+[license-shield]: https://img.shields.io/github/license/AtlasEngineCa/WorldSeedEntityEngine?style=for-the-badge
+[license-url]: https://github.com/AtlasEngineCa/WorldSeedEntityEngine/blob/master/LICENSE
