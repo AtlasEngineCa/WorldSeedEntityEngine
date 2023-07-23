@@ -73,12 +73,14 @@ public class AnimationHandlerImpl implements AnimationHandler {
         animations.put(name, animationSet);
     }
 
-    public void playRepeat(String animation) {
+    public void playRepeat(String animation) throws IllegalArgumentException {
         playRepeat(animation, AnimationDirection.FORWARD);
     }
 
     @Override
-    public void playRepeat(String animation, AnimationDirection direction) {
+    public void playRepeat(String animation, AnimationDirection direction) throws IllegalArgumentException {
+        if (this.animationPriorities().get(animation) == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
+
         if (this.repeating.containsKey(this.animationPriorities().get(animation))
                 && this.direction.get(animation) == direction) return;
 
@@ -100,7 +102,9 @@ public class AnimationHandlerImpl implements AnimationHandler {
         }
     }
 
-    public void stopRepeat(String animation) {
+    public void stopRepeat(String animation) throws IllegalArgumentException {
+        if (this.animationPriorities().get(animation) == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
+
         this.animations.get(animation).forEach(ModelAnimation::stop);
         int priority = this.animationPriorities().get(animation);
 
@@ -115,12 +119,13 @@ public class AnimationHandlerImpl implements AnimationHandler {
         }
     }
 
-    public void playOnce(String animation, Consumer<Void> cb) {
+    public void playOnce(String animation, Consumer<Void> cb) throws IllegalArgumentException {
         this.playOnce(animation, AnimationDirection.FORWARD, cb);
     }
 
     @Override
-    public void playOnce(String animation, AnimationDirection direction, Consumer<Void> cb) {
+    public void playOnce(String animation, AnimationDirection direction, Consumer<Void> cb) throws IllegalArgumentException {
+        if (this.animationPriorities().get(animation) == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
         AnimationDirection currentDirection = this.direction.get(animation);
         this.direction.put(animation, direction);
 

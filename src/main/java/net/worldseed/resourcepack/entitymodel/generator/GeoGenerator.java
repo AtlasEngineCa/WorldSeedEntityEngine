@@ -11,13 +11,14 @@ import java.util.Map;
 public class GeoGenerator {
     private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, String parent) {
         List<JsonObject> res = new ArrayList<>();
+        float scale = 0.25f;
 
         String name = obj.getString("name");
         JsonArray pivot = obj.getJsonArray("origin");
         pivot = Json.createArrayBuilder()
-                .add(-pivot.getJsonNumber(0).doubleValue())
-                .add(pivot.getJsonNumber(1).doubleValue())
-                .add(pivot.getJsonNumber(2).doubleValue())
+                .add(-pivot.getJsonNumber(0).doubleValue() * scale)
+                .add(pivot.getJsonNumber(1).doubleValue() * scale)
+                .add(pivot.getJsonNumber(2).doubleValue() * scale)
                 .build();
 
         JsonArrayBuilder cubes = Json.createArrayBuilder();
@@ -62,33 +63,34 @@ public class GeoGenerator {
 
         for (var element : elements) {
             JsonObject el = element.asJsonObject();
+            float scale = 0.25f;
 
             double inflate = 0;
             if (el.containsKey("inflate")) {
-                inflate = el.getJsonNumber("inflate").doubleValue();
+                inflate = el.getJsonNumber("inflate").doubleValue() * scale;
             }
 
             JsonArray origin = el.getJsonArray("origin");
             origin = Json.createArrayBuilder()
-                .add(-Math.round(origin.getJsonNumber(0).doubleValue() * 10000) / 10000.0)
-                .add(Math.round(origin.getJsonNumber(1).doubleValue() * 10000) / 10000.0)
-                .add(Math.round(origin.getJsonNumber(2).doubleValue() * 10000) / 10000.0)
-                .build();
+                    .add(-Math.round(origin.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
+                    .add(Math.round(origin.getJsonNumber(1).doubleValue() * 10000  * scale) / 10000.0)
+                    .add(Math.round(origin.getJsonNumber(2).doubleValue() * 10000  * scale) / 10000.0)
+                    .build();
 
             JsonArray from = PackBuilder.applyInflate(el.getJsonArray("from"), -inflate);
             JsonArray to = PackBuilder.applyInflate(el.getJsonArray("to"), inflate);
 
             to = Json.createArrayBuilder()
-                .add(Math.round(to.getJsonNumber(0).doubleValue() * 10000) / 10000.0)
-                .add(Math.round(to.getJsonNumber(1).doubleValue() * 10000) / 10000.0)
-                .add(Math.round(to.getJsonNumber(2).doubleValue() * 10000) / 10000.0)
-                .build();
+                    .add(Math.round(to.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
+                    .add(Math.round(to.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
+                    .add(Math.round(to.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
+                    .build();
 
             from = Json.createArrayBuilder()
-                .add(Math.round(from.getJsonNumber(0).doubleValue() * 10000) / 10000.0)
-                .add(Math.round(from.getJsonNumber(1).doubleValue() * 10000) / 10000.0)
-                .add(Math.round(from.getJsonNumber(2).doubleValue() * 10000) / 10000.0)
-                .build();
+                    .add(Math.round(from.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
+                    .add(Math.round(from.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
+                    .add(Math.round(from.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
+                    .build();
 
             JsonArray size = buildSize(from, to);
 

@@ -88,9 +88,9 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                         var relativeSize = new Vec(maxSize, maxSize, maxSize);
                         var relativePivotPoint = new Vec(x * maxSize, y * maxSize, z * maxSize);
 
-                        if ((relativePivotPoint.x() + relativeSize.x()/2) > sizePoint.x()) relativePivotPoint = relativePivotPoint.sub((relativePivotPoint.x() + relativeSize.x()/2) - sizePoint.x(), 0, 0);
+                        if ((relativePivotPoint.x() + relativeSize.x()/2) > sizePoint.x()) relativePivotPoint = relativePivotPoint.withX((relativePivotPoint.x()) - sizePoint.x());
                         if ((relativePivotPoint.y() + relativeSize.y()) > sizePoint.y()) relativePivotPoint = relativePivotPoint.sub(0, (relativePivotPoint.y() + relativeSize.y()) - sizePoint.y(), 0);
-                        if ((relativePivotPoint.z() + relativeSize.z()/2) > sizePoint.z()) relativePivotPoint = relativePivotPoint.sub(0, 0, (relativePivotPoint.z() + relativeSize.z()/2) - sizePoint.z());
+                        if ((relativePivotPoint.z() + relativeSize.z()/2) > sizePoint.z()) relativePivotPoint = relativePivotPoint.withZ((relativePivotPoint.z()) - sizePoint.z());
 
                         var newOffset = pivotPoint.mul(-1, 1, 1).sub(sizePoint.x() / 2, originPivotDiff.y(), sizePoint.z() / 2);
                         newOffset = newOffset.add(relativePivotPoint).add(relativeSize.x() / 2, 0, relativeSize.z() / 2);

@@ -7,8 +7,6 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.damage.DamageType;
-import net.minestom.server.entity.damage.EntityDamage;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.entity.EntityDamageEvent;
@@ -22,7 +20,6 @@ import net.worldseed.multipart.events.ModelDamageEvent;
 import net.worldseed.multipart.events.ModelDismountEvent;
 import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
-import net.worldseed.multipart.mount.ModelRidable;
 
 import java.io.Reader;
 import java.nio.file.Path;
