@@ -86,7 +86,7 @@ public class EmoteModel extends GenericModelImpl {
         this.setPosition(position);
 
         this.setGlobalRotation(position.yaw());
-        loadBones(MODEL_JSON);
+        loadBones(MODEL_JSON, 1);
 
         for (String boneName : SPAWN_ORDER) {
             ModelBone bone = this.parts.get(boneName);
@@ -129,6 +129,10 @@ public class EmoteModel extends GenericModelImpl {
     @Override
     public Point getDiff(String boneName) {
         return BONE_DIFFS.get(boneName);
+    }
+
+    @Override
+    public void setScale(float scale) {
     }
 
     @Override

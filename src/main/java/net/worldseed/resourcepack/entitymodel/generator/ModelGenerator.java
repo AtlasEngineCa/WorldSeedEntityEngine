@@ -8,9 +8,7 @@ import java.io.StringReader;
 import java.util.Map;
 
 public class ModelGenerator {
-    static JsonArray convertDatapoints(JsonObject obj) {
-        float scale = 0.25f;
-
+    static JsonArray convertDatapoints(JsonObject obj, double scale) {
         JsonArrayBuilder builder = Json.createArrayBuilder();
         if (obj.containsKey("effect")) return null;
 

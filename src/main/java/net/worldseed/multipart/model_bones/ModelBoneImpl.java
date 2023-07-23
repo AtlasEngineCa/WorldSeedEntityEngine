@@ -20,8 +20,9 @@ import java.util.concurrent.CompletableFuture;
 public abstract class ModelBoneImpl implements ModelBone {
     protected final HashMap<String, ItemStack> items;
     final Point diff;
-    final Point pivot;
-    private final String name;
+    protected final Point pivot;
+    protected final String name;
+    protected float scale;
 
     protected final List<ModelAnimation> allAnimations = new ArrayList<>();
 
@@ -53,7 +54,7 @@ public abstract class ModelBoneImpl implements ModelBone {
         return this.name;
     }
 
-    public ModelBoneImpl(Point pivot, String name, Point rotation, GenericModel model) {
+    public ModelBoneImpl(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         this.name = name;
         this.rotation = rotation;
         this.model = model;
@@ -67,6 +68,12 @@ public abstract class ModelBoneImpl implements ModelBone {
             this.pivot = pivot;
 
         this.items = ModelEngine.getItems(model.getId(), name);
+        this.scale = scale;
+    }
+
+    @Override
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 
     public Point calculateGlobalRotation(Point endPos) {

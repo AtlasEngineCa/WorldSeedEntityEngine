@@ -14,7 +14,7 @@ public class GemGolemModel extends GenericModelImpl {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position, BoneEntity nametag) {
-        super.init(instance, position);
+        super.init(instance, position, 3.5f);
         setNametagEntity(nametag);
     }
 }

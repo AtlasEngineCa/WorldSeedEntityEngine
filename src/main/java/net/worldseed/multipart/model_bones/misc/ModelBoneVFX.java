@@ -24,8 +24,8 @@ public class ModelBoneVFX extends ModelBoneImpl {
     public Point getPosition() {
         return position;
     }
-    public ModelBoneVFX(Point pivot, String name, Point rotation, GenericModel model) {
-        super(pivot, name, rotation, model);
+    public ModelBoneVFX(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
         this.stand = null;
     }
 
@@ -47,7 +47,7 @@ public class ModelBoneVFX extends ModelBoneImpl {
         Pos endPos = Pos.fromPoint(p);
 
         return endPos
-                .div(4, 4, 4)
+                .div(4, 4, 4).mul(scale)
                 .add(model.getPosition());
     }
 

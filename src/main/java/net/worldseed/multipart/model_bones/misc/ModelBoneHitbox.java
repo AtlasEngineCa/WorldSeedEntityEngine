@@ -16,13 +16,15 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ModelBoneHitbox extends ModelBoneImpl {
+    private final JsonArray cubes;
+
     Pos actualPosition = Pos.ZERO;
-    List<ModelBoneHitbox> illegitimateChildren = new ArrayList<>();
+    Collection<ModelBoneHitbox> illegitimateChildren = new ConcurrentLinkedDeque<>();
 
     public void addViewer(Player player) {
         if (this.stand != null) this.stand.addViewer(player);
@@ -34,14 +36,25 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         illegitimateChildren.forEach(modelBone -> modelBone.removeViewer(player));
     }
 
-    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent) {
-        super(pivot, name, rotation, model);
+    @Override
+    public void setScale(float scale) {
+        super.setScale(scale);
+
+        this.destroy();
+        this.illegitimateChildren.clear();
+        generateStands(this.cubes, this.pivot.mul(scale), this.name, this.rotation.mul(scale), this.model);
+        this.illegitimateChildren.forEach(modelBone -> modelBone.spawn(model.getInstance(), model.getPosition()));
+    }
+
+    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent, float scale) {
+        super(pivot, name, rotation, model, scale);
+
+        this.cubes = cubes;
 
         if (parent) {
-            generateStands(cubes, pivot, name, rotation, model);
+            generateStands(cubes, pivot.mul(scale), name, rotation.mul(scale), model);
             this.offset = null;
-        }
-        else {
+        } else {
             if (this.offset != null) {
                 this.stand = new BoneEntity(EntityType.INTERACTION, model) {
                     @Override
@@ -73,13 +86,16 @@ public class ModelBoneHitbox extends ModelBoneImpl {
             JsonArray p = cube.getAsJsonObject().get("pivot").getAsJsonArray();
             JsonArray origin = cube.getAsJsonObject().get("origin").getAsJsonArray();
 
-            Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat());
-            Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat());
-            Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat());
+            Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat()).mul(scale);
+            Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat()).mul(scale);
+            Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat()).mul(scale);
 
             Point originPivotDiff = pivotPoint.sub(originPoint);
 
-            int maxSize = Math.min(Math.max((int) Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 5), 50);
+            double maxSize = Math.max(Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 5);
+            while (maxSize > 32) {
+                maxSize /= 2;
+            }
 
             // Convert sizePoint in to smaller squares
             for (int x = 0; x < sizePoint.x() / maxSize; ++x) {
@@ -95,7 +111,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                         var newOffset = pivotPoint.mul(-1, 1, 1).sub(sizePoint.x() / 2, originPivotDiff.y(), sizePoint.z() / 2);
                         newOffset = newOffset.add(relativePivotPoint).add(relativeSize.x() / 2, 0, relativeSize.z() / 2);
 
-                        ModelBoneHitbox created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, newOffset, relativeSize.x(), relativeSize.y(), cubes, false);
+                        ModelBoneHitbox created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, newOffset, relativeSize.x(), relativeSize.y(), cubes, false, scale);
                         illegitimateChildren.add(created);
                     }
                 }

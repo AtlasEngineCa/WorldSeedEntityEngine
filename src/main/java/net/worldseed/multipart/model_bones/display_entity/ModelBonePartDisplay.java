@@ -33,20 +33,30 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
+    public void setScale(float scale) {
+        super.setScale(scale);
+
+        if (this.stand != null) {
+            var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
+            meta.setScale(new Vec(scale, scale, scale));
+        }
+    }
+
+    @Override
     public void removeViewer(Player player) {
         if (this.stand != null) this.stand.removeViewer(player);
         if (this.baseStand != null) this.baseStand.removeViewer(player);
     }
 
-    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model) {
-        super(pivot, name, rotation, model);
+    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
 
         if (this.offset != null) {
             this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model);
 
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
-            meta.setScale(new Vec(1, 1, 1));
+            meta.setScale(new Vec(scale, scale, scale));
             meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
             meta.setInterpolationDuration(3);
             meta.setViewRange(1000);
@@ -71,7 +81,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         Point p = this.offset;
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
-        return Pos.fromPoint(p).div(4).withView(0, 0);
+        return Pos.fromPoint(p).div(4).mul(scale).withView(0, 0);
     }
 
     @Override

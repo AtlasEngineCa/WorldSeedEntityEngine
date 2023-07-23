@@ -13,6 +13,6 @@ public class Minimal extends GenericModelImpl {
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position) {
-        super.init(instance, position);
+        super.init(instance, position, 2.5f);
     }
 }

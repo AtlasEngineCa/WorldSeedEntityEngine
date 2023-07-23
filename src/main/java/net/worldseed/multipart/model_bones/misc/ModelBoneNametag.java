@@ -22,8 +22,8 @@ public class ModelBoneNametag extends ModelBoneImpl {
         if (this.stand != null) this.stand.removeViewer(player);
     }
 
-    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity) {
-        super(pivot, name, rotation, model);
+    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity, float scale) {
+        super(pivot, name, rotation, model, scale);
 
         if (this.offset != null && nametagEntity != null) {
             this.stand = nametagEntity;
@@ -58,7 +58,7 @@ public class ModelBoneNametag extends ModelBoneImpl {
         p = calculateGlobalRotation(p);
 
         return Pos.fromPoint(p)
-                .div(4, 4, 4)
+                .div(4, 4, 4).mul(scale)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset());
     }
