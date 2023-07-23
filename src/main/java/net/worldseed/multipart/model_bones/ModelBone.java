@@ -41,4 +41,6 @@ public interface ModelBone {
 
     void addViewer(Player player);
     void removeViewer(Player player);
+
+    void setScale(float scale);
 }

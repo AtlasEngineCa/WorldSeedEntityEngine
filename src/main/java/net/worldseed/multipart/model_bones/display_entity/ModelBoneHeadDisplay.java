@@ -11,8 +11,8 @@ import net.worldseed.multipart.model_bones.ModelBoneViewable;
 public class ModelBoneHeadDisplay extends ModelBonePartDisplay implements ModelBoneHead, ModelBoneViewable {
     private double headRotation;
 
-    public ModelBoneHeadDisplay(Point pivot, String name, Point rotation, GenericModel model) {
-        super(pivot, name, rotation, model);
+    public ModelBoneHeadDisplay(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
     }
 
     @Override

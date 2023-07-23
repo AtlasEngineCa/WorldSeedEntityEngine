@@ -27,8 +27,8 @@ public class ModelBoneSeat extends ModelBoneImpl {
         if (this.stand != null) this.stand.removeViewer(player);
     }
 
-    public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model) {
-        super(pivot, name, rotation, model);
+    public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
 
         if (this.offset != null) {
             this.stand = new BoneEntity(EntityType.ZOMBIE, model);
@@ -61,7 +61,7 @@ public class ModelBoneSeat extends ModelBoneImpl {
         Pos endPos = Pos.fromPoint(p);
 
         return endPos
-                .div(4, 4, 4)
+                .div(4, 4, 4).mul(scale)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset())
                 .withView((float) -rotation.y(), (float) rotation.x());

@@ -124,4 +124,6 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent> {
     Point getDiff(String bone);
 
     void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction);
+
+    void setScale(float scale);
 }

@@ -39,7 +39,12 @@ public class AnimationGenerator {
                     String channel = keyframe.getString("channel");
 
                     double time = keyframe.getJsonNumber("time").doubleValue();
-                    JsonArray dataPoints = ModelGenerator.convertDatapoints(keyframe.getJsonArray("data_points").get(0).asJsonObject());
+
+                    JsonArray dataPoints =
+                            channel.equals("position")
+                                    ? ModelGenerator.convertDatapoints(keyframe.getJsonArray("data_points").get(0).asJsonObject(), 0.25)
+                                    : ModelGenerator.convertDatapoints(keyframe.getJsonArray("data_points").get(0).asJsonObject(), 1);
+
                     if (dataPoints == null) continue;
 
                     String interpolation = keyframe.getString("interpolation");

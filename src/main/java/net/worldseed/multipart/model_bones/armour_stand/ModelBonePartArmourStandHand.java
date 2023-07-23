@@ -17,7 +17,6 @@ import net.worldseed.multipart.model_bones.ModelBoneViewable;
 public class ModelBonePartArmourStandHand extends ModelBoneImpl implements ModelBoneViewable {
     private Point lastRotation = Vec.ZERO;
     private Point halfRotation = Vec.ZERO;
-    private Point newRotation = Vec.ZERO;
     private boolean update = true;
 
     private final Pos SMALL_SUB = new Pos(0, 0.66, 0);
@@ -33,8 +32,8 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
         if (this.stand != null) this.stand.removeViewer(player);
     }
 
-    public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model) {
-        super(pivot, name, rotation, model);
+    public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
 
         if (this.offset != null) {
             this.stand = new BoneEntity(EntityType.ARMOR_STAND, model);
@@ -70,6 +69,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
                 .div(6.4, 6.4, 6.4)
                 .div(divisor)
                 .sub(NORMAL_SUB)
+                .mul(scale)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset());
 
@@ -91,8 +91,6 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
 
         if (update) {
             Point rotation = calculateRotation();
-            newRotation = rotation;
-
             Point halfStep = rotation.sub(lastRotation);
 
             double halfStepX = halfStep.x() % 360;
