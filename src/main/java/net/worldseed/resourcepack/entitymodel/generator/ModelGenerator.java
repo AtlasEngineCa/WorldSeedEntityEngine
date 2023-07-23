@@ -9,23 +9,25 @@ import java.util.Map;
 
 public class ModelGenerator {
     static JsonArray convertDatapoints(JsonObject obj) {
+        float scale = 0.25f;
+
         JsonArrayBuilder builder = Json.createArrayBuilder();
         if (obj.containsKey("effect")) return null;
 
         if (obj.get("x") instanceof JsonString)
-            builder.add(Double.parseDouble(obj.getString("x")));
+            builder.add(Double.parseDouble(obj.getString("x")) * scale);
         else
-            builder.add(obj.getJsonNumber("x"));
+            builder.add(obj.getJsonNumber("x").doubleValue() * scale);
 
         if (obj.get("y") instanceof JsonString)
-            builder.add(Double.parseDouble(obj.getString("y")));
+            builder.add(Double.parseDouble(obj.getString("y")) * scale);
         else
-            builder.add(obj.getJsonNumber("y"));
+            builder.add(obj.getJsonNumber("y").doubleValue() * scale);
 
         if (obj.get("z") instanceof JsonString)
-            builder.add(Double.parseDouble(obj.getString("z")));
+            builder.add(Double.parseDouble(obj.getString("z")) * scale);
         else
-            builder.add(obj.getJsonNumber("z"));
+            builder.add(obj.getJsonNumber("z").doubleValue() * scale);
 
         return builder.build();
     }

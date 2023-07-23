@@ -129,6 +129,7 @@ public abstract class GenericModelImpl implements GenericModel {
                 this.seat = (ModelBoneSeat) modelBonePart;
             } else if (name.equals("head")) {
                 this.head = new ModelBoneHeadDisplay(pivotPos, name, boneRotation, this);
+                modelBonePart = (ModelBone) head;
             } else {
                 if (this instanceof EmoteModel) {
                     modelBonePart = new ModelBonePartArmourStandHand(pivotPos, name, boneRotation, this);

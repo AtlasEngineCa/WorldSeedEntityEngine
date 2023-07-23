@@ -8,10 +8,9 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.ai.GoalSelector;
 import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.animations.AnimationHandler;
-import net.worldseed.multipart.mount.ControlGoal;
 import org.jetbrains.annotations.NotNull;
 
-public class GemGolemControlGoal extends GoalSelector implements ControlGoal {
+public class GemGolemControlGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
     private boolean forceEnd;
     private long lastUpdateTime;
@@ -66,11 +65,9 @@ public class GemGolemControlGoal extends GoalSelector implements ControlGoal {
         this.forward = forward;
     }
 
-    @Override
     public void setSideways(float sideways) {
     }
 
-    @Override
     public void setJump(boolean jump) {
         if (jump && !jumpCooldown) {
             jumpCooldown = true;

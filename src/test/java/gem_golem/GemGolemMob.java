@@ -7,6 +7,7 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.damage.EntityDamage;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.entity.metadata.water.fish.PufferfishMeta;
 import net.minestom.server.instance.Instance;
@@ -18,15 +19,17 @@ import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
+import net.worldseed.multipart.events.ModelControlEvent;
+import net.worldseed.multipart.events.ModelDamageEvent;
+import net.worldseed.multipart.events.ModelDismountEvent;
 import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
-import net.worldseed.multipart.mount.ModelRidable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Set;
 
-public class GemGolemMob extends EntityCreature implements ModelRidable {
+public class GemGolemMob extends EntityCreature {
     private final GemGolemModel model;
     private final AnimationHandler animationHandler;
     private final GemGolemControlGoal controlGoal;
@@ -55,6 +58,22 @@ public class GemGolemMob extends EntityCreature implements ModelRidable {
 
         this.controlGoal = new GemGolemControlGoal(this, animationHandler);
 
+        model.eventNode()
+                .addListener(ModelDamageEvent.class, event -> {
+                    if (event.getDamageType() instanceof EntityDamage entityDamage) {
+                        if (model.getPassengers().contains(entityDamage.getSource())) return;
+                    }
+
+                    damage(event.getDamageType(), event.getDamage());
+                })
+                .addListener(ModelInteractEvent.class, event -> model.mountEntity(event.getInteracted()))
+                .addListener(ModelDismountEvent.class, event -> model.dismountEntity(event.getRider()))
+                .addListener(ModelControlEvent.class, event -> {
+                    controlGoal.setForward(event.getForward());
+                    controlGoal.setSideways(event.getSideways());
+                    controlGoal.setJump(event.getJump());
+                });
+
         addAIGroup(
                 List.of(
                         controlGoal,
@@ -68,11 +87,7 @@ public class GemGolemMob extends EntityCreature implements ModelRidable {
         );
 
         setBoundingBox(3, 3, 3);
-        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.15f);
-
-        model.eventNode().addListener(ModelInteractEvent.class, (event -> {
-            this.model.mountEntity(event.getInteracted());
-        }));
+        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3f);
 
         // Add the shadow for the entity
         int size = 15;
@@ -91,7 +106,7 @@ public class GemGolemMob extends EntityCreature implements ModelRidable {
 
     public void facePoint(Point point) {
         Point e = this.position.sub(point);
-        model.setGlobalRotation(-PositionUtils.getLookYaw(e.x(), e.z()) + 180);
+        model.setGlobalRotation(PositionUtils.getLookYaw(e.x(), e.z()));
     }
 
     private void facePlayer() {
@@ -100,7 +115,7 @@ public class GemGolemMob extends EntityCreature implements ModelRidable {
         if (getPassengers().contains(target)) return;
 
         Point e = this.position.sub(target.getPosition());
-        model.setGlobalRotation(-PositionUtils.getLookYaw(e.x(), e.z()) + 180);
+        model.setGlobalRotation(PositionUtils.getLookYaw(e.x(), e.z()));
     }
 
     @Override
@@ -130,9 +145,9 @@ public class GemGolemMob extends EntityCreature implements ModelRidable {
             this.animationHandler.destroy();
             ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 50);
             viewers.forEach(v -> v.sendPacket(packet));
-        });
 
-        super.remove();
+            super.remove();
+        });
     }
 
     @Override
@@ -158,9 +173,5 @@ public class GemGolemMob extends EntityCreature implements ModelRidable {
     @Override
     public @NotNull Set<Entity> getPassengers() {
         return model.getPassengers();
-    }
-
-    public GemGolemControlGoal getControlGoal() {
-        return this.controlGoal;
     }
 }
