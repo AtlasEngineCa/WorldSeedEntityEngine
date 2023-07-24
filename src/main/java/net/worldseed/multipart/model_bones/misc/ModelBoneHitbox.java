@@ -1,6 +1,7 @@
 package net.worldseed.multipart.model_bones.misc;
 
 import com.google.gson.JsonArray;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class ModelBoneHitbox extends ModelBoneImpl {
     private final JsonArray cubes;
 
-    Pos actualPosition = Pos.ZERO;
+    Pos actualPosition = null;
     Collection<ModelBoneHitbox> illegitimateChildren = new ConcurrentLinkedDeque<>();
 
     public void addViewer(Player player) {
@@ -92,7 +93,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
             Point originPivotDiff = pivotPoint.sub(originPoint);
 
-            double maxSize = Math.max(Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 5);
+            double maxSize = Math.max(Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 0.5);
             while (maxSize > 32) {
                 maxSize /= 2;
             }
@@ -127,7 +128,10 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
     @Override
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
-        this.illegitimateChildren.forEach(modelBone -> modelBone.spawn(instance, position));
+        this.illegitimateChildren.forEach(modelBone -> {
+            modelBone.spawn(instance, modelBone.calculatePosition());
+            MinecraftServer.getSchedulerManager().scheduleNextTick(modelBone::draw);
+        });
         return super.spawn(instance, position);
     }
 
@@ -149,6 +153,12 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         p = calculateGlobalRotation(p);
 
         var lp = actualPosition;
+
+        if (actualPosition == null) {
+            actualPosition = Pos.fromPoint(p).div(4);
+            return actualPosition;
+        }
+
         var newPoint = Pos.fromPoint(p).div(4);
         actualPosition = Pos.fromPoint(lp.asVec().lerp(Vec.fromPoint(newPoint), 0.25));
 

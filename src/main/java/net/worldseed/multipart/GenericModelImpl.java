@@ -103,8 +103,6 @@ public abstract class GenericModelImpl implements GenericModel {
         }
 
         draw();
-        draw();
-        draw();
 
         this.setState("normal");
     }
