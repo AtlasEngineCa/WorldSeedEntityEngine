@@ -1,16 +1,14 @@
 package net.worldseed.multipart.model_bones;
 
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
+import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.animations.ModelAnimation;
-import net.minestom.server.coordinate.Point;
-import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 @ApiStatus.Internal
 public interface ModelBone {

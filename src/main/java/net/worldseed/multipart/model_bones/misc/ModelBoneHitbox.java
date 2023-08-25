@@ -18,6 +18,7 @@ import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -47,6 +48,8 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         this.illegitimateChildren.forEach(modelBone -> modelBone.spawn(model.getInstance(), model.getPosition()));
     }
 
+    private static final Tag<String> WSEE = Tag.String("WSEE");
+
     public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent, float scale) {
         super(pivot, name, rotation, model, scale);
 
@@ -71,12 +74,14 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                     }
                 };
 
-                this.stand.setTag(Tag.String("WSEE"), "hitbox");
+                this.stand.setTag(WSEE, "hitbox");
                 this.offset = newOffset;
 
                 InteractionMeta meta = (InteractionMeta) this.stand.getEntityMeta();
                 meta.setHeight((float) (sizeY / 4f));
                 meta.setWidth((float) (sizeX / 4f));
+
+                this.stand.setBoundingBox(sizeX / 4f, sizeY / 4f, sizeX / 4f);
             }
         }
     }
@@ -124,6 +129,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     public void setParent(ModelBone parent) {
         super.setParent(parent);
         this.illegitimateChildren.forEach(modelBone -> modelBone.setParent(parent));
+    }
+
+    public Collection<ModelBoneHitbox> getParts() {
+        if (this.illegitimateChildren == null) return List.of();
+        return this.illegitimateChildren;
     }
 
     @Override

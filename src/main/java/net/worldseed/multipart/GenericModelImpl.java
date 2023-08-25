@@ -38,6 +38,8 @@ public abstract class GenericModelImpl implements GenericModel {
     protected final Set<ModelBoneHitbox> hittableBones = new LinkedHashSet<>();
     protected final Map<String, ModelBoneVFX> VFXBones = new LinkedHashMap<>();
 
+    private final Collection<ModelBone> additionalBones = new ArrayList<>();
+
     private ModelBoneSeat seat;
     private ModelBoneHead head;
     private ModelBoneNametag nametag;
@@ -129,7 +131,8 @@ public abstract class GenericModelImpl implements GenericModel {
                 this.nametag = new ModelBoneNametag(pivotPos, name, boneRotation, this, null, scale);
                 modelBonePart = nametag;
             } else if (name.contains("hitbox")) {
-                addHitboxParts(pivotPos, name, boneRotation, this, bone.getAsJsonObject().getAsJsonArray("cubes"), this.parts, scale);
+                Collection<ModelBoneHitbox> additionalParts = addHitboxParts(pivotPos, name, boneRotation, this, bone.getAsJsonObject().getAsJsonArray("cubes"), this.parts, scale);
+                additionalBones.addAll(additionalParts);
             } else if (name.contains("vfx")) {
                 modelBonePart = new ModelBoneVFX(pivotPos, name, boneRotation, this, scale);
             } else if (name.contains("seat")) {
@@ -166,8 +169,8 @@ public abstract class GenericModelImpl implements GenericModel {
         }
     }
 
-    private void addHitboxParts(Point pivotPos, String name, Point boneRotation, GenericModelImpl genericModel, JsonArray cubes, LinkedHashMap<String, ModelBone> parts, float scale) {
-        if (cubes.size() < 1) return;
+    private Collection<ModelBoneHitbox> addHitboxParts(Point pivotPos, String name, Point boneRotation, GenericModelImpl genericModel, JsonArray cubes, LinkedHashMap<String, ModelBone> parts, float scale) {
+        if (cubes.size() < 1) return List.of();
 
         var cube = cubes.get(0);
         JsonArray sizeArray = cube.getAsJsonObject().get("size").getAsJsonArray();
@@ -178,8 +181,10 @@ public abstract class GenericModelImpl implements GenericModel {
 
         var newOffset = pivotPoint.mul(-1, 1, 1);
 
-        ModelBone created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, newOffset, sizePoint.x(), sizePoint.y(), cubes, true, scale);
+        ModelBoneHitbox created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, newOffset, sizePoint.x(), sizePoint.y(), cubes, true, scale);
         parts.put(name, created);
+
+        return created.getParts();
     }
 
     public void setNametagEntity(BoneEntity entity) {
@@ -269,7 +274,12 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public List<ModelBone> getParts() {
-        return this.parts.values().stream().filter(Objects::nonNull).toList();
+        ArrayList<ModelBone> res = this.parts.values().stream()
+                .filter(Objects::nonNull)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+        res.addAll(this.additionalBones);
+        return res;
     }
 
     @Override
