@@ -4,14 +4,17 @@ import net.worldseed.resourcepack.entitymodel.generator.ModelGenerator;
 import net.worldseed.resourcepack.entitymodel.parser.ModelParser;
 import org.apache.commons.io.FileUtils;
 
-import javax.imageio.ImageIO;
 import javax.json.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PackBuilder {
     public record Model(String data, String name, JsonObject additionalStates) {}
@@ -64,7 +67,7 @@ public class PackBuilder {
     }
 
     private static JsonObject writeCustomModels(List<Model> entityModels, Path modelDataPath, Path texturePathMobs, Path modelPathMobs, Path baseModelPath) throws Exception {
-        List<ModelGenerator.BBEntityModel> res = new ArrayList<>();
+        Map<String, ModelGenerator.BBEntityModel> res = new HashMap<>();
         JsonObjectBuilder thumbnailMap = Json.createObjectBuilder();
         thumbnailMap.add("parent", "item/generated");
         thumbnailMap.add("textures", Json.createObjectBuilder().add("layer0", "minecraft:item/ink_sac").build());
@@ -76,27 +79,31 @@ public class PackBuilder {
             FileUtils.writeStringToFile(modelDataPath.resolve(bbModel.id() + "/model.animation.json").toFile(), bbModel.animations().toString(), Charset.defaultCharset());
             FileUtils.writeStringToFile(modelDataPath.resolve(bbModel.id() + "/model.geo.json").toFile(), bbModel.geo().toString(), Charset.defaultCharset());
 
-            res.add(bbModel);
+            res.put(bbModel.id(), bbModel);
         }
 
         thumbnailMap.add("overrides", overrides.build());
         FileUtils.writeStringToFile(baseModelPath.resolve("ink_sac.json").toFile(), thumbnailMap.build().toString(), Charset.defaultCharset());
 
-        ModelParser.ModelEngineFiles modelData = ModelParser.parse(res, modelPathMobs);
+        ModelParser.ModelEngineFiles modelData = ModelParser.parse(res.values(), modelPathMobs);
 
         modelData.models().forEach(model -> {
+            var textureData = res.get(model.id()).textures();
+
             for (var entry : model.textures().entrySet()) {
+                var found = textureData.get(entry.getKey());
                 Path resolvedPath = texturePathMobs.resolve(model.id() + "/" + model.state().name() + "/" + entry.getKey());
 
                 try {
-                    BufferedImage buf = ImageIO.read(new ByteArrayInputStream(entry.getValue()));
-                    int h = buf.getHeight();
-                    int w = buf.getWidth();
+                    int h = found.height();
+                    int w = found.width();
 
                     double scale = ((double) h) / w;
                     boolean animated = (int) scale == scale;
 
-                    if (animated && scale > 1 && h != model.textureHeight()) {
+                    if (found.mcmeta() != null) {
+                        FileUtils.writeStringToFile(new File(resolvedPath + ".png.mcmeta"), found.mcmeta().toString(), StandardCharsets.UTF_8);
+                    } else if (animated && scale > 1) {
                         int frametime = 2;
                         JsonObjectBuilder builder = Json.createObjectBuilder();
                         builder.add("animation",

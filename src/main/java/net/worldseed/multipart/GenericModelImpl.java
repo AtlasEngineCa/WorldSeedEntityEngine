@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GenericModelImpl implements GenericModel {
     protected final LinkedHashMap<String, ModelBone> parts = new LinkedHashMap<>();
@@ -48,7 +49,7 @@ public abstract class GenericModelImpl implements GenericModel {
     private double globalRotation;
     protected Instance instance;
 
-    private final Set<Player> viewers = new HashSet<>();
+    private final Set<Player> viewers = ConcurrentHashMap.newKeySet();
     private final EventNode<ModelEvent> eventNode;
 
     public GenericModelImpl() {
@@ -127,7 +128,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
             ModelBone modelBonePart = null;
 
-            if (name.equals("nametag")) {
+            if (name.equals("nametag") || name.equals("tag_name")) {
                 this.nametag = new ModelBoneNametag(pivotPos, name, boneRotation, this, null, scale);
                 modelBonePart = nametag;
             } else if (name.contains("hitbox")) {
