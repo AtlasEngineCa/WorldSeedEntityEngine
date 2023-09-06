@@ -132,7 +132,7 @@ public class ModelParser {
     public record ModelFile(Map<String, JsonObject> bones, Map<String, byte[]> textures, String id, TextureState state, int textureWidth, int textureHeight) {}
     public record ModelEngineFiles(JsonObject mappings, JsonObject binding, List<ModelFile> models) {}
 
-    public static ModelEngineFiles parse(List<ModelGenerator.BBEntityModel> data, Path modelPathMobs) throws Exception {
+    public static ModelEngineFiles parse(Collection<ModelGenerator.BBEntityModel> data, Path modelPathMobs) throws Exception {
         List<ModelFile> models = new ArrayList<>();
 
         index = 0;

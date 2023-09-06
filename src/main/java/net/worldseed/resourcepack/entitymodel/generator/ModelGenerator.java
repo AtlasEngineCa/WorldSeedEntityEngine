@@ -5,6 +5,7 @@ import net.worldseed.resourcepack.entitymodel.AdditionalStates;
 
 import javax.json.*;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ModelGenerator {
@@ -45,7 +46,14 @@ public class ModelGenerator {
             height = model.getJsonObject("resolution").getJsonNumber("height").intValue();
         }
 
-        Map<String, TextureGenerator.TextureData> textures = TextureGenerator.generate(model.getJsonArray("textures"), width, height);
+        Map<String, JsonObject> mcmetas = new HashMap<>();
+        if (model.getJsonObject("mcmetas") != null) {
+            for (var mcmeta : model.getJsonObject("mcmetas").entrySet()) {
+                mcmetas.put(mcmeta.getKey(), mcmeta.getValue().asJsonObject());
+            }
+        }
+
+        Map<String, TextureGenerator.TextureData> textures = TextureGenerator.generate(model.getJsonArray("textures"), mcmetas, width, height);
         JsonArray bones = GeoGenerator.generate(model.getJsonArray("elements"), model.getJsonArray("outliner"), textures);
 
         JsonObject description = Json.createObjectBuilder()

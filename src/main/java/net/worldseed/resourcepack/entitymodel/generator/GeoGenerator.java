@@ -172,12 +172,7 @@ public class GeoGenerator {
             var n = entry.getValue().asJsonObject().get("texture");
             if (n != null && n.getValueType() != JsonValue.ValueType.NULL) {
                 int nInt = ((JsonNumber) n).intValue();
-
-                if (textures.values().size() <= 0) {
-                    texture = "#" + nInt;
-                } else {
-                    texture = textures.values().toArray(new TextureGenerator.TextureData[0])[nInt].id();
-                }
+                texture = "#" + nInt;
             }
 
             JsonObject faceParsed = Json.createObjectBuilder()
