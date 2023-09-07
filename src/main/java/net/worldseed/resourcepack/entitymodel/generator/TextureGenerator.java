@@ -4,14 +4,14 @@ import com.google.gson.JsonElement;
 
 import javax.json.*;
 import java.util.Base64;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TextureGenerator {
     public record TextureData(byte[] value, int width, int height, String name, String id, JsonObject mcmeta) {}
 
     public static Map<String, TextureData> generate(JsonArray textures, Map<String, JsonObject> mcmetas, int width, int height) {
-        Map<String, TextureData> textureMap = new HashMap<>();
+        Map<String, TextureData> textureMap = new LinkedHashMap<>();
 
         for (var texture : textures) {
             JsonObject textureObj = texture.asJsonObject();
