@@ -145,7 +145,6 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
         this.illegitimateChildren.forEach(modelBone -> {
             modelBone.spawn(instance, modelBone.calculatePosition().add(model.getPosition()));
-            System.out.println("Spawned " + modelBone.getName() + " at " + modelBone.calculatePosition().add(model.getPosition()));
             MinecraftServer.getSchedulerManager().scheduleNextTick(modelBone::draw);
         });
         return super.spawn(instance, position);
