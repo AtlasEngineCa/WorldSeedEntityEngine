@@ -44,7 +44,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
         this.destroy();
         this.illegitimateChildren.clear();
-        generateStands(this.cubes, this.pivot.mul(scale), this.name, this.rotation.mul(scale), this.model);
+        generateStands(this.cubes, this.pivot, this.name, this.rotation, this.model);
         this.illegitimateChildren.forEach(modelBone -> modelBone.spawn(model.getInstance(), model.getPosition()));
     }
 
@@ -56,7 +56,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         this.cubes = cubes;
 
         if (parent) {
-            generateStands(cubes, pivot.mul(scale), name, rotation.mul(scale), model);
+            generateStands(cubes, pivot, name, rotation, model);
             this.offset = null;
         } else {
             if (this.offset != null) {
@@ -78,10 +78,10 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                 this.offset = newOffset;
 
                 InteractionMeta meta = (InteractionMeta) this.stand.getEntityMeta();
-                meta.setHeight((float) (sizeY / 4f));
-                meta.setWidth((float) (sizeX / 4f));
+                meta.setHeight((float) (sizeY / 4f) * scale);
+                meta.setWidth((float) (sizeX / 4f) * scale);
 
-                this.stand.setBoundingBox(sizeX / 4f, sizeY / 4f, sizeX / 4f);
+                this.stand.setBoundingBox(sizeX / 4f * scale, sizeY / 4f * scale, sizeX / 4f * scale);
             }
         }
     }
@@ -92,14 +92,14 @@ public class ModelBoneHitbox extends ModelBoneImpl {
             JsonArray p = cube.getAsJsonObject().get("pivot").getAsJsonArray();
             JsonArray origin = cube.getAsJsonObject().get("origin").getAsJsonArray();
 
-            Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat()).mul(scale);
-            Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat()).mul(scale);
-            Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat()).mul(scale);
+            Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat());
+            Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat());
+            Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat());
 
             Point originPivotDiff = pivotPoint.sub(originPoint);
 
             double maxSize = Math.max(Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 0.5);
-            while (maxSize > 32) {
+            while (maxSize > (32 / scale)) {
                 maxSize /= 2;
             }
 
@@ -165,11 +165,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         var lp = actualPosition;
 
         if (actualPosition == null) {
-            actualPosition = Pos.fromPoint(p).div(4);
+            actualPosition = Pos.fromPoint(p).div(4).mul(scale);
             return actualPosition;
         }
 
-        var newPoint = Pos.fromPoint(p).div(4);
+        var newPoint = Pos.fromPoint(p).div(4).mul(scale);
         actualPosition = Pos.fromPoint(lp.asVec().lerp(Vec.fromPoint(newPoint), 0.25));
 
         return lp;
