@@ -9,6 +9,7 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.other.InteractionMeta;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.network.packet.server.play.EntityTeleportPacket;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.animations.ModelAnimation;
@@ -64,6 +65,10 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                     @Override
                     public void updateNewViewer(@NotNull Player player) {
                         super.updateNewViewer(player);
+
+                        EntityTeleportPacket packet = new EntityTeleportPacket(this.getEntityId(), this.position, true);
+                        player.getPlayerConnection().sendPacket(packet);
+
                         illegitimateChildren.forEach(modelBone -> modelBone.addViewer(player));
                     }
 
@@ -139,7 +144,8 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     @Override
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
         this.illegitimateChildren.forEach(modelBone -> {
-            modelBone.spawn(instance, modelBone.calculatePosition());
+            modelBone.spawn(instance, modelBone.calculatePosition().add(model.getPosition()));
+            System.out.println("Spawned " + modelBone.getName() + " at " + modelBone.calculatePosition().add(model.getPosition()));
             MinecraftServer.getSchedulerManager().scheduleNextTick(modelBone::draw);
         });
         return super.spawn(instance, position);
@@ -191,6 +197,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
             this.children.forEach(ModelBone::draw);
             this.illegitimateChildren.forEach(ModelBone::draw);
         }
+
         if (this.offset == null) return;
 
         try {
