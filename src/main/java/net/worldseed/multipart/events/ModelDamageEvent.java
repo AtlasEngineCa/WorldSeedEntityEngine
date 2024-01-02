@@ -1,5 +1,6 @@
 package net.worldseed.multipart.events;
 
+import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.trait.CancellableEvent;
@@ -10,53 +11,33 @@ import org.jetbrains.annotations.Nullable;
 
 public class ModelDamageEvent implements ModelEvent, CancellableEvent {
     private final GenericModel model;
-    private final DamageType damageType;
-    private float damage;
+    private final Damage damage;
     private SoundEvent sound;
 
     private boolean animation = true;
 
     private boolean cancelled;
 
-    public ModelDamageEvent(GenericModel model, @NotNull DamageType damageType,
-                            float damage, @Nullable SoundEvent sound) {
+    public ModelDamageEvent(GenericModel model, @NotNull Damage damage,
+                            @Nullable SoundEvent sound) {
         this.model = model;
-        this.damageType = damageType;
         this.damage = damage;
         this.sound = sound;
     }
 
     public ModelDamageEvent(GenericModel model, EntityDamageEvent event) {
-        this(model, event.getDamageType(), event.getDamage(), event.getSound());
+        this(model, event.getDamage(), event.getSound());
         this.animation = event.shouldAnimate();
     }
 
     /**
-     * Gets the damage type.
+     * Gets the damage.
      *
-     * @return the damage type
+     * @return the damage
      */
     @NotNull
-    public DamageType getDamageType() {
-        return damageType;
-    }
-
-    /**
-     * Gets the damage amount.
-     *
-     * @return the damage amount
-     */
-    public float getDamage() {
+    public Damage getDamage() {
         return damage;
-    }
-
-    /**
-     * Changes the damage amount.
-     *
-     * @param damage the new damage amount
-     */
-    public void setDamage(float damage) {
-        this.damage = damage;
     }
 
     /**

@@ -3,11 +3,14 @@ package events;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+
+import java.util.UUID;
+
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.GlobalEventHandler;
-import net.minestom.server.event.player.PlayerLoginEvent;
-import net.minestom.server.network.packet.server.play.ResourcePackSendPacket;
+import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
+import net.minestom.server.network.packet.server.common.ResourcePackPushPacket;
 import net.minestom.server.resourcepack.ResourcePack;
 import net.minestom.server.timer.TaskSchedule;
 
@@ -71,10 +74,10 @@ public class PackEvent {
         startHttpServer(zipFile);
         String hash = calculateMD5(zipFile);
 
-        handler.addListener(PlayerLoginEvent.class, event -> {
+        handler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             MinecraftServer.getSchedulerManager().scheduleTask(() -> {
-                ResourcePack pack = ResourcePack.optional("http://127.0.0.1:8080/pack?hash=" + hash, hash, Component.text("WSEE Resource Pack"));
-                ResourcePackSendPacket packSendPacket = new ResourcePackSendPacket(pack);
+                ResourcePack pack = ResourcePack.optional(UUID.randomUUID(), "http://127.0.0.1:8080/pack?hash=" + hash, hash, Component.text("WSEE Resource Pack"));
+                ResourcePackPushPacket packSendPacket = new ResourcePackPushPacket(pack);
                 event.getPlayer().sendPacket(packSendPacket);
             }, TaskSchedule.tick(20), TaskSchedule.stop());
         });

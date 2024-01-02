@@ -2,6 +2,7 @@ package events;
 
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.damage.EntityDamage;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.entity.EntityAttackEvent;
 
@@ -10,7 +11,7 @@ public class CombatEvent {
         handler.addListener(EntityAttackEvent.class, event -> {
             if (event.getTarget() instanceof LivingEntity target) {
                 int damage = 1;
-                target.damage(DamageType.fromEntity(event.getEntity()), damage);
+                target.damage(EntityDamage.fromEntity(event.getEntity(), damage));
             }
         });
     }
