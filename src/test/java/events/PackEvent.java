@@ -3,24 +3,21 @@ package events;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.resource.ResourcePackInfo;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.resourcepack.ResourcePack;
 import net.minestom.server.timer.TaskSchedule;
 
 import java.io.*;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PackEvent {
     static class PackHandler implements HttpHandler {
@@ -83,8 +80,11 @@ public class PackEvent {
 
         handler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             MinecraftServer.getSchedulerManager().scheduleTask(() -> {
-                ResourcePack pack = ResourcePack.optional(UUID.randomUUID(), "http://127.0.0.1:8080/pack?hash=" + hash, hash, Component.text("WSEE Resource Pack"));
-                event.getPlayer().setResourcePack(pack);
+                final ResourcePackInfo resourcePackInfo = ResourcePackInfo.resourcePackInfo()
+                        .uri(URI.create("http://127.0.0.1:8080/pack?hash=" + hash))
+                        .hash(hash)
+                        .build();
+                event.getPlayer().sendResourcePacks(resourcePackInfo);
             }, TaskSchedule.tick(20), TaskSchedule.stop());
         });
     }

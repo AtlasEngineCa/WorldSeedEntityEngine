@@ -38,8 +38,8 @@ publishing {
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-    compileOnly("dev.hollowcube:minestom-ce-snapshots:1_20_4-13f9cf2ec9")
-    testImplementation("dev.hollowcube:minestom-ce-snapshots:1_20_4-13f9cf2ec9")
+    compileOnly("dev.hollowcube:minestom-ce:5347c0b11f")
+    testImplementation("dev.hollowcube:minestom-ce:5347c0b11f")
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.zeroturnaround:zt-zip:1.8")
 
