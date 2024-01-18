@@ -6,6 +6,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
@@ -54,12 +55,13 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.offset != null) {
             this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model);
 
-            var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
+            var itemMeta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
-            meta.setScale(new Vec(scale, scale, scale));
-            meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
-            meta.setInterpolationDuration(3);
-            meta.setViewRange(1000);
+            itemMeta.setScale(new Vec(scale, scale, scale));
+            itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
+            itemMeta.setTransformationInterpolationDuration(3);
+            itemMeta.setPosRotInterpolationDuration(3);
+            itemMeta.setViewRange(1000);
         }
     }
 
@@ -105,7 +107,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             q = pq.multiply(q);
 
             meta.setNotifyAboutChanges(false);
-            meta.setInterpolationStartDelta(0);
+            meta.setTransformationInterpolationStartDelta(0);
             meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
             meta.setTranslation(position);
             meta.setNotifyAboutChanges(true);
