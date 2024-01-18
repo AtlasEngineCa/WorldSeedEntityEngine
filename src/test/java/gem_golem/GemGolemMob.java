@@ -60,11 +60,11 @@ public class GemGolemMob extends EntityCreature {
 
         model.eventNode()
                 .addListener(ModelDamageEvent.class, event -> {
-                    if (event.getDamageType() instanceof EntityDamage entityDamage) {
+                    if (event.getDamage() instanceof EntityDamage entityDamage) {
                         if (model.getPassengers().contains(entityDamage.getSource())) return;
                     }
 
-                    damage(event.getDamageType(), event.getDamage());
+                    damage(event.getDamage().getType(), event.getDamage().getAmount());
                 })
                 .addListener(ModelInteractEvent.class, event -> model.mountEntity(event.getInteracted()))
                 .addListener(ModelDismountEvent.class, event -> model.dismountEntity(event.getRider()))

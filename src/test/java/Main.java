@@ -13,9 +13,9 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerLoginEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
 import net.minestom.server.extras.lan.OpenToLAN;
@@ -90,17 +90,10 @@ public class Main {
             PackEvent.hook(handler, zipFile);
 
             // Login
-            handler.addListener(PlayerLoginEvent.class, event -> {
+            handler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
                 final Player player = event.getPlayer();
                 player.setRespawnPoint(new Pos(0.5, 16, 0.5));
                 event.setSpawningInstance(lobby);
-
-                Audiences.all().sendMessage(Component.text(
-                        player.getUsername() + " has joined",
-                        NamedTextColor.GREEN
-                ));
-
-                player.sendMessage(Component.text("Run /spawn or /emote", NamedTextColor.YELLOW));
             });
 
             handler.addListener(PlayerSpawnEvent.class, event -> {
@@ -110,6 +103,13 @@ public class Main {
                 player.setItemInMainHand(ItemStack.of(Material.DIAMOND_SWORD));
                 player.playSound(Sound.sound(SoundEvent.ENTITY_PLAYER_LEVELUP, Sound.Source.MASTER, 1f, 1f));
                 player.setEnableRespawnScreen(false);
+
+                Audiences.all().sendMessage(Component.text(
+                        player.getUsername() + " has joined",
+                        NamedTextColor.GREEN
+                ));
+
+                player.sendMessage(Component.text("Run /spawn or /emote", NamedTextColor.YELLOW));
             });
 
             // Logout
