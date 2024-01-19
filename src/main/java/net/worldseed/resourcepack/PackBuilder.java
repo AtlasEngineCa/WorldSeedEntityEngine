@@ -1,5 +1,6 @@
 package net.worldseed.resourcepack;
 
+import net.worldseed.multipart.ModelEngine;
 import net.worldseed.resourcepack.entitymodel.generator.ModelGenerator;
 import net.worldseed.resourcepack.entitymodel.parser.ModelParser;
 import org.apache.commons.io.FileUtils;
@@ -46,12 +47,12 @@ public class PackBuilder {
                 .filter(File::isFile)
                 .filter(file -> file.getName().endsWith(".bbmodel"))
                 .map(entityModel -> {
-            try {
-                return new Model(FileUtils.readFileToString(entityModel, StandardCharsets.UTF_8), entityModel.getName(), additionalStateFiles.get(entityModel.getName()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).toList();
+                    try {
+                        return new Model(FileUtils.readFileToString(entityModel, StandardCharsets.UTF_8), entityModel.getName(), additionalStateFiles.get(entityModel.getName()));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList();
 
         Path texturePathMobs = resourcepack.resolve("assets/worldseed/textures/mobs/");
         Path modelPathMobs = resourcepack.resolve("assets/worldseed/models/mobs/");
@@ -127,7 +128,8 @@ public class PackBuilder {
             }
         });
 
-        FileUtils.writeStringToFile(baseModelPath.resolve("leather_horse_armor.json").toFile(), modelData.binding().toString(), Charset.defaultCharset());
+        final String itemName = ModelEngine.getModelMaterial().name().replace("minecraft:", "");
+        FileUtils.writeStringToFile(baseModelPath.resolve(itemName + ".json").toFile(), modelData.binding().toString(), Charset.defaultCharset());
         return modelData.mappings();
     }
 }
