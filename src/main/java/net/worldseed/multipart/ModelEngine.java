@@ -33,15 +33,17 @@ public class ModelEngine {
     public final static HashMap<String, Point> offsetMappings = new HashMap<>();
     public final static HashMap<String, Point> diffMappings = new HashMap<>();
     private static Path modelPath;
+    private static Material modelMaterial;
 
     /**
      * Loads the model from the given path
      * @param mappingsData mappings file created by model parser
      * @param modelPath path of the models
      */
-    public static void loadMappings(Reader mappingsData, Path modelPath) {
+    public static void loadMappings(Reader mappingsData, Path modelPath, Material modelMaterial) {
         JsonObject map = GSON.fromJson(mappingsData, JsonObject.class);
         ModelEngine.modelPath = modelPath;
+        ModelEngine.modelMaterial = modelMaterial;
 
         blockMappings.clear();
         offsetMappings.clear();
@@ -52,10 +54,10 @@ public class ModelEngine {
             HashMap<String, ItemStack> keys = new HashMap<>();
 
             entry.getValue().getAsJsonObject()
-                .get("id")
-                .getAsJsonObject()
-                .entrySet()
-                .forEach(id -> keys.put(id.getKey(), generateBoneItem(id.getValue().getAsInt())));
+                    .get("id")
+                    .getAsJsonObject()
+                    .entrySet()
+                    .forEach(id -> keys.put(id.getKey(), generateBoneItem(id.getValue().getAsInt())));
 
             blockMappings.put(entry.getKey(), keys);
             offsetMappings.put(entry.getKey(), getPos(entry.getValue().getAsJsonObject().get("offset").getAsJsonArray()).orElse(Pos.ZERO));
@@ -107,9 +109,7 @@ public class ModelEngine {
     }
 
     private static ItemStack generateBoneItem(int model_id) {
-        Material material = Material.LEATHER_HORSE_ARMOR;
-
-        return ItemStack.builder(material).meta(itemMetaBuilder -> {
+        return ItemStack.builder(modelMaterial).meta(itemMetaBuilder -> {
             itemMetaBuilder
                     .displayName(Component.empty())
                     .unbreakable(true)
@@ -136,5 +136,9 @@ public class ModelEngine {
             JsonArray arr = pivot.getAsJsonArray();
             return Optional.of(new Vec(arr.get(0).getAsDouble(), arr.get(1).getAsDouble(), arr.get(2).getAsDouble()));
         }
+    }
+
+    public static Material getModelMaterial() {
+        return modelMaterial;
     }
 }
