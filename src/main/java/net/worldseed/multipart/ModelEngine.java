@@ -33,17 +33,16 @@ public class ModelEngine {
     public final static HashMap<String, Point> offsetMappings = new HashMap<>();
     public final static HashMap<String, Point> diffMappings = new HashMap<>();
     private static Path modelPath;
-    private static Material modelMaterial;
+    private static Material modelMaterial = Material.MAGMA_CREAM;
 
     /**
      * Loads the model from the given path
      * @param mappingsData mappings file created by model parser
      * @param modelPath path of the models
      */
-    public static void loadMappings(Reader mappingsData, Path modelPath, Material modelMaterial) {
+    public static void loadMappings(Reader mappingsData, Path modelPath) {
         JsonObject map = GSON.fromJson(mappingsData, JsonObject.class);
         ModelEngine.modelPath = modelPath;
-        ModelEngine.modelMaterial = modelMaterial;
 
         blockMappings.clear();
         offsetMappings.clear();
@@ -140,5 +139,9 @@ public class ModelEngine {
 
     public static Material getModelMaterial() {
         return modelMaterial;
+    }
+
+    public static void setModelMaterial(Material modelMaterial) {
+        ModelEngine.modelMaterial = modelMaterial;
     }
 }

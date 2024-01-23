@@ -56,12 +56,14 @@ public class Main {
             FileUtils.deleteDirectory(BASE_PATH.resolve("resourcepack").toFile());
         } catch (IllegalArgumentException ignored) { }
 
-        Reader mappingsData = new InputStreamReader(new FileInputStream(BASE_PATH.resolve("model_mappings.json").toFile()));
-        ModelEngine.loadMappings(mappingsData, MODEL_PATH, Material.MAGMA_CREAM);
+        ModelEngine.setModelMaterial(Material.MAGMA_CREAM);
 
         FileUtils.copyDirectory(BASE_PATH.resolve("resourcepack_template").toFile(), BASE_PATH.resolve("resourcepack").toFile());
         var config = PackBuilder.Generate(BASE_PATH.resolve("bbmodel"), BASE_PATH.resolve("resourcepack"), MODEL_PATH);
         FileUtils.writeStringToFile(BASE_PATH.resolve("model_mappings.json").toFile(), config.modelMappings(), Charset.defaultCharset());
+
+        Reader mappingsData = new InputStreamReader(new FileInputStream(BASE_PATH.resolve("model_mappings.json").toFile()));
+        ModelEngine.loadMappings(mappingsData, MODEL_PATH);
 
         ZipUtil.pack(BASE_PATH.resolve("resourcepack").toFile(), ZIP_PATH.toFile());
         File zipFile = ZIP_PATH.toFile();
