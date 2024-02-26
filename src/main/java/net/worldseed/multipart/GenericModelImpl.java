@@ -171,7 +171,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     private Collection<ModelBoneHitbox> addHitboxParts(Point pivotPos, String name, Point boneRotation, GenericModelImpl genericModel, JsonArray cubes, LinkedHashMap<String, ModelBone> parts, float scale) {
-        if (cubes.size() < 1) return List.of();
+        if (cubes.isEmpty()) return List.of();
 
         var cube = cubes.get(0);
         JsonArray sizeArray = cube.getAsJsonObject().get("size").getAsJsonArray();
