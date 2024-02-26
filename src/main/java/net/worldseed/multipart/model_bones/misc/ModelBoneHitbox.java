@@ -94,35 +94,39 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     public void generateStands(JsonArray cubes, Point pivotPos, String name, Point boneRotation, GenericModel genericModel) {
         for (var cube : cubes) {
             JsonArray sizeArray = cube.getAsJsonObject().get("size").getAsJsonArray();
-            JsonArray p = cube.getAsJsonObject().get("pivot").getAsJsonArray();
             JsonArray origin = cube.getAsJsonObject().get("origin").getAsJsonArray();
 
             Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat());
-            Point pivotPoint = new Vec(p.get(0).getAsFloat(), p.get(1).getAsFloat(), p.get(2).getAsFloat());
             Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat());
-
-            Point originPivotDiff = pivotPoint.sub(originPoint);
 
             double maxSize = Math.max(Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 0.5);
             while (maxSize > (32 / scale)) {
                 maxSize /= 2;
             }
 
-            // Convert sizePoint in to smaller squares
+            var newPoint = originPoint
+                    .add(sizePoint.x() / 2, 0, sizePoint.z() / 2)
+                    .mul(-1, 1, 1);
+
             for (int x = 0; x < sizePoint.x() / maxSize; ++x) {
                 for (int y = 0; y < sizePoint.y() / maxSize; ++y) {
                     for (int z = 0; z < sizePoint.z() / maxSize; ++z) {
                         var relativeSize = new Vec(maxSize, maxSize, maxSize);
-                        var relativePivotPoint = new Vec(x * maxSize, y * maxSize, z * maxSize);
+                        var currentPos = new Vec(x * maxSize, y * maxSize, z * maxSize);
 
-                        if ((relativePivotPoint.x() + relativeSize.x()/2) > sizePoint.x()) relativePivotPoint = relativePivotPoint.withX((relativePivotPoint.x()) - sizePoint.x());
-                        if ((relativePivotPoint.y() + relativeSize.y()) > sizePoint.y()) relativePivotPoint = relativePivotPoint.sub(0, (relativePivotPoint.y() + relativeSize.y()) - sizePoint.y(), 0);
-                        if ((relativePivotPoint.z() + relativeSize.z()/2) > sizePoint.z()) relativePivotPoint = relativePivotPoint.withZ((relativePivotPoint.z()) - sizePoint.z());
+                        currentPos = currentPos.sub(sizePoint.x() / 2, 0, sizePoint.z() / 2);
+                        currentPos = currentPos.add(relativeSize.x() / 2, 0, relativeSize.z() / 2);
 
-                        var newOffset = pivotPoint.mul(-1, 1, 1).sub(sizePoint.x() / 2, originPivotDiff.y(), sizePoint.z() / 2);
-                        newOffset = newOffset.add(relativePivotPoint).add(relativeSize.x() / 2, 0, relativeSize.z() / 2);
+                        if ((currentPos.x() + maxSize / 2) > sizePoint.x())
+                            currentPos = currentPos.withX(sizePoint.x() - maxSize / 2);
 
-                        ModelBoneHitbox created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, newOffset, relativeSize.x(), relativeSize.y(), cubes, false, scale);
+                        if ((currentPos.z() + maxSize / 2) > sizePoint.z())
+                            currentPos = currentPos.withZ(sizePoint.z() - maxSize / 2);
+
+                        if ((currentPos.y() + maxSize) > sizePoint.y())
+                            currentPos = currentPos.withY(sizePoint.y() - maxSize);
+
+                        var created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, newPoint.add(currentPos), relativeSize.x(), relativeSize.y(), cubes, false, scale);
                         illegitimateChildren.add(created);
                     }
                 }
