@@ -97,7 +97,7 @@ public class MQLPoint {
     static MQLEvaluator fromString(String s) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         if (s == null || s.isBlank()) return fromDouble(0);
         MqlCompiler<MQLEvaluator> compiler = new MqlCompiler<>(MQLEvaluator.class);
-        Class<MQLEvaluator> scriptClass = compiler.compile(s.replace("Math", "math"));
+        Class<MQLEvaluator> scriptClass = compiler.compile(s.trim().replace("Math", "math"));
         return scriptClass.getDeclaredConstructor().newInstance();
     }
 }
