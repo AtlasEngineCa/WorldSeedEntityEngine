@@ -39,10 +39,7 @@
 ## About The Project
 <div align="center">
   <a href="https://github.com/AtlasEngineCa/WorldSeedEntityEngine">
-    <video loop width="720" height="480" autoplay>
-      <source src=".github/hitbox.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video> 
+    <img src=".github/hitbox.gif" alt="Logo" width="1280" height="720">
   </a>
   </div>
 
