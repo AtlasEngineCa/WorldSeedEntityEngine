@@ -104,11 +104,11 @@ Q: Why am I getting the exception `InaccessibleObjectException`\
 A: Make sure you have the VM arguments set up correctly, as described in the [Getting Started](#getting-started) section
 
 ## Comparisons
-| Feature                                                                                                                          | Minestom Support | Paper Support | Math Animations | Cube Rotation   | Accurate Hit State  |
-|----------------------------------------------------------------------------------------------------------------------------------|------------------|---------------|----------------|-----------------|---------------------|
-| [WSEE](https://github.com/AtlasEngineCa/WorldSeedEntityEngine)                                                                   | ✔️               | ❌            | ✔️             | ✔️ any          | ✔️ Texture Swapping |
-| [Model Engine](https://mythiccraft.io/index.php?resources/model-engine%E2%80%94ultimate-entity-model-manager-1-16-5-1-20-4.389/) | ️❌              | ✔️            | ❌             | ❌ 22.5 multiple | ❌ Leather Armour    |
-| [hephaestus-engine](https://github.com/unnamed/hephaestus-engine)                                                                | ✔️               | ✔️            | ❌              | ❌ 22.5 multiple | ❌ Leather Armour    |
+| Feature                                                                                                                          | Minestom Support | Paper Support | Math Animations | Cube Rotation   | Hurt Colour         | Accurate Hitboxes |
+|----------------------------------------------------------------------------------------------------------------------------------|------------------|---------------|----------------|-----------------|---------------------|-------------------|
+| [WSEE](https://github.com/AtlasEngineCa/WorldSeedEntityEngine)                                                                   | ✔️               | ❌            | ✔️             | ✔️ any          | ✔️ Texture Swapping | ✔️                 |
+| [Model Engine](https://mythiccraft.io/index.php?resources/model-engine%E2%80%94ultimate-entity-model-manager-1-16-5-1-20-4.389/) | ️❌              | ✔️            | ❌             | ❌ 22.5 multiple | ❌ Leather Armour    | ❌                 |
+| [hephaestus-engine](https://github.com/unnamed/hephaestus-engine)                                                                | ✔️               | ✔️            | ❌              | ❌ 22.5 multiple | ❌ Leather Armour    | ❌                 |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
