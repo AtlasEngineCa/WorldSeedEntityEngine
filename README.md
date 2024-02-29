@@ -39,7 +39,7 @@
 ## About The Project
 <div align="center">
   <a href="https://github.com/AtlasEngineCa/WorldSeedEntityEngine">
-    <img src=".github/hitbox.gif" alt="Logo" width="1280" height="720">
+    <img src=".github/hitbox.gif" alt="Logo" width="690" height="388">
   </a>
   </div>
 
