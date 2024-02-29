@@ -87,7 +87,7 @@ This is required for the molang compiler library.
 ## Restrictions
 
 Some restrictions are imposed by Minecraft
-- Bones can only be 64 blocks in size
+- Bones must be less than 64 blocks in size
 
 ## [Wiki](https://github.com/AtlasEngineCa/WorldSeedEntityEngine/wiki)
 Learn what this project is, how it works and how you can use it on your server
