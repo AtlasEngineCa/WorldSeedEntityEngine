@@ -1,4 +1,4 @@
-package minimal;
+package demo_models.minimal;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.EntityCreature;

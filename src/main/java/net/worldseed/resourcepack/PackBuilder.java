@@ -2,6 +2,7 @@ package net.worldseed.resourcepack;
 
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.resourcepack.entitymodel.generator.ModelGenerator;
+import net.worldseed.resourcepack.entitymodel.generator.TextureGenerator;
 import net.worldseed.resourcepack.entitymodel.parser.ModelParser;
 import org.apache.commons.io.FileUtils;
 
@@ -32,27 +33,8 @@ public class PackBuilder {
 
     public static ConfigJson Generate(Path bbmodel, Path resourcepack, Path modelDataPath) throws Exception {
         Map<String, JsonObject> additionalStateFiles = new HashMap<>();
-        Arrays.stream(bbmodel.toFile().listFiles()).filter(File::isFile)
-                .filter(file -> file.getName().endsWith(".states"))
-                .forEach(file -> {
-                    try {
-                        JsonObject m = Json.createReader(new FileInputStream(file)).readObject();
-                        additionalStateFiles.put(file.getName().replace(".states", ""), m);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
 
-        List<Model> entityModels = Arrays.stream(bbmodel.toFile().listFiles())
-                .filter(File::isFile)
-                .filter(file -> file.getName().endsWith(".bbmodel"))
-                .map(entityModel -> {
-                    try {
-                        return new Model(FileUtils.readFileToString(entityModel, StandardCharsets.UTF_8), entityModel.getName(), additionalStateFiles.get(entityModel.getName()));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).toList();
+        List<Model> entityModels = recursiveFileSearch(bbmodel, Path.of(""), additionalStateFiles);
 
         Path texturePathMobs = resourcepack.resolve("assets/worldseed/textures/mobs/");
         Path modelPathMobs = resourcepack.resolve("assets/worldseed/models/mobs/");
@@ -65,6 +47,35 @@ public class PackBuilder {
         JsonObject modelMappings = writeCustomModels(entityModels, modelDataPath, texturePathMobs, modelPathMobs, baseModelPath);
 
         return new ConfigJson(modelMappings.toString());
+    }
+
+    private static List<Model> recursiveFileSearch(Path path, Path subPath, Map<String, JsonObject> additionalStateFiles) {
+        var files = Arrays.stream(path.toFile().listFiles())
+                .filter(File::isFile)
+                .filter(file -> file.getName().endsWith(".bbmodel"))
+                .map(entityModel -> {
+                    try {
+                        String pathName = subPath.resolve(entityModel.getName()).toString();
+                        File stateFile = subPath.resolve(path).resolve(Path.of(entityModel.getName() + ".states")).toFile();
+
+                        if (stateFile.exists()) {
+                            JsonObject m = Json.createReader(new FileInputStream(stateFile)).readObject();
+                            additionalStateFiles.put(pathName, m);
+                        }
+
+                        return new Model(FileUtils.readFileToString(entityModel, StandardCharsets.UTF_8), pathName, additionalStateFiles.get(entityModel.getName()));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList();
+
+        var dirs = Arrays.stream(path.toFile().listFiles())
+                .filter(File::isDirectory)
+                .map(file -> recursiveFileSearch(file.toPath(), subPath.resolve(file.getName()), additionalStateFiles))
+                .flatMap(List::stream)
+                .toList();
+
+        return List.of(files, dirs).stream().flatMap(List::stream).toList();
     }
 
     private static JsonObject writeCustomModels(List<Model> entityModels, Path modelDataPath, Path texturePathMobs, Path modelPathMobs, Path baseModelPath) throws Exception {
@@ -92,25 +103,12 @@ public class PackBuilder {
             var textureData = res.get(model.id()).textures();
 
             for (var entry : model.textures().entrySet()) {
-                var found = textureData.get(entry.getKey());
+                TextureGenerator.TextureData found = textureData.get(entry.getKey());
                 Path resolvedPath = texturePathMobs.resolve(model.id() + "/" + model.state().name() + "/" + entry.getKey());
 
                 try {
-                    int h = found.height();
-                    int w = found.width();
-
-                    double scale = ((double) h) / w;
-                    boolean animated = (int) scale == scale;
-
                     if (found.mcmeta() != null) {
                         FileUtils.writeStringToFile(new File(resolvedPath + ".png.mcmeta"), found.mcmeta().toString(), StandardCharsets.UTF_8);
-                    } else if (animated && scale > 1) {
-                        int frametime = 2;
-                        JsonObjectBuilder builder = Json.createObjectBuilder();
-                        builder.add("animation",
-                                Json.createObjectBuilder().add("frametime", frametime).build());
-
-                        FileUtils.writeStringToFile(new File(resolvedPath + ".png.mcmeta"), builder.build().toString(), StandardCharsets.UTF_8);
                     }
 
                     FileUtils.writeByteArrayToFile(new File(resolvedPath + ".png"), entry.getValue());

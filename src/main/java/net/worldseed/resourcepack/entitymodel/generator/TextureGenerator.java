@@ -25,29 +25,6 @@ public class TextureGenerator {
 
             if (uuid instanceof JsonString uid && mcmetas.containsKey(uid.getString())) {
                 mcmeta = mcmetas.get(uid.getString());
-            } else {
-                JsonValue frameTime = textureObj.get("frame_time");
-                JsonValue frame_interpolate = textureObj.get("frame_interpolate");
-
-                boolean hasValues = false;
-                JsonObjectBuilder builder = Json.createObjectBuilder();
-
-                if (frameTime instanceof JsonNumber number) {
-                    hasValues = true;
-                    builder.add("frametime", number);
-                }
-
-                try {
-                    if (frame_interpolate instanceof JsonElement bool) {
-                        hasValues = true;
-                        boolean b = bool.getAsBoolean();
-                        builder.add("interpolate", b);
-                    }
-                } catch (Exception ignored) {}
-
-                if (hasValues) {
-                    mcmeta = Json.createObjectBuilder().add("animation", builder.build()).build();
-                }
             }
 
             textureMap.put(id, new TextureData(data, width, height, name, id, mcmeta));

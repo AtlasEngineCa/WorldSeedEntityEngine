@@ -1,4 +1,4 @@
-package gem_golem;
+package demo_models.gem_golem;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;

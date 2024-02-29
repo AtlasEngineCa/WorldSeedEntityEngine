@@ -39,7 +39,10 @@
 ## About The Project
 <div align="center">
   <a href="https://github.com/AtlasEngineCa/WorldSeedEntityEngine">
-    <img src=".github/demo.gif" alt="Logo" width="320" height="240">
+    <video loop width="720" height="480" autoplay>
+      <source src=".github/hitbox.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video> 
   </a>
   </div>
 
@@ -74,10 +77,19 @@ dependencies {
 
 The lastest version number can be found [here](https://reposilite.worldseed.online/#/public/net/worldseed/multipart/WorldSeedEntityEngine)
 
+### VM Arguments
+
+Add the following VM arguments to your run configuration
+
+```
+--add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+```
+
+This is required for the molang compiler library.
+
 ## Restrictions
 
 Some restrictions are imposed by Minecraft
-- Cubes can only be rotated on one axis, and can only have rotation values of 0, -22.5, 22.5, 45 or -45. This does not effect bones (these show up as folders in blockbench)
 - Bones can only be 64 blocks in size
 
 ## [Wiki](https://github.com/AtlasEngineCa/WorldSeedEntityEngine/wiki)
@@ -90,6 +102,16 @@ A: Entities used for bones will be placed at the pivot point of the bone in bloc
 
 Q: Why is my model not working?\
 A: Make sure you have the type set to `Bedrock Model` in blockbench
+
+Q: Why am I getting the exception `InaccessibleObjectException`\
+A: Make sure you have the VM arguments set up correctly, as described in the [Getting Started](#getting-started) section
+
+## Comparisons
+| Feature                                                                                                                          | Minestom Support | Paper Support | Math Animations | Cube Rotation   | Accurate Hit State  |
+|----------------------------------------------------------------------------------------------------------------------------------|------------------|---------------|----------------|-----------------|---------------------|
+| [WSEE](https://github.com/AtlasEngineCa/WorldSeedEntityEngine)                                                                   | ✔️               | ❌            | ✔️             | ✔️ any          | ✔️ Texture Swapping |
+| [Model Engine](https://mythiccraft.io/index.php?resources/model-engine%E2%80%94ultimate-entity-model-manager-1-16-5-1-20-4.389/) | ️❌              | ✔️            | ❌             | ❌ 22.5 multiple | ❌ Leather Armour    |
+| [hephaestus-engine](https://github.com/unnamed/hephaestus-engine)                                                                | ✔️               | ✔️            | ❌              | ❌ 22.5 multiple | ❌ Leather Armour    |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

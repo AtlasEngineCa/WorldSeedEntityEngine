@@ -1,0 +1,125 @@
+package demo_models.bulbasaur;
+
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.attribute.Attribute;
+import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityCreature;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.Player;
+import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.damage.EntityDamage;
+import net.minestom.server.instance.Instance;
+import net.minestom.server.network.packet.server.play.ParticlePacket;
+import net.minestom.server.particle.Particle;
+import net.minestom.server.particle.ParticleCreator;
+import net.minestom.server.timer.Task;
+import net.minestom.server.utils.position.PositionUtils;
+import net.minestom.server.utils.time.TimeUnit;
+import net.worldseed.multipart.animations.AnimationHandler;
+import net.worldseed.multipart.animations.AnimationHandlerImpl;
+import net.worldseed.multipart.events.ModelDamageEvent;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Set;
+
+public class BulbasaurMob extends EntityCreature {
+    private final BulbasaurModel model;
+    private final AnimationHandler animationHandler;
+    private Task stateTask;
+    boolean dying = false;
+
+    public BulbasaurMob(Instance instance, Pos pos) {
+        super(EntityType.ZOMBIE);
+        this.setInvisible(true);
+        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.1f);
+
+        this.model = new BulbasaurModel();
+        model.init(instance, pos, 1f);
+
+        model.eventNode().addListener(ModelDamageEvent.class, (event) -> {
+            if (event.getDamage() instanceof EntityDamage entityDamage) {
+                if (model.getPassengers().contains(entityDamage.getSource())) return;
+            }
+
+            damage(event.getDamage().getType(), event.getDamage().getAmount());
+        });
+
+        this.animationHandler = new AnimationHandlerImpl(model);
+        this.animationHandler.playRepeat("animation.bulbasaur.ground_idle");
+
+        addAIGroup(
+                List.of(
+                        new BulbasaurMoveGoal(this, animationHandler)
+                ),
+                List.of(
+                        new BulbasaurTarget(this)
+                )
+        );
+
+        this.setInstance(instance, pos).join();
+    }
+
+    @Override
+    public void updateNewViewer(@NotNull Player player) {
+        super.updateNewViewer(player);
+        this.model.addViewer(player);
+    }
+
+    @Override
+    public void updateOldViewer(@NotNull Player player) {
+        super.updateOldViewer(player);
+        this.model.removeViewer(player);
+    }
+
+    public void facePoint(Point point) {
+        Point e = this.position.sub(point);
+        model.setGlobalRotation(180 + PositionUtils.getLookYaw(e.x(), e.z()));
+    }
+
+    private void facePlayer() {
+        Entity target = this.getTarget();
+        if (target == null) return;
+        if (getPassengers().contains(target)) return;
+
+        Point e = this.position.sub(target.getPosition());
+        model.setGlobalRotation(180 + PositionUtils.getLookYaw(e.x(), e.z()));
+    }
+
+    @Override
+    public void tick(long time) {
+        super.tick(time);
+        if (!this.isDead) this.model.setPosition(this.position);
+        facePlayer();
+    }
+
+    @Override
+    public boolean damage(@NotNull DamageType type, float amount) {
+        if (this.dying) return false;
+        this.animationHandler.playOnce("animation.bulbasaur.cry", (cb) -> {});
+        this.model.setState("hit");
+
+        if (stateTask != null && stateTask.isAlive()) stateTask.cancel();
+        this.stateTask = MinecraftServer.getSchedulerManager()
+                .buildTask(() -> this.model.setState("normal")).delay(7, TimeUnit.CLIENT_TICK)
+                .schedule();
+
+        return super.damage(type, amount);
+    }
+
+    @Override
+    public void remove() {
+        var viewers = Set.copyOf(this.getViewers());
+        this.dying = true;
+        this.animationHandler.playOnce("animation.bulbasaur.faint", (cb) -> {
+            this.model.destroy();
+            this.animationHandler.destroy();
+            ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 50);
+            viewers.forEach(v -> v.sendPacket(packet));
+
+            super.remove();
+        });
+    }
+}

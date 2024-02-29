@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minestom.server.coordinate.Point;
-import net.worldseed.multipart.ModelEngine;
+import net.worldseed.multipart.animations.FrameProvider;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,8 +20,8 @@ public class ModelLoader {
     private static final Map<String, JsonObject> loadedModels = new HashMap<>();
 
     // <Model> -> <Bone/Animation>
-    private static final Map<String, Map<String, Map<Short, Point>>> interpolationTranslateCache = new HashMap<>();
-    private static final Map<String, Map<String, Map<Short, Point>>> interpolationRotateCache = new HashMap<>();
+    private static final Map<String, Map<String, FrameProvider>> interpolationTranslateCache = new HashMap<>();
+    private static final Map<String, Map<String, FrameProvider>> interpolationRotateCache = new HashMap<>();
 
     public static void clearCache() {
         interpolationTranslateCache.clear();
@@ -72,28 +71,28 @@ public class ModelLoader {
         return loadedModel1;
     }
 
-    public static void addToTranslationCache(String key, String model, Map<Short, Point> val) {
+    public static void addToTranslationCache(String key, String model, FrameProvider val) {
         if (!interpolationTranslateCache.containsKey(model))
             interpolationTranslateCache.put(model, new HashMap<>());
 
         interpolationTranslateCache.get(model).put(key, val);
     }
 
-    public static void addToRotationCache(String key, String model, Map<Short, Point> val) {
+    public static void addToRotationCache(String key, String model, FrameProvider val) {
         if (!interpolationRotateCache.containsKey(model))
             interpolationRotateCache.put(model, new HashMap<>());
 
         interpolationRotateCache.get(model).put(key, val);
     }
 
-    public static Map<Short, Point> getCacheRotation(String key, String model) {
-        Map<String, Map<Short, Point>> m = interpolationRotateCache.get(model);
+    public static FrameProvider getCacheRotation(String key, String model) {
+        Map<String, FrameProvider> m = interpolationRotateCache.get(model);
         if (m == null) return null;
         return m.get(key);
     }
 
-    public static Map<Short, Point> getCacheTranslation(String key, String model) {
-        Map<String, Map<Short, Point>> m = interpolationTranslateCache.get(model);
+    public static FrameProvider getCacheTranslation(String key, String model) {
+        Map<String, FrameProvider> m = interpolationTranslateCache.get(model);
         if (m == null) return null;
         return m.get(key);
     }

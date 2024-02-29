@@ -1,4 +1,4 @@
-package gem_golem;
+package demo_models.gem_golem;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;

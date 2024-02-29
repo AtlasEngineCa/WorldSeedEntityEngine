@@ -115,7 +115,6 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
                         currentPos = currentPos.sub(sizePoint.x() / 2, 0, sizePoint.z() / 2);
                         currentPos = currentPos.add(maxSize / 2, 0, maxSize / 2);
-                        currentPos = currentPos.add(newPoint);
 
                         if ((currentPos.x() + maxSize) > sizePoint.x()) {
                             currentPos = currentPos.withX(sizePoint.x() - maxSize);
@@ -127,7 +126,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
                         if ((currentPos.y() + maxSize) > sizePoint.y())
                             currentPos = currentPos.withY(sizePoint.y() - maxSize);
 
-                        var created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, currentPos, maxSize, maxSize, cubes, false, scale);
+                        var created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, currentPos.add(newPoint), maxSize, maxSize, cubes, false, scale);
                         illegitimateChildren.add(created);
                     }
                 }
@@ -180,7 +179,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         }
 
         var newPoint = Pos.fromPoint(p).div(4).mul(scale);
-        actualPosition = Pos.fromPoint(lp.asVec().lerp(Vec.fromPoint(newPoint), 0.25));
+        actualPosition = Pos.fromPoint(lp.asVec().lerp(Vec.fromPoint(newPoint), 0.5));
 
         return lp;
     }

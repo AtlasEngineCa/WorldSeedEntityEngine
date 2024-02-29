@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
-    int sendTick = 0;
     private Entity baseStand;
 
     @Override
@@ -59,8 +58,8 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
             itemMeta.setScale(new Vec(scale, scale, scale));
             itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
-            itemMeta.setTransformationInterpolationDuration(3);
-            itemMeta.setPosRotInterpolationDuration(3);
+            itemMeta.setTransformationInterpolationDuration(2);
+            itemMeta.setPosRotInterpolationDuration(2);
             itemMeta.setViewRange(1000);
         }
     }
@@ -100,7 +99,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
-        if (sendTick % 2 == 0 && this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
+        if (this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             var position = calculatePositionInternal();
             Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
             Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
@@ -112,8 +111,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             meta.setTranslation(position);
             meta.setNotifyAboutChanges(true);
         }
-
-        sendTick++;
     }
 
     @Override
