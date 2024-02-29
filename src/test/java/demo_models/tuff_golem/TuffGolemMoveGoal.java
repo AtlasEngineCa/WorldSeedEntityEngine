@@ -1,4 +1,4 @@
-package gem_golem;
+package demo_models.tuff_golem;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 
-public class GemGolemMoveGoal extends GoalSelector {
+public class TuffGolemMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
     private Entity target = null;
     private Pos lastTargetPos = Pos.ZERO;
@@ -17,10 +17,10 @@ public class GemGolemMoveGoal extends GoalSelector {
     private final Duration pathDuration = Duration.ofSeconds(1);
     private long lastUpdateTime;
 
-    private final int minDistance = 5;
+    private final int minDistance = 4;
     private final int maxDistance = 40;
 
-    public GemGolemMoveGoal(@NotNull GemGolemMob entityCreature, AnimationHandler handler) {
+    public TuffGolemMoveGoal(@NotNull TuffGolemMob entityCreature, AnimationHandler handler) {
         super(entityCreature);
         this.animationHandler = handler;
     }
@@ -30,8 +30,6 @@ public class GemGolemMoveGoal extends GoalSelector {
         target = findTarget();
         if (target == null) return false;
         if (entityCreature.getPassengers().contains(target)) return false;
-        if (((GemGolemMob)entityCreature).isSleeping()) return false;
-        if (!this.animationHandler.getPlaying().equals("idle_extended")) return false;
 
         if (entityCreature.getNavigator().getPathPosition() != null)
             if (entityCreature.getNavigator().getPathPosition().samePoint(lastTargetPos)) return false;

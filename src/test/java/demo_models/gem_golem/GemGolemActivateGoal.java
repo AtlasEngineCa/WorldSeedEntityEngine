@@ -1,4 +1,4 @@
-package gem_golem;
+package demo_models.gem_golem;
 
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.ai.GoalSelector;

@@ -1,4 +1,4 @@
-package tuff_golem;
+package demo_models.tuff_golem;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;

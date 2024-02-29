@@ -1,9 +1,8 @@
-package gem_golem;
+package demo_models.bulbasaur;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityCreature;
-import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.ai.TargetSelector;
 import net.minestom.server.instance.Chunk;
@@ -14,10 +13,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Optional;
 
-public class GemGolemTarget extends TargetSelector {
+public class BulbasaurTarget extends TargetSelector {
     private final int distance;
 
-    public GemGolemTarget(@NotNull EntityCreature entityCreature) {
+    public BulbasaurTarget(@NotNull EntityCreature entityCreature) {
         super(entityCreature);
         this.distance = 50;
     }

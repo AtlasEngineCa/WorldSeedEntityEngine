@@ -1,4 +1,4 @@
-package tuff_golem;
+package demo_models.bulbasaur;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 
-public class TuffGolemMoveGoal extends GoalSelector {
+public class BulbasaurMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
     private Entity target = null;
     private Pos lastTargetPos = Pos.ZERO;
@@ -17,10 +17,10 @@ public class TuffGolemMoveGoal extends GoalSelector {
     private final Duration pathDuration = Duration.ofSeconds(1);
     private long lastUpdateTime;
 
-    private final int minDistance = 4;
+    private final int minDistance = 3;
     private final int maxDistance = 40;
 
-    public TuffGolemMoveGoal(@NotNull TuffGolemMob entityCreature, AnimationHandler handler) {
+    public BulbasaurMoveGoal(@NotNull BulbasaurMob entityCreature, AnimationHandler handler) {
         super(entityCreature);
         this.animationHandler = handler;
     }
@@ -30,6 +30,7 @@ public class TuffGolemMoveGoal extends GoalSelector {
         target = findTarget();
         if (target == null) return false;
         if (entityCreature.getPassengers().contains(target)) return false;
+        if (!this.animationHandler.getPlaying().equals("animation.bulbasaur.ground_idle")) return false;
 
         if (entityCreature.getNavigator().getPathPosition() != null)
             if (entityCreature.getNavigator().getPathPosition().samePoint(lastTargetPos)) return false;
@@ -39,7 +40,7 @@ public class TuffGolemMoveGoal extends GoalSelector {
 
     @Override
     public void start() {
-        this.animationHandler.playRepeat("walk");
+        this.animationHandler.playRepeat("animation.bulbasaur.ground_walk");
 
         this.entityCreature.setTarget(target);
         Navigator navigator = entityCreature.getNavigator();
@@ -77,13 +78,13 @@ public class TuffGolemMoveGoal extends GoalSelector {
                 || entityCreature.getDistance(target) >= maxDistance
                 || entityCreature.getDistance(target) <= minDistance
                 || entityCreature.getPassengers().contains(target)
-                || !this.animationHandler.getPlaying().equals("walk");
+                || !this.animationHandler.getPlaying().equals("animation.bulbasaur.ground_walk");
     }
 
     @Override
     public void end() {
         this.entityCreature.getNavigator().setPathTo(null);
-        this.animationHandler.stopRepeat("walk");
+        this.animationHandler.stopRepeat("animation.bulbasaur.ground_walk");
         this.forceEnd = false;
     }
 }

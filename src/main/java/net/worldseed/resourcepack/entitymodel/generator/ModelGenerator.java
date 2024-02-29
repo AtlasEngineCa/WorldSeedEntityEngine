@@ -9,28 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModelGenerator {
-    static JsonArray convertDatapoints(JsonObject obj, double scale) {
-        JsonArrayBuilder builder = Json.createArrayBuilder();
-        if (obj.containsKey("effect")) return null;
-
-        if (obj.get("x") instanceof JsonString)
-            builder.add(Double.parseDouble(obj.getString("x")) * scale);
-        else
-            builder.add(obj.getJsonNumber("x").doubleValue() * scale);
-
-        if (obj.get("y") instanceof JsonString)
-            builder.add(Double.parseDouble(obj.getString("y")) * scale);
-        else
-            builder.add(obj.getJsonNumber("y").doubleValue() * scale);
-
-        if (obj.get("z") instanceof JsonString)
-            builder.add(Double.parseDouble(obj.getString("z")) * scale);
-        else
-            builder.add(obj.getJsonNumber("z").doubleValue() * scale);
-
-        return builder.build();
-    }
-
     public record BBEntityModel(JsonObject geo, JsonObject animations, Map<String, TextureGenerator.TextureData> textures, String id, AdditionalStates additionalStates) {}
 
     public static BBEntityModel generate(PackBuilder.Model modelObj) {

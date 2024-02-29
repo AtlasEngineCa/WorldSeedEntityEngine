@@ -1,12 +1,10 @@
 package net.worldseed.resourcepack.entitymodel.generator;
 
+import net.minestom.server.coordinate.Vec;
 import net.worldseed.resourcepack.PackBuilder;
 
 import javax.json.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GeoGenerator {
     private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, String parent) {
@@ -39,6 +37,29 @@ public class GeoGenerator {
                 res.addAll(parseRecursive(child.asJsonObject(), cubeMap, name));
             } else if (child.getValueType() == JsonValue.ValueType.STRING) {
                 JsonObject cube = cubeMap.get(child.toString());
+
+                var cubeRotation = new Vec(-cube.getJsonArray("rotation").getJsonNumber(0).doubleValue(), -cube.getJsonArray("rotation").getJsonNumber(1).doubleValue(), cube.getJsonArray("rotation").getJsonNumber(2).doubleValue());
+
+                if ((cubeRotation.x() != 45 && cubeRotation.x() != -22.5 && cubeRotation.x() != 22.5 && cubeRotation.x() != -45 && cubeRotation.x() != 0)
+                    || (cubeRotation.y() != 45 && cubeRotation.y() != -22.5 && cubeRotation.y() != 22.5 && cubeRotation.y() != -45 && cubeRotation.y() != 0)
+                    || (cubeRotation.z() != 45 && cubeRotation.z() != -22.5 && cubeRotation.z() != 22.5 && cubeRotation.z() != -45 && cubeRotation.z() != 0)) {
+                    JsonObjectBuilder clonedCube = Json.createObjectBuilder(cube)
+                            .add("rotation", Json.createArrayBuilder().add(0).add(0).add(0).build())
+                            .add("name", name + "_fix_" + UUID.randomUUID());
+
+                    JsonObjectBuilder thisEl = Json.createObjectBuilder()
+                            .add("name", name + "_fix_" + UUID.randomUUID())
+                            .add("pivot", cube.getJsonArray("pivot"))
+                            .add("rotation", cube.getJsonArray("rotation"))
+                            .add("cubes", Json.createArrayBuilder().add(clonedCube));
+
+                    thisEl.add("parent", name);
+
+                    res.add(thisEl.build());
+
+                    continue;
+                }
+
                 cubes.add(cube);
             }
         }

@@ -40,17 +40,10 @@ public class AnimationGenerator {
 
                     double time = keyframe.getJsonNumber("time").doubleValue();
 
-                    JsonArray dataPoints =
-                            channel.equals("position")
-                                    ? ModelGenerator.convertDatapoints(keyframe.getJsonArray("data_points").get(0).asJsonObject(), 0.25)
-                                    : ModelGenerator.convertDatapoints(keyframe.getJsonArray("data_points").get(0).asJsonObject(), 1);
-
-                    if (dataPoints == null) continue;
-
                     String interpolation = keyframe.getString("interpolation");
 
                     JsonObject built = Json.createObjectBuilder()
-                            .add("post", dataPoints)
+                            .add("post", keyframe.getJsonArray("data_points"))
                             .add("lerp_mode", interpolation)
                             .build();
 

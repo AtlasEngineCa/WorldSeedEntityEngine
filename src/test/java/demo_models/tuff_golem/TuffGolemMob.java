@@ -1,6 +1,6 @@
-package tuff_golem;
+package demo_models.tuff_golem;
 
-import gem_golem.GemGolemTarget;
+import demo_models.gem_golem.GemGolemTarget;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Pos;
