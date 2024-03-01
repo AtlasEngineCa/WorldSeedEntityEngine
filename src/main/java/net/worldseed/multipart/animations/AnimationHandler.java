@@ -13,6 +13,7 @@ public interface AnimationHandler {
     }
 
     void registerAnimation(String name, JsonElement animation, int priority);
+    void registerAnimation(ModelAnimation animator);
 
     /**
      * Play an animation on repeat

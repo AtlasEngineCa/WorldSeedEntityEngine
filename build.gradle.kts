@@ -18,7 +18,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "10.0.2"
+        version = "10.0.3"
 
         from(components["java"])
     }
@@ -42,6 +42,17 @@ dependencies {
 
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.zeroturnaround:zt-zip:1.8")
+
+    implementation(files("libs/caliko-1.3.8.jar"))
+    implementation(files("libs/caliko-visualisation-1.3.8.jar"))
+
+    implementation("org.lwjgl:lwjgl:3.2.2")
+    implementation("org.lwjgl:lwjgl-glfw:3.2.2")
+    implementation("org.lwjgl:lwjgl-opengl:3.2.2")
+
+    implementation("org.lwjgl:lwjgl:3.3.3:natives-linux")
+    implementation("org.lwjgl:lwjgl-glfw:3.3.3:natives-linux")
+    implementation("org.lwjgl:lwjgl-opengl:3.3.3:natives-linux")
 
     implementation("javax.json:javax.json-api:1.1.4")
     implementation("org.glassfish:javax.json:1.1.4")

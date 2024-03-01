@@ -7,7 +7,7 @@ import javax.json.*;
 import java.util.*;
 
 public class GeoGenerator {
-    private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, String parent) {
+    private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, Map<String, JsonObject> locators, Map<String, JsonObject> nullObjects, String parent) {
         List<JsonObject> res = new ArrayList<>();
         float scale = 0.25f;
 
@@ -34,13 +34,19 @@ public class GeoGenerator {
 
         for (JsonValue child : obj.getJsonArray("children")) {
             if (child.getValueType() == JsonValue.ValueType.OBJECT) {
-                res.addAll(parseRecursive(child.asJsonObject(), cubeMap, name));
+                res.addAll(parseRecursive(child.asJsonObject(), cubeMap, locators, nullObjects, name));
             } else if (child.getValueType() == JsonValue.ValueType.STRING) {
                 JsonObject cube = cubeMap.get(child.toString());
+                if (cube == null) continue;
 
                 var cubeRotation = new Vec(-cube.getJsonArray("rotation").getJsonNumber(0).doubleValue(), -cube.getJsonArray("rotation").getJsonNumber(1).doubleValue(), cube.getJsonArray("rotation").getJsonNumber(2).doubleValue());
 
-                if ((cubeRotation.x() != 45 && cubeRotation.x() != -22.5 && cubeRotation.x() != 22.5 && cubeRotation.x() != -45 && cubeRotation.x() != 0)
+                int rotationCount = 0;
+                if (cubeRotation.x() != 0) rotationCount++;
+                if (cubeRotation.y() != 0) rotationCount++;
+                if (cubeRotation.z() != 0) rotationCount++;
+
+                if (rotationCount > 1 || (cubeRotation.x() != 45 && cubeRotation.x() != -22.5 && cubeRotation.x() != 22.5 && cubeRotation.x() != -45 && cubeRotation.x() != 0)
                     || (cubeRotation.y() != 45 && cubeRotation.y() != -22.5 && cubeRotation.y() != 22.5 && cubeRotation.y() != -45 && cubeRotation.y() != 0)
                     || (cubeRotation.z() != 45 && cubeRotation.z() != -22.5 && cubeRotation.z() != 22.5 && cubeRotation.z() != -45 && cubeRotation.z() != 0)) {
                     JsonObjectBuilder clonedCube = Json.createObjectBuilder(cube)
@@ -81,6 +87,8 @@ public class GeoGenerator {
 
     public static JsonArray generate(JsonArray elements, JsonArray outliner, Map<String, TextureGenerator.TextureData> textures) {
         Map<String, JsonObject> blocks = new HashMap<>();
+        Map<String, JsonObject> locators = new HashMap<>();
+        Map<String, JsonObject> nullObjects = new HashMap<>();
 
         for (var element : elements) {
             JsonObject el = element.asJsonObject();
@@ -91,69 +99,80 @@ public class GeoGenerator {
                 inflate = el.getJsonNumber("inflate").doubleValue() * scale;
             }
 
-            JsonArray origin = el.getJsonArray("origin");
-            origin = Json.createArrayBuilder()
-                    .add(-Math.round(origin.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
-                    .add(Math.round(origin.getJsonNumber(1).doubleValue() * 10000  * scale) / 10000.0)
-                    .add(Math.round(origin.getJsonNumber(2).doubleValue() * 10000  * scale) / 10000.0)
-                    .build();
-
-            JsonArray from = PackBuilder.applyInflate(el.getJsonArray("from"), -inflate);
-            JsonArray to = PackBuilder.applyInflate(el.getJsonArray("to"), inflate);
-
-            to = Json.createArrayBuilder()
-                    .add(Math.round(to.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
-                    .add(Math.round(to.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
-                    .add(Math.round(to.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
-                    .build();
-
-            from = Json.createArrayBuilder()
-                    .add(Math.round(from.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
-                    .add(Math.round(from.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
-                    .add(Math.round(from.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
-                    .build();
-
-            JsonArray size = buildSize(from, to);
-
-            from = Json.createArrayBuilder()
-                .add(-(from.getJsonNumber(0).doubleValue() + size.getJsonNumber(0).doubleValue()))
-                .add(from.getJsonNumber(1).doubleValue())
-                .add(from.getJsonNumber(2).doubleValue())
-                .build();
-
-            JsonArray rotation = el.getJsonArray("rotation");
-            if (rotation == null) {
-                rotation = Json.createArrayBuilder().add(0).add(0).add(0).build();
-            } else {
-                JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-                arrayBuilder.add(-Math.round(rotation.getJsonNumber(0).doubleValue()*100)/100.0);
-                arrayBuilder.add(-Math.round(rotation.getJsonNumber(1).doubleValue()*100)/100.0);
-                arrayBuilder.add(Math.round(rotation.getJsonNumber(2).doubleValue()*100)/100.0);
-                rotation = arrayBuilder.build();
+            String elType = el.getString("type", "cube");
+            if (elType.equals("cube")) {
+                readCube(el, blocks, scale, inflate, textures);
+            } else if (elType.equals("locator")) {
+                locators.put(el.getString("uuid"), el);
+            } else if (elType.equals("null_object")) {
+                nullObjects.put(el.getString("uuid"), el);
             }
-
-            JsonObject faces = parseFaces(el.getJsonObject("faces"), textures);
-            JsonObject built = Json.createObjectBuilder()
-                    .add("origin", from)
-                    .add("size", size)
-                    .add("pivot", origin)
-                    .add("rotation", rotation)
-                    .add("uv", faces)
-                    .build();
-
-            blocks.put("\"" + el.getString("uuid") + "\"", built);
         }
 
         List<JsonObject> bonesList = new ArrayList<>();
         for (var outline : outliner) {
             JsonObject el = outline.asJsonObject();
-            bonesList.addAll(parseRecursive(el, blocks, null));
+            bonesList.addAll(parseRecursive(el, blocks, locators, nullObjects, null));
         }
 
         JsonArrayBuilder bones = Json.createArrayBuilder();
         for (var bone : bonesList) bones.add(bone);
 
         return bones.build();
+    }
+
+    private static void readCube(JsonObject el, Map<String, JsonObject> blocks, float scale, double inflate, Map<String, TextureGenerator.TextureData> textures) {
+        JsonArray origin = el.getJsonArray("origin");
+        origin = Json.createArrayBuilder()
+                .add(-Math.round(origin.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(origin.getJsonNumber(1).doubleValue() * 10000  * scale) / 10000.0)
+                .add(Math.round(origin.getJsonNumber(2).doubleValue() * 10000  * scale) / 10000.0)
+                .build();
+
+        JsonArray from = PackBuilder.applyInflate(el.getJsonArray("from"), -inflate);
+        JsonArray to = PackBuilder.applyInflate(el.getJsonArray("to"), inflate);
+
+        to = Json.createArrayBuilder()
+                .add(Math.round(to.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(to.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(to.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
+                .build();
+
+        from = Json.createArrayBuilder()
+                .add(Math.round(from.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(from.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(from.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
+                .build();
+
+        JsonArray size = buildSize(from, to);
+
+        from = Json.createArrayBuilder()
+                .add(-(from.getJsonNumber(0).doubleValue() + size.getJsonNumber(0).doubleValue()))
+                .add(from.getJsonNumber(1).doubleValue())
+                .add(from.getJsonNumber(2).doubleValue())
+                .build();
+
+        JsonArray rotation = el.getJsonArray("rotation");
+        if (rotation == null) {
+            rotation = Json.createArrayBuilder().add(0).add(0).add(0).build();
+        } else {
+            JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+            arrayBuilder.add(-Math.round(rotation.getJsonNumber(0).doubleValue()*100)/100.0);
+            arrayBuilder.add(-Math.round(rotation.getJsonNumber(1).doubleValue()*100)/100.0);
+            arrayBuilder.add(Math.round(rotation.getJsonNumber(2).doubleValue()*100)/100.0);
+            rotation = arrayBuilder.build();
+        }
+
+        JsonObject faces = parseFaces(el.getJsonObject("faces"), textures);
+        JsonObject built = Json.createObjectBuilder()
+                .add("origin", from)
+                .add("size", size)
+                .add("pivot", origin)
+                .add("rotation", rotation)
+                .add("uv", faces)
+                .build();
+
+        blocks.put("\"" + el.getString("uuid") + "\"", built);
     }
 
     private static JsonObject parseFaces(JsonObject obj, Map<String, TextureGenerator.TextureData> textures) {

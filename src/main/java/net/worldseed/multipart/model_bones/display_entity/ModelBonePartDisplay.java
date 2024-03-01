@@ -160,4 +160,9 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             }
         }
     }
+
+    @Override
+    public Point getPosition() {
+        return calculatePositionInternal().add(model.getPosition());
+    }
 }

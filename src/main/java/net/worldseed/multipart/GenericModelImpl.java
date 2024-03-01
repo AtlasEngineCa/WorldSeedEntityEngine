@@ -264,8 +264,8 @@ public abstract class GenericModelImpl implements GenericModel {
 
     @Override
     public Point getVFX(String name) {
-        ModelBoneVFX found = VFXBones.get(name);
-        if (found == null) return null;
+        ModelBone found = VFXBones.get(name);
+        if (found == null) found = this.parts.get(name);
         return found.getPosition();
     }
 

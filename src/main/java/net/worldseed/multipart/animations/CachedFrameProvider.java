@@ -11,11 +11,11 @@ import java.util.Map;
 public class CachedFrameProvider implements FrameProvider {
     private final Map<Short, Point> interpolationCache;
 
-    public CachedFrameProvider(int length, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, ModelLoader.AnimationType type) {
+    public CachedFrameProvider(int length, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, ModelLoader.AnimationType type) {
         this.interpolationCache = calculateAllTransforms(length, transform, type);
     }
 
-    private Map<Short, Point> calculateAllTransforms(double animationTime, LinkedHashMap<Double, ModelAnimation.PointInterpolation> t, ModelLoader.AnimationType type) {
+    private Map<Short, Point> calculateAllTransforms(double animationTime, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> t, ModelLoader.AnimationType type) {
         Map<Short, Point> transform = new HashMap<>();
         int ticks = (int) (animationTime * 20);
 
@@ -28,7 +28,7 @@ public class CachedFrameProvider implements FrameProvider {
         return transform;
     }
 
-    private Point calculateTransform(int tick, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, ModelLoader.AnimationType type, double length) {
+    private Point calculateTransform(int tick, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, ModelLoader.AnimationType type, double length) {
         double toInterpolate = tick * 50.0 / 1000;
 
         if (type == ModelLoader.AnimationType.ROTATION) {
