@@ -111,8 +111,10 @@ public class GeoGenerator {
 
         List<JsonObject> bonesList = new ArrayList<>();
         for (var outline : outliner) {
-            JsonObject el = outline.asJsonObject();
-            bonesList.addAll(parseRecursive(el, blocks, locators, nullObjects, null));
+            if (outline instanceof JsonObject) {
+                JsonObject el = outline.asJsonObject();
+                bonesList.addAll(parseRecursive(el, blocks, locators, nullObjects, null));
+            }
         }
 
         JsonArrayBuilder bones = Json.createArrayBuilder();
