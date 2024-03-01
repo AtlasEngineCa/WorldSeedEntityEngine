@@ -31,7 +31,7 @@ public class AdditionalStates {
                 mappings.put(x, nameMapping.get(((JsonString)y).getString()));
             });
 
-            states.put(k, new StateDescription(mappings, new ModelParser.TextureState(1, 1, 1, k)));
+            states.put(k, new StateDescription(mappings, new ModelParser.TextureState(1, 1, 1, 0, 0, 0, k)));
         });
     }
 

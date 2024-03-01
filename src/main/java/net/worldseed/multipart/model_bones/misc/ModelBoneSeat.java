@@ -40,6 +40,11 @@ public class ModelBoneSeat extends ModelBoneImpl {
     @Override
     public void setState(String state) { }
 
+    @Override
+    public Point getPosition() {
+        return calculatePosition();
+    }
+
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
         if (this.offset != null) {
             this.stand.setInvisible(true);

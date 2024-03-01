@@ -27,6 +27,9 @@ public class AnimationGenerator {
             for (var animator_ : animators) {
                 JsonObject animator = animator_.asJsonObject();
 
+                String type = animator.getString("type", "bone");
+
+                if (!type.equals("bone")) continue;
                 String boneName = animator.getString("name");
 
                 List<Map.Entry<Double, JsonObject>> rotation = new ArrayList<>();

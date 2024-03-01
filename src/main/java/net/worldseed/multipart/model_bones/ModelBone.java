@@ -5,7 +5,7 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.Quaternion;
-import net.worldseed.multipart.animations.ModelAnimation;
+import net.worldseed.multipart.animations.BoneAnimation;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +26,7 @@ public interface ModelBone {
     String getName();
     BoneEntity getEntity();
     Point getOffset();
+    Point getPosition();
     ModelBone getParent();
     Point getPropogatedRotation();
 
@@ -35,7 +36,7 @@ public interface ModelBone {
     Point calculateRotation();
 
     void addChild(ModelBone child);
-    void addAnimation(ModelAnimation animation);
+    void addAnimation(BoneAnimation animation);
 
     void addViewer(Player player);
     void removeViewer(Player player);

@@ -131,4 +131,9 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
             }
         }
     }
+
+    @Override
+    public Point getPosition() {
+        return calculatePosition();
+    }
 }

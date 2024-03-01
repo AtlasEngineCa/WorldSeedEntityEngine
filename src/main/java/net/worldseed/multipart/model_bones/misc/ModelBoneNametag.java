@@ -34,6 +34,11 @@ public class ModelBoneNametag extends ModelBoneImpl {
     @Override
     public void setState(String state) { }
 
+    @Override
+    public Point getPosition() {
+        return calculatePosition();
+    }
+
     public void linkEntity(BoneEntity entity) {
         this.stand = entity;
         this.stand.setTag(Tag.String("WSEE"), "nametag");
