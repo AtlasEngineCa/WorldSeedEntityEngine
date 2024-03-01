@@ -10,7 +10,7 @@ import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.ModelLoader.AnimationType;
 import net.worldseed.multipart.ModelMath;
 import net.worldseed.multipart.Quaternion;
-import net.worldseed.multipart.animations.ModelAnimation;
+import net.worldseed.multipart.animations.BoneAnimation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     protected final String name;
     protected float scale;
 
-    protected final List<ModelAnimation> allAnimations = new ArrayList<>();
+    protected final List<BoneAnimation> allAnimations = new ArrayList<>();
 
     protected Point offset;
     protected Point rotation;
@@ -94,7 +94,7 @@ public abstract class ModelBoneImpl implements ModelBone {
         else
             endPos = calculateRotation(endPos, this.simulateRotation(animation, time), this.pivot);
 
-        for (ModelAnimation currentAnimation : this.allAnimations) {
+        for (BoneAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation == null || !currentAnimation.name().equals(animation)) continue;
 
             if (currentAnimation.getType() == AnimationType.TRANSLATION) {
@@ -118,7 +118,7 @@ public abstract class ModelBoneImpl implements ModelBone {
         else
             endPos = calculateRotation(endPos, this.getPropogatedRotation(), this.pivot);
 
-        for (ModelAnimation currentAnimation : this.allAnimations) {
+        for (BoneAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
                 if (currentAnimation.getType() == AnimationType.TRANSLATION) {
                     var calculatedTransform = currentAnimation.getTransform();
@@ -137,7 +137,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     public Point getPropogatedRotation() {
         Point netTransform = Vec.ZERO;
 
-        for (ModelAnimation currentAnimation : this.allAnimations) {
+        for (BoneAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
                 if (currentAnimation.getType() == AnimationType.ROTATION) {
                     Point calculatedTransform = currentAnimation.getTransform();
@@ -152,7 +152,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     public Point simulateRotation(String animation, int time) {
         Point netTransform = Vec.ZERO;
 
-        for (ModelAnimation currentAnimation : this.allAnimations) {
+        for (BoneAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation == null || !currentAnimation.name().equals(animation)) continue;
 
             if (currentAnimation.getType() == AnimationType.ROTATION) {
@@ -173,7 +173,7 @@ public abstract class ModelBoneImpl implements ModelBone {
         return q;
     }
 
-    public void addAnimation(ModelAnimation animation) {
+    public void addAnimation(BoneAnimation animation) {
         this.allAnimations.add(animation);
     }
     public void addChild(ModelBone child) {

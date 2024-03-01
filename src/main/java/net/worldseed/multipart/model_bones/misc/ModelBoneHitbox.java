@@ -12,7 +12,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.EntityTeleportPacket;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
-import net.worldseed.multipart.animations.ModelAnimation;
+import net.worldseed.multipart.animations.BoneAnimation;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
@@ -140,6 +140,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         this.illegitimateChildren.forEach(modelBone -> modelBone.setParent(parent));
     }
 
+    @Override
+    public Point getPosition() {
+        return this.actualPosition;
+    }
+
     public Collection<ModelBoneHitbox> getParts() {
         if (this.illegitimateChildren == null) return List.of();
         return this.illegitimateChildren;
@@ -155,7 +160,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     }
 
     @Override
-    public void addAnimation(ModelAnimation animation) {
+    public void addAnimation(BoneAnimation animation) {
         super.addAnimation(animation);
         this.illegitimateChildren.forEach(modelBone -> modelBone.addAnimation(animation));
     }

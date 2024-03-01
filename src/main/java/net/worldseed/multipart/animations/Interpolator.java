@@ -8,10 +8,10 @@ import net.worldseed.multipart.mql.MQLPoint;
 import java.util.LinkedHashMap;
 
 public class Interpolator {
-    record StartEnd (ModelAnimation.PointInterpolation s, ModelAnimation.PointInterpolation e, double st, double et) {}
-    private static StartEnd getStartEnd(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
-        if (transform.isEmpty()) return new StartEnd(new ModelAnimation.PointInterpolation(MQLPoint.ZERO, "linear"), new ModelAnimation.PointInterpolation(MQLPoint.ZERO, "linear"), 0, 0);
-        ModelAnimation.PointInterpolation lastPoint = transform.get(transform.keySet().iterator().next());
+    record StartEnd (BoneAnimationImpl.PointInterpolation s, BoneAnimationImpl.PointInterpolation e, double st, double et) {}
+    private static StartEnd getStartEnd(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
+        if (transform.isEmpty()) return new StartEnd(new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), 0, 0);
+        BoneAnimationImpl.PointInterpolation lastPoint = transform.get(transform.keySet().iterator().next());
         double lastTime = 0;
 
         for (Double keyTime : transform.keySet()) {
@@ -60,7 +60,7 @@ public class Interpolator {
         return new Quaternion(qmx, qmy, qmz, qmw);
     }
 
-    static Point interpolateRotation(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
+    static Point interpolateRotation(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
 
         double timeDiff = points.et - points.st;
@@ -82,7 +82,7 @@ public class Interpolator {
         }
     }
 
-    static Point interpolateTranslation(double time, LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, double animationTime) {
+    static Point interpolateTranslation(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
 
         double timeDiff = points.et - points.st;

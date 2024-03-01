@@ -25,11 +25,11 @@ public class ModelParser {
     private static final Map<String, MappingEntry> mappings = new HashMap<>();
     private static final List<JsonObject> predicates = new ArrayList<>();
 
-    public record TextureState(double r, double g, double b, String name) {
-        public static TextureState NORMAL = new TextureState(1.0,1.0,1.0, "normal");
-        public static TextureState HIT = new TextureState(1.6,0.6,0.6, "hit");
+    public record TextureState(double r, double g, double b, double ar, double ag, double ab, String name) {
+        public static final TextureState NORMAL = new TextureState(1.0, 1.0, 1.0, 0, 0, 0, "normal");
+        public static final TextureState HIT = new TextureState(1.0, 1.0, 1.0, 255, 0, 0, "hit");
 
-        private BufferedImage multiplyColour(BufferedImage oldImg) {
+        BufferedImage multiplyColour(BufferedImage oldImg) {
             ColorModel cm = oldImg.getColorModel();
             boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
             WritableRaster raster = oldImg.copyData(null);
@@ -38,16 +38,23 @@ public class ModelParser {
             for (int i = 0; i < img.getWidth(); i++) {
                 for (int j = 0; j < img.getHeight(); j++) {
                     int rgb = img.getRGB(i, j);
-                    int ir = (rgb >> 16) & 0xFF;
-                    int ig = (rgb >> 8) & 0xFF;
-                    int ib = rgb & 0xFF;
+                    int ir = (int) (((rgb >> 16) & 0xFF) * r);
+                    int ig = (int) (((rgb >> 8) & 0xFF) * g);
+                    int ib = (int) ((rgb & 0xFF) * b);
                     int ia = (rgb >> 24) & 0xFF;
-                    img.setRGB(i, j, (ia << 24) | (Math.min((int)(r * ir), 255) << 16) | (Math.min((int)(g * ig), 255) << 8) | Math.min((int)(b * ib), 255));
+
+                    double weight = 0.8;
+                    int lerpR = (int) (ir * weight + ar * (1 - weight));
+                    int lerpG = (int) (ig * weight + ag * (1 - weight));
+                    int lerpB = (int) (ib * weight + ab * (1 - weight));
+
+                    img.setRGB(i, j, (ia << 24) | (Math.min(lerpR, 255) << 16) | (Math.min(lerpG, 255) << 8) | Math.min(lerpB, 255));
                 }
             }
 
             return img;
         }
+
     }
 
     private enum TextureFace {

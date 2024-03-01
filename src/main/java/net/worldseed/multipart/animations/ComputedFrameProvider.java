@@ -5,19 +5,15 @@ import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.ModelLoader;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class ComputedFrameProvider implements FrameProvider {
-    private final LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform;
-    private final int length;
+    private final LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform;
     private final ModelLoader.AnimationType type;
     private final Double lowestKey;
 
-    public ComputedFrameProvider(LinkedHashMap<Double, ModelAnimation.PointInterpolation> transform, ModelLoader.AnimationType type, int length) {
+    public ComputedFrameProvider(LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, ModelLoader.AnimationType type, int length) {
         this.transform = transform;
-        this.length = length;
         this.type = type;
-
         this.lowestKey = transform.keySet().stream().min(Double::compareTo).orElse(0.0);
     }
 
