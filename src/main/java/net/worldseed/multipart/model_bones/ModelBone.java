@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones;
 
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
@@ -42,4 +43,7 @@ public interface ModelBone {
     void removeViewer(Player player);
 
     void setScale(float scale);
+
+    void removeGlowing();
+    void setGlowing(Color color);
 }

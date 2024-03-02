@@ -1,12 +1,12 @@
 package net.worldseed.multipart.model_bones.display_entity;
 
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
@@ -39,6 +39,23 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.stand != null) {
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
             meta.setScale(new Vec(scale, scale, scale));
+        }
+    }
+
+    @Override
+    public void removeGlowing() {
+        if (this.stand != null) {
+            var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
+            meta.setHasGlowingEffect(false);
+        }
+    }
+
+    @Override
+    public void setGlowing(Color color) {
+        if (this.stand != null) {
+            var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
+            meta.setHasGlowingEffect(true);
+            meta.setGlowColorOverride(color.asRGB());
         }
     }
 

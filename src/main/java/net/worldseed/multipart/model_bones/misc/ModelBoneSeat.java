@@ -1,14 +1,15 @@
 package net.worldseed.multipart.model_bones.misc;
 
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
-import net.worldseed.multipart.*;
+import net.worldseed.multipart.GenericModel;
+import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
@@ -25,6 +26,16 @@ public class ModelBoneSeat extends ModelBoneImpl {
     @Override
     public void removeViewer(Player player) {
         if (this.stand != null) this.stand.removeViewer(player);
+    }
+
+    @Override
+    public void removeGlowing() {
+
+    }
+
+    @Override
+    public void setGlowing(Color color) {
+
     }
 
     public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, float scale) {

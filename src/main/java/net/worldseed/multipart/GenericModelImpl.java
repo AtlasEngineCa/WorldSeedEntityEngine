@@ -9,6 +9,7 @@ import net.minestom.server.ServerProcess;
 import net.minestom.server.collision.BoundingBox;
 import net.minestom.server.collision.Shape;
 import net.minestom.server.collision.SweepResult;
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -443,5 +444,15 @@ public abstract class GenericModelImpl implements GenericModel {
     @ApiStatus.Experimental
     public boolean intersectBoxSwept(@NotNull Point rayStart, @NotNull Point rayDirection, @NotNull Point shapePos, @NotNull BoundingBox moving, @NotNull SweepResult finalResult) {
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void setGlowing(Color color) {
+        this.viewableBones.forEach(part -> part.setGlowing(color));
+    }
+
+    @Override
+    public void removeGlowing() {
+        this.viewableBones.forEach(ModelBoneImpl::removeGlowing);
     }
 }
