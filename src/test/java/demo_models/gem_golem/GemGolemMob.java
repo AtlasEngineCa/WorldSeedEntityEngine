@@ -13,7 +13,6 @@ import net.minestom.server.entity.metadata.water.fish.PufferfishMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
@@ -143,7 +142,7 @@ public class GemGolemMob extends EntityCreature {
         this.animationHandler.playOnce("death", (cb) -> {
             this.model.destroy();
             this.animationHandler.destroy();
-            ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 50);
+            ParticlePacket packet = new ParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 0, 50);
             viewers.forEach(v -> v.sendPacket(packet));
 
             super.remove();

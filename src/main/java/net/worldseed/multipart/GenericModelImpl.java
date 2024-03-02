@@ -6,6 +6,9 @@ import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerProcess;
+import net.minestom.server.collision.BoundingBox;
+import net.minestom.server.collision.Shape;
+import net.minestom.server.collision.SweepResult;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -14,6 +17,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.block.BlockFace;
 import net.minestom.server.network.packet.server.SendablePacket;
 import net.worldseed.gestures.EmoteModel;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
@@ -27,6 +31,7 @@ import net.worldseed.multipart.model_bones.misc.ModelBoneHitbox;
 import net.worldseed.multipart.model_bones.misc.ModelBoneNametag;
 import net.worldseed.multipart.model_bones.misc.ModelBoneSeat;
 import net.worldseed.multipart.model_bones.misc.ModelBoneVFX;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -371,5 +376,72 @@ public abstract class GenericModelImpl implements GenericModel {
     @Override
     public @NotNull Set<@NotNull Player> getViewers() {
         return Set.copyOf(this.viewers);
+    }
+
+    // SHAPE IMPL
+    @Override
+    public boolean isFaceFull(@NotNull BlockFace face) {
+        return true;
+    }
+
+    @Override
+    public boolean isOccluded(@NotNull Shape shape, @NotNull BlockFace blockFace) {
+        return false;
+    }
+
+    @Override
+    public @NotNull Point relativeStart() {
+        Pos currentPosition = getPosition();
+        Point p = currentPosition;
+
+        for (var bone : this.hittableBones) {
+            for (var part : bone.getParts()) {
+                var entity = part.getEntity();
+                var absoluteStart = entity.relativeStart().add(entity.getPosition());
+
+                if (p.x() > absoluteStart.x()) p = p.withX(absoluteStart.x());
+                if (p.y() > absoluteStart.y()) p = p.withY(absoluteStart.y());
+                if (p.z() > absoluteStart.z()) p = p.withZ(absoluteStart.z());
+            }
+        }
+
+        return p.sub(currentPosition);
+    }
+
+    @Override
+    public @NotNull Point relativeEnd() {
+        Pos currentPosition = getPosition();
+        Point p = currentPosition;
+
+        for (var bone : this.hittableBones) {
+            for (var part : bone.getParts()) {
+                var entity = part.getEntity();
+                var absoluteStart = entity.relativeEnd().add(entity.getPosition());
+
+                if (p.x() < absoluteStart.x()) p = p.withX(absoluteStart.x());
+                if (p.y() < absoluteStart.y()) p = p.withY(absoluteStart.y());
+                if (p.z() < absoluteStart.z()) p = p.withZ(absoluteStart.z());
+            }
+        }
+
+        return p.sub(currentPosition);
+    }
+
+    @Override
+    public boolean intersectBox(@NotNull Point point, @NotNull BoundingBox boundingBox) {
+        var pos = getPosition();
+
+        for (var bone : this.hittableBones) {
+            for (var part : bone.getParts()) {
+                if (boundingBox.intersectEntity(point.add(pos), part.getEntity())) return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    @ApiStatus.Experimental
+    public boolean intersectBoxSwept(@NotNull Point rayStart, @NotNull Point rayDirection, @NotNull Point shapePos, @NotNull BoundingBox moving, @NotNull SweepResult finalResult) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 }

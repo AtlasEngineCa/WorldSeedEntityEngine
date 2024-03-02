@@ -7,7 +7,6 @@ import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.ai.GoalSelector;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.timer.ExecutionType;
 import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
@@ -76,13 +75,13 @@ public class GemGolemAttackGoal extends GoalSelector {
                     Point p = model.getVFX("hit_vfx");
 
                     if (p != null) {
-                        ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.FLAME, p.x(), p.y(), p.z(), 0, 0, 0, 1);
+                        ParticlePacket packet = new ParticlePacket(Particle.FLAME, p.x(), p.y(), p.z(), 0, 0, 0, 0, 1);
                         entityCreature.sendPacketToViewers(packet);
                     }
 
                     if (counter.addAndGet(1) > sections) {
                         if (p != null) {
-                            ParticlePacket packet = ParticleCreator.createParticlePacket(Particle.EXPLOSION, p.x(), p.y(), p.z(), 0, 0, 0, 1);
+                            ParticlePacket packet = new ParticlePacket(Particle.EXPLOSION, p.x(), p.y(), p.z(), 0, 0, 0, 0, 1);
                             entityCreature.sendPacketToViewers(packet);
                         }
 

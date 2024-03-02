@@ -142,7 +142,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
     @Override
     public Point getPosition() {
-        return this.actualPosition;
+        return this.actualPosition.add(this.model.getPosition());
     }
 
     public Collection<ModelBoneHitbox> getParts() {
