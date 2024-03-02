@@ -153,4 +153,11 @@ public class ModelEngine {
     public static void setModelMaterial(Material modelMaterial) {
         ModelEngine.modelMaterial = modelMaterial;
     }
+
+    public static Optional<MQLPoint> getMQLPos(JsonArray arr) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        if (arr == null) return Optional.empty();
+        else {
+            return Optional.of(new MQLPoint(arr));
+        }
+    }
 }
