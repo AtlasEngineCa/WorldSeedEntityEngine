@@ -1,5 +1,6 @@
 package net.worldseed.multipart.mql;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.hollowcube.mql.jit.MqlCompiler;
@@ -54,7 +55,35 @@ public class MQLPoint {
                 molangZ = fromString(fz.getAsString());
             }
         }
+    }
 
+    public MQLPoint(JsonArray arr) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        JsonElement fx = arr.get(0);
+        if (fx != null) {
+            try {
+                x = fx.getAsDouble();
+            } catch (Exception ignored) {
+                molangX = fromString(fx.getAsString());
+            }
+        }
+
+        JsonElement fy = arr.get(1);
+        if (fy != null) {
+            try {
+                y = fy.getAsDouble();
+            } catch (Exception ignored) {
+                molangY = fromString(fy.getAsString());
+            }
+        }
+
+        JsonElement fz = arr.get(2);
+        if (fz != null) {
+            try {
+                z = fz.getAsDouble();
+            } catch (Exception ignored) {
+                molangZ = fromString(fz.getAsString());
+            }
+        }
     }
 
     public Point evaluate(double time) {

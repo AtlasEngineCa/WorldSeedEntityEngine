@@ -1,6 +1,8 @@
 package net.worldseed.multipart.animations;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.worldseed.multipart.ModelEngine;
@@ -125,9 +127,15 @@ public class BoneAnimationImpl implements BoneAnimation {
         try {
             for (Map.Entry<String, JsonElement> entry : keyframes.getAsJsonObject().entrySet()) {
                 double time = Double.parseDouble(entry.getKey());
-                MQLPoint point = ModelEngine.getMQLPos(entry.getValue().getAsJsonObject().get("post").getAsJsonArray().get(0).getAsJsonObject()).orElse(MQLPoint.ZERO);
-                String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
-                transform.put(time, new PointInterpolation(point, lerp));
+
+                if (entry.getValue() instanceof JsonObject obj) {
+                    MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray().get(0).getAsJsonObject()).orElse(MQLPoint.ZERO);
+                    String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
+                    transform.put(time, new PointInterpolation(point, lerp));
+                } else if (entry.getValue() instanceof JsonArray arr) {
+                    MQLPoint point = ModelEngine.getMQLPos(arr).orElse(MQLPoint.ZERO);
+                    transform.put(time, new PointInterpolation(point, "undefined"));
+                }
             }
         } catch (IllegalStateException | InvocationTargetException | NoSuchMethodException |
                  InstantiationException | IllegalAccessException e) {

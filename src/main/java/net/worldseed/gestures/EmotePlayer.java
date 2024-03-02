@@ -54,6 +54,9 @@ public abstract class EmotePlayer extends EntityCreature {
             ModelInteractEvent modelInteractEvent = new ModelInteractEvent(model, event);
             EventDispatcher.call(modelInteractEvent);
         });
+
+        this.model.draw();
+        this.model.draw();
     }
 
     public EmotePlayer(Instance instance, Pos pos, PlayerSkin skin) {
