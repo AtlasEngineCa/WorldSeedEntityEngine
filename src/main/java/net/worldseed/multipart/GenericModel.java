@@ -1,6 +1,7 @@
 package net.worldseed.multipart;
 
 import net.minestom.server.Viewable;
+import net.minestom.server.collision.Shape;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.List;
 import java.util.Set;
 
-public interface GenericModel extends Viewable, EventHandler<ModelEvent> {
+public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape {
     /**
      * Get the ID of the model
      * @return the model ID
