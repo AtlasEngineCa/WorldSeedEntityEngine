@@ -37,7 +37,7 @@ vec3 getCubeSize(int cube) {
             return vec3(4, 12, 4);
 
     }
-    
+
     return vec3(8, 8, 8);
 }
 
@@ -75,27 +75,27 @@ vec2 getBoxUV(int cube) {
 vec2 getUVOffset(int corner, vec3 cubeSize) {
     vec2 offset, uv;
     switch(corner / 4) {
-        case 0: // Left
-            offset = vec2(cubeSize.z + cubeSize.x, cubeSize.z);
-            uv = vec2(cubeSize.z, cubeSize.y);
-            break;
-        case 1: // Right
-            offset = vec2(0, cubeSize.z);
-            uv = vec2(cubeSize.z, cubeSize.y);
-            break;
-        case 2: // Up
-            offset = vec2(cubeSize.z, 0);
-            uv = vec2(cubeSize.x, cubeSize.z);
-            break;
-        case 3: // Down
+        case 1: // Left
             offset = vec2(cubeSize.z + cubeSize.x, 0);
             uv = vec2(cubeSize.x, cubeSize.z);
             break;
-        case 4: // Front
+        case 4: // Right
+            offset = vec2(0, cubeSize.z);
+            uv = vec2(cubeSize.z, cubeSize.y);
+            break;
+        case 2: // Front GOOD
             offset = vec2(cubeSize.z, cubeSize.z);
             uv = vec2(cubeSize.x, cubeSize.y);
             break;
-        case 5: // Back
+        case 5: // Left GOOD
+            offset = vec2(cubeSize.z + cubeSize.x, cubeSize.z);
+            uv = vec2(cubeSize.z, cubeSize.y);
+            break;
+        case 0: // Front
+            offset = vec2(cubeSize.z, 0);
+            uv = vec2(cubeSize.x, cubeSize.z);
+            break;
+        case 3: // Back GOOD
 			offset = vec2(2 * cubeSize.z + cubeSize.x, cubeSize.z);
             uv = vec2(cubeSize.x, cubeSize.y);
             break;
