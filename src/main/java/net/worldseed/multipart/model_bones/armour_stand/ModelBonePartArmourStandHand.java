@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones.armour_stand;
 
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -30,6 +31,16 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
     @Override
     public void removeViewer(Player player) {
         if (this.stand != null) this.stand.removeViewer(player);
+    }
+
+    @Override
+    public void removeGlowing() {
+        if (this.stand != null) this.stand.setGlowing(false);
+    }
+
+    @Override
+    public void setGlowing(Color color) {
+        if (this.stand != null) this.stand.setGlowing(true);
     }
 
     public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, float scale) {

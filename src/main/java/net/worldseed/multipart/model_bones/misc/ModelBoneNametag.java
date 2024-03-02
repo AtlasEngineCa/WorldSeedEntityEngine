@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones.misc;
 
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -20,6 +21,16 @@ public class ModelBoneNametag extends ModelBoneImpl {
     @Override
     public void removeViewer(Player player) {
         if (this.stand != null) this.stand.removeViewer(player);
+    }
+
+    @Override
+    public void removeGlowing() {
+
+    }
+
+    @Override
+    public void setGlowing(Color color) {
+
     }
 
     public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity, float scale) {

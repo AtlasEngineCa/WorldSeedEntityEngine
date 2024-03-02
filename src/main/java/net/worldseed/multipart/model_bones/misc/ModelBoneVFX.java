@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones.misc;
 
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -18,6 +19,16 @@ public class ModelBoneVFX extends ModelBoneImpl {
 
     @Override
     public void removeViewer(Player player) { }
+
+    @Override
+    public void removeGlowing() {
+
+    }
+
+    @Override
+    public void setGlowing(Color color) {
+
+    }
 
     private Point position = Pos.ZERO;
 

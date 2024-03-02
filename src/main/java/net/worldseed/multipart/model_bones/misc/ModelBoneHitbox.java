@@ -2,6 +2,7 @@ package net.worldseed.multipart.model_bones.misc;
 
 import com.google.gson.JsonArray;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -47,6 +48,14 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         this.illegitimateChildren.clear();
         generateStands(this.cubes, this.pivot, this.name, this.rotation, this.model);
         this.illegitimateChildren.forEach(modelBone -> modelBone.spawn(model.getInstance(), model.getPosition()));
+    }
+
+    @Override
+    public void removeGlowing() {
+    }
+
+    @Override
+    public void setGlowing(Color color) {
     }
 
     private static final Tag<String> WSEE = Tag.String("WSEE");

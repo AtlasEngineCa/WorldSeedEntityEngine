@@ -2,6 +2,7 @@ package net.worldseed.multipart;
 
 import net.minestom.server.Viewable;
 import net.minestom.server.collision.Shape;
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -127,4 +128,7 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction);
 
     void setScale(float scale);
+
+    void removeGlowing();
+    void setGlowing(Color color);
 }
