@@ -55,7 +55,12 @@ public class PackBuilder {
                 .filter(file -> file.getName().endsWith(".bbmodel"))
                 .map(entityModel -> {
                     try {
-                        String pathName = subPath.toString().isEmpty() ? entityModel.getName() : subPath + "/" + entityModel.getName();
+                        StringBuilder subpathString = new StringBuilder();
+                        for (Path p : subPath) {
+                            subpathString.append(p.toString()).append("/");
+                        }
+
+                        String pathName = subPath.toString().isEmpty() ? entityModel.getName() : subpathString + entityModel.getName();
                         File stateFile = subPath.resolve(path).resolve(Path.of(entityModel.getName() + ".states")).toFile();
 
                         if (stateFile.exists()) {

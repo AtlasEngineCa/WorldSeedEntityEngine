@@ -1,10 +1,10 @@
 package net.worldseed.gestures;
 
 import com.google.gson.JsonObject;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.*;
+import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
@@ -49,10 +49,10 @@ public abstract class EmotePlayer extends EntityCreature {
         this.eventNode().addListener(EntityDamageEvent.class, (event) -> {
             event.setCancelled(true);
             ModelDamageEvent modelDamageEvent = new ModelDamageEvent(model, event);
-            MinecraftServer.getGlobalEventHandler().call(modelDamageEvent);
+            EventDispatcher.call(modelDamageEvent);
         }).addListener(PlayerEntityInteractEvent.class, (event) -> {
             ModelInteractEvent modelInteractEvent = new ModelInteractEvent(model, event);
-            MinecraftServer.getGlobalEventHandler().call(modelInteractEvent);
+            EventDispatcher.call(modelInteractEvent);
         });
     }
 

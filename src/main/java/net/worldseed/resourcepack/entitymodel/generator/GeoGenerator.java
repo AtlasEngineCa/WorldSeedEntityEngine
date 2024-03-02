@@ -211,7 +211,7 @@ public class GeoGenerator {
             }
 
             String texture = "#0";
-            if (textures.size() > 0) texture = textures.values().toArray(new TextureGenerator.TextureData[0])[0].id();
+            if (!textures.isEmpty()) texture = textures.values().toArray(new TextureGenerator.TextureData[0])[0].id();
 
             var n = entry.getValue().asJsonObject().get("texture");
             if (n != null && n.getValueType() != JsonValue.ValueType.NULL) {
