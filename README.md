@@ -103,6 +103,9 @@ A: Make sure you have the type set to `Bedrock Model` in blockbench
 Q: Why am I getting the exception `InaccessibleObjectException`\
 A: Make sure you have the VM arguments set up correctly, as described in the [Getting Started](#getting-started) section
 
+Q: Why are `ModelDamageEvent` and `ModelInteractEvent` not triggering?\
+A: You need to create hitboxes for the model [Hitboxes](https://github.com/AtlasEngineCa/WorldSeedEntityEngine/wiki/Bone-Types#hitbox)
+
 ## Comparisons
 | Feature                                                                                                                          | Minestom Support | Paper Support | Math Animations | Cube Rotation   | Hurt Colour         | Accurate Hitboxes |
 |----------------------------------------------------------------------------------------------------------------------------------|------------------|---------------|----------------|-----------------|---------------------|-------------------|
