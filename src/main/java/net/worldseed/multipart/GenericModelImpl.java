@@ -434,7 +434,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
         for (var bone : this.hittableBones) {
             for (var part : bone.getParts()) {
-                if (boundingBox.intersectEntity(point.add(pos), part.getEntity())) return true;
+                if (boundingBox.intersectEntity(pos.sub(point), part.getEntity())) return true;
             }
         }
         return false;
