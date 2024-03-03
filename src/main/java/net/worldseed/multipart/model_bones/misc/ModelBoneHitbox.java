@@ -12,6 +12,8 @@ import net.minestom.server.entity.metadata.other.InteractionMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.EntityTeleportPacket;
 import net.minestom.server.tag.Tag;
+import net.minestom.server.timer.Task;
+import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.animations.BoneAnimation;
 import net.worldseed.multipart.model_bones.BoneEntity;
@@ -23,12 +25,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ModelBoneHitbox extends ModelBoneImpl {
     private final JsonArray cubes;
-
-    Pos actualPosition = null;
     Collection<ModelBoneHitbox> illegitimateChildren = new ConcurrentLinkedDeque<>();
+
+    private static final int INTERPOLATE_TICKS = 2;
+    private Task positionTask;
 
     public void addViewer(Player player) {
         if (this.stand != null) this.stand.addViewer(player);
@@ -77,14 +81,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
                         EntityTeleportPacket packet = new EntityTeleportPacket(this.getEntityId(), this.position, true);
                         player.getPlayerConnection().sendPacket(packet);
-
-                        illegitimateChildren.forEach(modelBone -> modelBone.addViewer(player));
                     }
 
                     @Override
                     public void updateOldViewer(@NotNull Player player) {
                         super.updateOldViewer(player);
-                        illegitimateChildren.forEach(modelBone -> modelBone.removeViewer(player));
                     }
                 };
 
@@ -185,17 +186,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
 
-        var lp = actualPosition;
-
-        if (actualPosition == null) {
-            actualPosition = Pos.fromPoint(p).div(4).mul(scale);
-            return actualPosition;
-        }
-
-        var newPoint = Pos.fromPoint(p).div(4).mul(scale);
-        actualPosition = Pos.fromPoint(lp.asVec().lerp(Vec.fromPoint(newPoint), 0.5));
-
-        return lp;
+        return Pos.fromPoint(p).div(4).mul(scale);
     }
 
     @Override
@@ -210,15 +201,30 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     }
 
     public void draw() {
-        if (this.illegitimateChildren.size() > 0) {
+        if (!this.illegitimateChildren.isEmpty()) {
             this.children.forEach(ModelBone::draw);
             this.illegitimateChildren.forEach(ModelBone::draw);
         }
 
-        if (this.offset == null) return;
+        if (this.offset == null || this.stand == null) return;
 
-        try {
-            stand.teleport(calculatePosition().add(model.getPosition()));
-        } catch (Exception ignored) { }
+        var finalPosition = calculatePosition().add(model.getPosition());
+        if (this.positionTask != null) this.positionTask.cancel();
+
+        Pos currentPos = stand.getPosition();
+        var diff = finalPosition.sub(currentPos).div(INTERPOLATE_TICKS);
+        AtomicInteger ticks = new AtomicInteger(0);
+
+        this.positionTask = MinecraftServer.getSchedulerManager().submitTask(() -> {
+            var t = ticks.getAndIncrement();
+            stand.teleport(currentPos.add(diff.mul(t)));
+
+            if (t >= INTERPOLATE_TICKS) {
+                this.positionTask = null;
+                return TaskSchedule.stop();
+            }
+
+            return TaskSchedule.tick(1);
+        });
     }
 }
