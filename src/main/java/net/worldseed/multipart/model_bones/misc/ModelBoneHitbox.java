@@ -62,6 +62,21 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     public void setGlowing(Color color) {
     }
 
+    @Override
+    public void attachModel(GenericModel model) {
+        throw new UnsupportedOperationException("Cannot attach a model to a hitbox");
+    }
+
+    @Override
+    public List<GenericModel> getAttachedModels() {
+        return List.of();
+    }
+
+    @Override
+    public void detachModel(GenericModel model) {
+        throw new UnsupportedOperationException("Cannot detach a model from a hitbox");
+    }
+
     private static final Tag<String> WSEE = Tag.String("WSEE");
 
     public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent, float scale) {
@@ -213,11 +228,14 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
         Pos currentPos = stand.getPosition();
         var diff = finalPosition.sub(currentPos).div(INTERPOLATE_TICKS);
-        AtomicInteger ticks = new AtomicInteger(0);
+        AtomicInteger ticks = new AtomicInteger(1);
 
         this.positionTask = MinecraftServer.getSchedulerManager().submitTask(() -> {
             var t = ticks.getAndIncrement();
-            stand.teleport(currentPos.add(diff.mul(t)));
+            if (stand.isRemoved()) return TaskSchedule.stop();
+
+            var newPos = currentPos.add(diff.mul(t));
+            if (stand.getDistanceSquared(newPos) > 0.005) stand.teleport(newPos);
 
             if (t >= INTERPOLATE_TICKS) {
                 this.positionTask = null;

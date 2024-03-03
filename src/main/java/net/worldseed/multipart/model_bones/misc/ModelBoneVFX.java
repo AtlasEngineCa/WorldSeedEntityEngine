@@ -10,31 +10,33 @@ import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBoneVFX extends ModelBoneImpl {
+    private final List<GenericModel> attached = new ArrayList<>();
+    private Pos position = Pos.ZERO;
 
     @Override
-    public void addViewer(Player player) {}
-
-    @Override
-    public void removeViewer(Player player) { }
-
-    @Override
-    public void removeGlowing() {
-
+    public void attachModel(GenericModel model) {
+        attached.add(model);
     }
 
     @Override
-    public void setGlowing(Color color) {
-
+    public List<GenericModel> getAttachedModels() {
+        return attached;
     }
 
-    private Point position = Pos.ZERO;
+    @Override
+    public void detachModel(GenericModel model) {
+        attached.remove(model);
+    }
 
     public Point getPosition() {
         return position;
     }
+
     public ModelBoneVFX(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         super(pivot, name, rotation, model, scale);
         this.stand = null;
@@ -72,9 +74,35 @@ public class ModelBoneVFX extends ModelBoneImpl {
         if (this.offset == null) return;
 
         this.position = calculatePosition();
+
+        this.attached.forEach(model -> {
+            model.setPosition(this.position);
+            model.setGlobalRotation(this.model.getGlobalRotation());
+            model.draw();
+        });
     }
 
     @Override
-    public void destroy() {
+    public void destroy() { }
+
+    @Override
+    public void addViewer(Player player) {
+        this.attached.forEach(model -> model.addViewer(player));
     }
+
+    @Override
+    public void removeViewer(Player player) {
+        this.attached.forEach(model -> model.removeViewer(player));
+    }
+
+    @Override
+    public void removeGlowing() {
+        this.attached.forEach(GenericModel::removeGlowing);
+    }
+
+    @Override
+    public void setGlowing(Color color) {
+        this.attached.forEach(model -> model.setGlowing(color));
+    }
+
 }

@@ -15,6 +15,8 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
+import java.util.List;
+
 public class ModelBonePartArmourStandHand extends ModelBoneImpl implements ModelBoneViewable {
     private Point lastRotation = Vec.ZERO;
     private Point halfRotation = Vec.ZERO;
@@ -41,6 +43,21 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
     @Override
     public void setGlowing(Color color) {
         if (this.stand != null) this.stand.setGlowing(true);
+    }
+
+    @Override
+    public void attachModel(GenericModel model) {
+        throw new UnsupportedOperationException("Cannot attach a model to this bone type");
+    }
+
+    @Override
+    public List<GenericModel> getAttachedModels() {
+        return List.of();
+    }
+
+    @Override
+    public void detachModel(GenericModel model) {
+        throw new UnsupportedOperationException("Cannot detach a model from this bone type");
     }
 
     public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, float scale) {

@@ -5,10 +5,12 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
+import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.animations.BoneAnimation;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @ApiStatus.Internal
@@ -46,4 +48,8 @@ public interface ModelBone {
 
     void removeGlowing();
     void setGlowing(Color color);
+
+    void attachModel(GenericModel model);
+    List<GenericModel> getAttachedModels();
+    void detachModel(GenericModel model);
 }

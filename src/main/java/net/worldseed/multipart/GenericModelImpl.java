@@ -455,4 +455,25 @@ public abstract class GenericModelImpl implements GenericModel {
     public void removeGlowing() {
         this.viewableBones.forEach(ModelBoneImpl::removeGlowing);
     }
+
+    @Override
+    public void attachModel(GenericModel model, String boneName) {
+        ModelBone bone = this.parts.get(boneName);
+        if (bone != null) bone.attachModel(model);
+    }
+
+    @Override
+    public void detachModel(GenericModel model, String boneName) {
+        ModelBone bone = this.parts.get(boneName);
+        if (bone != null) bone.detachModel(model);
+    }
+
+    @Override
+    public Map<String, List<GenericModel>> getAttachedModels() {
+        Map<String, List<GenericModel>> attached = new HashMap<>();
+        for (ModelBone part : this.parts.values()) {
+            attached.put(part.getName(), part.getAttachedModels());
+        }
+        return attached;
+    }
 }

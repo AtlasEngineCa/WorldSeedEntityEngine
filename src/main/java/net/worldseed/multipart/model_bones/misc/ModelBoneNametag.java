@@ -11,6 +11,8 @@ import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
+import java.util.List;
+
 public class ModelBoneNametag extends ModelBoneImpl {
 
     @Override
@@ -25,11 +27,25 @@ public class ModelBoneNametag extends ModelBoneImpl {
 
     @Override
     public void removeGlowing() {
-
     }
 
     @Override
     public void setGlowing(Color color) {
+
+    }
+
+    @Override
+    public void attachModel(GenericModel model) {
+        throw new UnsupportedOperationException("Cannot attach a model to a nametag");
+    }
+
+    @Override
+    public List<GenericModel> getAttachedModels() {
+        return List.of();
+    }
+
+    @Override
+    public void detachModel(GenericModel model) {
 
     }
 
