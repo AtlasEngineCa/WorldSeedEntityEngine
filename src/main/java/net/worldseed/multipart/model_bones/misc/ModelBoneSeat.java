@@ -14,6 +14,7 @@ import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBoneSeat extends ModelBoneImpl {
@@ -36,6 +37,21 @@ public class ModelBoneSeat extends ModelBoneImpl {
     @Override
     public void setGlowing(Color color) {
 
+    }
+
+    @Override
+    public void attachModel(GenericModel model) {
+        throw new UnsupportedOperationException("Cannot attach a model to a seat");
+    }
+
+    @Override
+    public List<GenericModel> getAttachedModels() {
+        return List.of();
+    }
+
+    @Override
+    public void detachModel(GenericModel model) {
+        throw new UnsupportedOperationException("Cannot detach a model from a seat");
     }
 
     public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, float scale) {

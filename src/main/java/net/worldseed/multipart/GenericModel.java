@@ -15,6 +15,7 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape {
@@ -131,4 +132,8 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
 
     void removeGlowing();
     void setGlowing(Color color);
+
+    void attachModel(GenericModel model, String boneName);
+    Map<String, List<GenericModel>> getAttachedModels();
+    void detachModel(GenericModel model, String boneName);
 }

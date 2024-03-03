@@ -20,16 +20,19 @@ import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
     private Entity baseStand;
+    private final List<GenericModel> attached = new ArrayList<>();
 
     @Override
     public void addViewer(Player player) {
         if (this.stand != null) this.stand.addViewer(player);
         if (this.baseStand != null) this.baseStand.addViewer(player);
+        this.attached.forEach(model -> model.addViewer(player));
     }
 
     @Override
@@ -48,6 +51,8 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
             meta.setHasGlowingEffect(false);
         }
+
+        this.attached.forEach(GenericModel::removeGlowing);
     }
 
     @Override
@@ -57,12 +62,30 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             meta.setHasGlowingEffect(true);
             meta.setGlowColorOverride(color.asRGB());
         }
+
+        this.attached.forEach(model -> model.setGlowing(color));
+    }
+
+    @Override
+    public void attachModel(GenericModel model) {
+        attached.add(model);
+    }
+
+    @Override
+    public List<GenericModel> getAttachedModels() {
+        return attached;
+    }
+
+    @Override
+    public void detachModel(GenericModel model) {
+        attached.remove(model);
     }
 
     @Override
     public void removeViewer(Player player) {
         if (this.stand != null) this.stand.removeViewer(player);
         if (this.baseStand != null) this.baseStand.removeViewer(player);
+        this.attached.forEach(model -> model.removeViewer(player));
     }
 
     public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, float scale) {
@@ -115,20 +138,25 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
-        if (this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
-            var position = calculatePositionInternal();
-            Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
-            Quaternion pq = new Quaternion(new Vec(0, 0, 0));
-            q = pq.multiply(q);
-
-            meta.setNotifyAboutChanges(false);
-            meta.setTransformationInterpolationStartDelta(0);
-            meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
-            meta.setTranslation(position);
-            meta.setNotifyAboutChanges(true);
-        }
-
         if (this.stand != null) {
+            var position = calculatePositionInternal();
+
+            if (this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
+                Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
+
+                meta.setNotifyAboutChanges(false);
+                meta.setTransformationInterpolationStartDelta(0);
+                meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
+                meta.setTranslation(position);
+                meta.setNotifyAboutChanges(true);
+
+                attached.forEach(model -> {
+                    model.setPosition(this.model.getPosition().add(calculateGlobalRotation(position)));
+                    model.setGlobalRotation(-q.toEuler().x() + this.model.getGlobalRotation());
+                    model.draw();
+                });
+            }
+
             var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
 
             if (Math.abs((this.stand.getPosition().yaw() + 360) % 360 - correctLocation) > 0.0001) {
