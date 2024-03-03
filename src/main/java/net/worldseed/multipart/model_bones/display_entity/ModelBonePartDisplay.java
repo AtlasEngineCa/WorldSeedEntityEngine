@@ -98,7 +98,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.offset == null) return Pos.ZERO;
         Point p = this.offset;
         p = applyTransform(p);
-        p = calculateGlobalRotation(p);
         return Pos.fromPoint(p).div(4).mul(scale).withView(0, 0);
     }
 
@@ -119,7 +118,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.stand != null && this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
             var position = calculatePositionInternal();
             Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
-            Quaternion pq = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
+            Quaternion pq = new Quaternion(new Vec(0, 0, 0));
             q = pq.multiply(q);
 
             meta.setNotifyAboutChanges(false);
@@ -127,6 +126,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
             meta.setTranslation(position);
             meta.setNotifyAboutChanges(true);
+        }
+
+        if (this.stand != null) {
+            var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
+
+            if (Math.abs((this.stand.getPosition().yaw() + 360) % 360 - correctLocation) > 0.0001) {
+                this.stand.setView((float) correctLocation, 0);
+            }
         }
     }
 

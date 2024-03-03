@@ -11,10 +11,7 @@ import javax.json.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.*;
@@ -27,7 +24,7 @@ public class ModelParser {
 
     public record TextureState(double r, double g, double b, double ar, double ag, double ab, String name) {
         public static final TextureState NORMAL = new TextureState(1.0, 1.0, 1.0, 0, 0, 0, "normal");
-        public static final TextureState HIT = new TextureState(1.0, 1.0, 1.0, 255, 0, 0, "hit");
+        public static final TextureState HIT = new TextureState(0.7, 0.7, 0.7, 255, 0, 0, "hit");
 
         BufferedImage multiplyColour(BufferedImage oldImg) {
             ColorModel cm = oldImg.getColorModel();
@@ -43,7 +40,7 @@ public class ModelParser {
                     int ib = (int) ((rgb & 0xFF) * b);
                     int ia = (rgb >> 24) & 0xFF;
 
-                    double weight = 0.8;
+                    double weight = 0.7;
                     int lerpR = (int) (ir * weight + ar * (1 - weight));
                     int lerpG = (int) (ig * weight + ag * (1 - weight));
                     int lerpB = (int) (ib * weight + ab * (1 - weight));
@@ -352,7 +349,7 @@ public class ModelParser {
                 }
             }
 
-            if (cubes.size() > 0) {
+            if (!cubes.isEmpty()) {
                 bones.add(new Bone(name, cubes, bonePivot));
             }
         }
