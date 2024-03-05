@@ -27,7 +27,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
         loadDefaultAnimations();
-        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.SYNC);
+        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.ASYNC);
     }
 
     protected void loadDefaultAnimations() {
@@ -79,7 +79,6 @@ public class AnimationHandlerImpl implements AnimationHandler {
     @Override
     public void playRepeat(String animation, AnimationDirection direction) throws IllegalArgumentException {
         if (this.animationPriorities().get(animation) == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
-
         var modelAnimation = this.animations.get(animation);
 
         if (this.repeating.containsKey(this.animationPriorities().get(animation))
