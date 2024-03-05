@@ -1,5 +1,6 @@
 package net.worldseed.multipart.model_bones.display_entity;
 
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -83,7 +84,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public void setGlobalRotation(double rotation) {
-        if (this.stand == null) {
+        if (this.stand != null) {
             var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
             this.stand.setView((float) correctLocation, 0);
         }
@@ -168,12 +169,19 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
-    public CompletableFuture<Void> spawn(Instance instance, Point position) {
-        return super.spawn(instance, position).whenCompleteAsync((v, e) -> {
+    public CompletableFuture<Void> spawn(Instance instance, Pos position) {
+        var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
+        return super.spawn(instance, Pos.fromPoint(position).withYaw((float) correctLocation)).whenCompleteAsync((v, e) -> {
             if (e != null) {
                 e.printStackTrace();
                 return;
             }
+
+            // Idk why this needs to be done
+            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
+                this.stand.setView((float) correctLocation + 1, 0);
+                this.stand.setView((float) correctLocation, 0);
+            });
 
             if (!(this.getParent() instanceof ModelBonePartDisplay)) {
                 this.baseStand = new BoneEntity(EntityType.ARMOR_STAND, model) {
@@ -196,6 +204,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
                 this.baseStand.setInvisible(true);
                 this.baseStand.setNoGravity(true);
                 this.baseStand.setInstance(instance, position).join();
+
             }
         });
     }
