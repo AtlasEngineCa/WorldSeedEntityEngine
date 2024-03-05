@@ -181,7 +181,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     }
 
     @Override
-    public CompletableFuture<Void> spawn(Instance instance, Point position) {
+    public CompletableFuture<Void> spawn(Instance instance, Pos position) {
         this.illegitimateChildren.forEach(modelBone -> {
             modelBone.spawn(instance, modelBone.calculatePosition().add(model.getPosition()));
             MinecraftServer.getSchedulerManager().scheduleNextTick(modelBone::draw);

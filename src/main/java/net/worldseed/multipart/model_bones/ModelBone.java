@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 @ApiStatus.Internal
 public interface ModelBone {
-    CompletableFuture<Void> spawn(Instance instance, Point position);
+    CompletableFuture<Void> spawn(Instance instance, Pos position);
     Point applyTransform(Point p);
     void draw();
     void destroy();

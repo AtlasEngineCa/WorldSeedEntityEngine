@@ -190,11 +190,10 @@ public abstract class ModelBoneImpl implements ModelBone {
         }
     }
 
-    public CompletableFuture<Void> spawn(Instance instance, Point position) {
+    public CompletableFuture<Void> spawn(Instance instance, Pos position) {
         if (this.offset != null && this.stand != null) {
             this.stand.setNoGravity(true);
             this.stand.setSilent(true);
-
             return this.stand.setInstance(instance, position);
         }
         return CompletableFuture.completedFuture(null);
