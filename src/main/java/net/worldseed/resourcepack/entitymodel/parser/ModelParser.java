@@ -35,15 +35,14 @@ public class ModelParser {
             for (int i = 0; i < img.getWidth(); i++) {
                 for (int j = 0; j < img.getHeight(); j++) {
                     int rgb = img.getRGB(i, j);
-                    int ir = (int) (((rgb >> 16) & 0xFF) * r);
-                    int ig = (int) (((rgb >> 8) & 0xFF) * g);
-                    int ib = (int) ((rgb & 0xFF) * b);
+                    double ir = (((rgb >> 16) & 0xFF) * r);
+                    double ig = (((rgb >> 8) & 0xFF) * g);
+                    double ib = ((rgb & 0xFF) * b);
                     int ia = (rgb >> 24) & 0xFF;
 
-                    double weight = 0.7;
-                    int lerpR = (int) (ir * weight + ar * (1 - weight));
-                    int lerpG = (int) (ig * weight + ag * (1 - weight));
-                    int lerpB = (int) (ib * weight + ab * (1 - weight));
+                    int lerpR = (int) (ir + ar * (1 - r));
+                    int lerpG = (int) (ig + ag * (1 - g));
+                    int lerpB = (int) (ib + ab * (1 - b));
 
                     img.setRGB(i, j, (ia << 24) | (Math.min(lerpR, 255) << 16) | (Math.min(lerpG, 255) << 8) | Math.min(lerpB, 255));
                 }
