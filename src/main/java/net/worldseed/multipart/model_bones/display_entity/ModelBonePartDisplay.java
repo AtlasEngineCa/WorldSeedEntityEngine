@@ -177,12 +177,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
                 return;
             }
 
-            // Idk why this needs to be done
-            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
-                this.stand.setView((float) correctLocation + 1, 0);
-                this.stand.setView((float) correctLocation, 0);
-            });
-
             if (!(this.getParent() instanceof ModelBonePartDisplay)) {
                 this.baseStand = new BoneEntity(EntityType.ARMOR_STAND, model) {
                     @Override

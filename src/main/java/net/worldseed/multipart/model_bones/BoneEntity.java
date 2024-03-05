@@ -37,7 +37,7 @@ public class BoneEntity extends LivingEntity {
     @Override
     public void updateNewViewer(@NotNull Player player) {
         Pos position = this.getPosition();
-        var spawnPacket = new SpawnEntityPacket(this.getEntityId(), this.getUuid(), this.getEntityType().id(), model.getPosition().withView(0, 0), position.yaw(), 0, (short) 0, (short) 0, (short) 0);
+        var spawnPacket = new SpawnEntityPacket(this.getEntityId(), this.getUuid(), this.getEntityType().id(), model.getPosition().withView(position.yaw(), 0), position.yaw(), 0, (short) 0, (short) 0, (short) 0);
 
         player.sendPacket(spawnPacket);
         player.sendPacket(new LazyPacket(this::getMetadataPacket));
