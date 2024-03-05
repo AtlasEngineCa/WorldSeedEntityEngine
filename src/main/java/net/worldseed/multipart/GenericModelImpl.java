@@ -209,6 +209,10 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public void setGlobalRotation(double rotation) {
         this.globalRotation = rotation;
+
+        this.viewableBones.forEach(part -> {
+            part.setGlobalRotation(rotation);
+        });
     }
 
     public Instance getInstance() {
