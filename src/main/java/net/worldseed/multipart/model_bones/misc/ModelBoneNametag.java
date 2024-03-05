@@ -49,6 +49,11 @@ public class ModelBoneNametag extends ModelBoneImpl {
 
     }
 
+    @Override
+    public void setGlobalRotation(double rotation) {
+
+    }
+
     public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity, float scale) {
         super(pivot, name, rotation, model, scale);
 

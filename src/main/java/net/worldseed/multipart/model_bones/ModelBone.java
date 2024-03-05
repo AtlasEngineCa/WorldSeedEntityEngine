@@ -52,4 +52,6 @@ public interface ModelBone {
     void attachModel(GenericModel model);
     List<GenericModel> getAttachedModels();
     void detachModel(GenericModel model);
+
+    void setGlobalRotation(double rotation);
 }

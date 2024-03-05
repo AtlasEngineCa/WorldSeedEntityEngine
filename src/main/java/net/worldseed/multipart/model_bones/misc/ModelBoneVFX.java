@@ -33,6 +33,11 @@ public class ModelBoneVFX extends ModelBoneImpl {
         attached.remove(model);
     }
 
+    @Override
+    public void setGlobalRotation(double rotation) {
+
+    }
+
     public Point getPosition() {
         return position;
     }

@@ -82,6 +82,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
+    public void setGlobalRotation(double rotation) {
+        if (this.stand == null) {
+            var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
+            this.stand.setView((float) correctLocation, 0);
+        }
+    }
+
+    @Override
     public void removeViewer(Player player) {
         if (this.stand != null) this.stand.removeViewer(player);
         if (this.baseStand != null) this.baseStand.removeViewer(player);
@@ -155,12 +163,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
                     model.setGlobalRotation(-q.toEuler().x() + this.model.getGlobalRotation());
                     model.draw();
                 });
-            }
-
-            var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
-
-            if (Math.abs((this.stand.getPosition().yaw() + 360) % 360 - correctLocation) > 0.0001) {
-                this.stand.setView((float) correctLocation, 0);
             }
         }
     }

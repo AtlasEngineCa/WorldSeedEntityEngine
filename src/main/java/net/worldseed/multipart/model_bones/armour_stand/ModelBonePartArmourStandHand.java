@@ -60,6 +60,11 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
         throw new UnsupportedOperationException("Cannot detach a model from this bone type");
     }
 
+    @Override
+    public void setGlobalRotation(double rotation) {
+
+    }
+
     public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         super(pivot, name, rotation, model, scale);
 

@@ -77,6 +77,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         throw new UnsupportedOperationException("Cannot detach a model from a hitbox");
     }
 
+    @Override
+    public void setGlobalRotation(double rotation) {
+
+    }
+
     private static final Tag<String> WSEE = Tag.String("WSEE");
 
     public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent, float scale) {

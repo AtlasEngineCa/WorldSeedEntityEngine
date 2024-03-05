@@ -54,6 +54,11 @@ public class ModelBoneSeat extends ModelBoneImpl {
         throw new UnsupportedOperationException("Cannot detach a model from a seat");
     }
 
+    @Override
+    public void setGlobalRotation(double rotation) {
+
+    }
+
     public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         super(pivot, name, rotation, model, scale);
 
