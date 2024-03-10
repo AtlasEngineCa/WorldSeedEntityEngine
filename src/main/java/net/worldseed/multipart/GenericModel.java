@@ -6,6 +6,7 @@ import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventHandler;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
@@ -133,7 +134,11 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     void removeGlowing();
     void setGlowing(Color color);
 
+    void removeGlowing(Player player);
+    void setGlowing(Player player, Color color);
+
     void attachModel(GenericModel model, String boneName);
     Map<String, List<GenericModel>> getAttachedModels();
     void detachModel(GenericModel model, String boneName);
+
 }

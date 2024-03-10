@@ -1,6 +1,5 @@
 package net.worldseed.multipart.model_bones.display_entity;
 
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -65,6 +64,18 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         }
 
         this.attached.forEach(model -> model.setGlowing(color));
+    }
+
+    @Override
+    public void removeGlowing(Player player) {
+        super.removeGlowing(player);
+        this.attached.forEach(model -> model.removeGlowing(player));
+    }
+
+    @Override
+    public void setGlowing(Player player, Color color) {
+        super.setGlowing(player, color);
+        this.attached.forEach(model -> model.setGlowing(player, color));
     }
 
     @Override

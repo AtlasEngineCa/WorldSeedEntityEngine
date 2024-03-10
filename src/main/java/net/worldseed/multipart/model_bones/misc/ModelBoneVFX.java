@@ -110,4 +110,14 @@ public class ModelBoneVFX extends ModelBoneImpl {
         this.attached.forEach(model -> model.setGlowing(color));
     }
 
+    @Override
+    public void removeGlowing(Player player) {
+        this.attached.forEach(model -> model.removeGlowing(player));
+    }
+
+    @Override
+    public void setGlowing(Player player, Color color) {
+        this.attached.forEach(model -> model.setGlowing(player, color));
+    }
+
 }

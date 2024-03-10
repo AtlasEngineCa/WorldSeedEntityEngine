@@ -1,10 +1,14 @@
 package net.worldseed.multipart.model_bones;
 
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Metadata;
+import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.ModelLoader.AnimationType;
@@ -15,6 +19,7 @@ import net.worldseed.multipart.animations.BoneAnimation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class ModelBoneImpl implements ModelBone {
@@ -197,6 +202,42 @@ public abstract class ModelBoneImpl implements ModelBone {
             return this.stand.setInstance(instance, position);
         }
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public void setGlowing(Player player, Color color) {
+        if(this.stand == null)
+            return;
+        
+        EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
+        Map<Integer, Metadata.Entry<?>> oldEntries = oldMetadataPacket.entries();
+        byte previousFlags = oldEntries.containsKey(0)
+                ? (byte) oldEntries.get(0).value()
+                : 0;
+
+        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(oldEntries);
+        entries.put(0, Metadata.Byte((byte) (previousFlags | 0x40)));
+        entries.put(22, Metadata.VarInt(color.asRGB()));
+
+        player.sendPacket(new EntityMetaDataPacket(this.stand.getEntityId(), entries));
+    }
+
+    @Override
+    public void removeGlowing(Player player) {
+        if(this.stand == null)
+            return;
+
+        EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
+        Map<Integer, Metadata.Entry<?>> oldEntries = oldMetadataPacket.entries();
+        byte previousFlags = oldEntries.containsKey(0)
+                ? (byte) oldEntries.get(0).value()
+                : 0;
+
+        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(oldMetadataPacket.entries());
+        entries.put(0, Metadata.Byte((byte) (previousFlags & ~0x40)));
+        entries.put(22, Metadata.VarInt(-1));
+
+        player.sendPacket(new EntityMetaDataPacket(this.stand.getEntityId(), entries));
     }
 
     @Override

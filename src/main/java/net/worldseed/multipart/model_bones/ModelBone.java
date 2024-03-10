@@ -49,6 +49,9 @@ public interface ModelBone {
     void removeGlowing();
     void setGlowing(Color color);
 
+    void removeGlowing(Player player);
+    void setGlowing(Player player, Color color);
+
     void attachModel(GenericModel model);
     List<GenericModel> getAttachedModels();
     void detachModel(GenericModel model);

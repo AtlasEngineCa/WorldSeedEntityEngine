@@ -461,6 +461,16 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
+    public void setGlowing(Player player, Color color) {
+        this.viewableBones.forEach(part -> part.setGlowing(player, color));
+    }
+
+    @Override
+    public void removeGlowing(Player player) {
+        this.viewableBones.forEach(part -> part.removeGlowing(player));
+    }
+
+    @Override
     public void attachModel(GenericModel model, String boneName) {
         ModelBone bone = this.parts.get(boneName);
         if (bone != null) bone.attachModel(model);
