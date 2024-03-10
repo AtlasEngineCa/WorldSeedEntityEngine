@@ -370,7 +370,7 @@ public abstract class GenericModelImpl implements GenericModel {
     @Override
     public boolean addViewer(@NotNull Player player) {
         if(this.playerGlowColors.containsKey(player.getUuid()))
-            this.viewableBones.forEach(part -> part.setGlowing(player, this.playerGlowColors.get(player.getUuid());
+            this.viewableBones.forEach(part -> part.setGlowing(player, this.playerGlowColors.get(player.getUuid())));
 
         getParts().forEach(part -> part.addViewer(player));
         return this.viewers.add(player);
@@ -467,6 +467,7 @@ public abstract class GenericModelImpl implements GenericModel {
     @Override
     public void setGlowing(Player player, Color color) {
         this.playerGlowColors.put(player.getUuid(), color);
+        this.viewableBones.forEach(part -> part.setGlowing(player, color));
     }
 
     @Override
