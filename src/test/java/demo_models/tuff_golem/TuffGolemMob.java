@@ -92,15 +92,18 @@ public class TuffGolemMob extends EntityCreature {
         var viewers = Set.copyOf(this.getViewers());
         this.model.destroy();
         this.animationHandler.destroy();
-        ParticlePacket packet = ParticleCreator.createParticlePacket(
-                Particle.POOF,
+        ParticlePacket packet = new ParticlePacket(
+                Particle.POOF.id(),
+                false,
                 this.position.x(),
                 this.position.y() + 1,
                 this.position.z(),
                 1,
                 1,
                 1,
-                50
+                0f,
+                50,
+                new byte[0]
         );
         viewers.forEach(v -> v.sendPacket(packet));
 
