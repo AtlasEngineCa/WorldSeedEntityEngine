@@ -46,6 +46,16 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
     }
 
     @Override
+    public void removeGlowing(Player player) {
+
+    }
+
+    @Override
+    public void setGlowing(Player player, Color color) {
+
+    }
+
+    @Override
     public void attachModel(GenericModel model) {
         throw new UnsupportedOperationException("Cannot attach a model to this bone type");
     }

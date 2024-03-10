@@ -205,42 +205,6 @@ public abstract class ModelBoneImpl implements ModelBone {
     }
 
     @Override
-    public void setGlowing(Player player, Color color) {
-        if(this.stand == null)
-            return;
-        
-        EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
-        Map<Integer, Metadata.Entry<?>> oldEntries = oldMetadataPacket.entries();
-        byte previousFlags = oldEntries.containsKey(0)
-                ? (byte) oldEntries.get(0).value()
-                : 0;
-
-        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(oldEntries);
-        entries.put(0, Metadata.Byte((byte) (previousFlags | 0x40)));
-        entries.put(22, Metadata.VarInt(color.asRGB()));
-
-        player.sendPacket(new EntityMetaDataPacket(this.stand.getEntityId(), entries));
-    }
-
-    @Override
-    public void removeGlowing(Player player) {
-        if(this.stand == null)
-            return;
-
-        EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
-        Map<Integer, Metadata.Entry<?>> oldEntries = oldMetadataPacket.entries();
-        byte previousFlags = oldEntries.containsKey(0)
-                ? (byte) oldEntries.get(0).value()
-                : 0;
-
-        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(oldMetadataPacket.entries());
-        entries.put(0, Metadata.Byte((byte) (previousFlags & ~0x40)));
-        entries.put(22, Metadata.VarInt(-1));
-
-        player.sendPacket(new EntityMetaDataPacket(this.stand.getEntityId(), entries));
-    }
-
-    @Override
     public Point getOffset() {
         return this.offset;
     }

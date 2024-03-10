@@ -57,6 +57,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private final Set<Player> viewers = ConcurrentHashMap.newKeySet();
     private final EventNode<ModelEvent> eventNode;
+    private final Map<UUID, Color> playerGlowColors = new HashMap<>();
 
     public GenericModelImpl() {
         final ServerProcess process = MinecraftServer.process();
@@ -368,6 +369,9 @@ public abstract class GenericModelImpl implements GenericModel {
 
     @Override
     public boolean addViewer(@NotNull Player player) {
+        if(this.playerGlowColors.containsKey(player.getUuid()))
+            this.viewableBones.forEach(part -> part.setGlowing(player, this.playerGlowColors.get(player.getUuid());
+
         getParts().forEach(part -> part.addViewer(player));
         return this.viewers.add(player);
     }
@@ -462,12 +466,12 @@ public abstract class GenericModelImpl implements GenericModel {
 
     @Override
     public void setGlowing(Player player, Color color) {
-        this.viewableBones.forEach(part -> part.setGlowing(player, color));
+        this.playerGlowColors.put(player.getUuid(), color);
     }
 
     @Override
     public void removeGlowing(Player player) {
-        this.viewableBones.forEach(part -> part.removeGlowing(player));
+        this.playerGlowColors.remove(player.getUuid());
     }
 
     @Override
