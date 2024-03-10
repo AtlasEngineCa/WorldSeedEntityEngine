@@ -1,6 +1,6 @@
 package net.worldseed.multipart.model_bones.display_entity;
 
-import net.minestom.server.color.Color;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -60,11 +60,16 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
-    public void setGlowing(Color color) {
+    public void setGlowing(RGBLike color) {
         if (this.stand != null) {
+            int rgb = 0;
+            rgb |= color.red() << 16;
+            rgb |= color.green() << 8;
+            rgb |= color.blue();
+
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
             meta.setHasGlowingEffect(true);
-            meta.setGlowColorOverride(color.asRGB());
+            meta.setGlowColorOverride(rgb);
         }
 
         this.attached.forEach(model -> model.setGlowing(color));
@@ -90,9 +95,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
-    public void setGlowing(Player player, Color color) {
+    public void setGlowing(Player player, RGBLike color) {
         if(this.stand == null)
             return;
+
+        int rgb = 0;
+        rgb |= color.red() << 16;
+        rgb |= color.green() << 8;
+        rgb |= color.blue();
 
         EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
         Map<Integer, Metadata.Entry<?>> oldEntries = oldMetadataPacket.entries();
@@ -102,7 +112,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
         Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(oldEntries);
         entries.put(0, Metadata.Byte((byte) (previousFlags | 0x40)));
-        entries.put(22, Metadata.VarInt(color.asRGB()));
+        entries.put(22, Metadata.VarInt(rgb));
 
         player.sendPacket(new EntityMetaDataPacket(this.stand.getEntityId(), entries));
         this.attached.forEach(model -> model.setGlowing(player, color));

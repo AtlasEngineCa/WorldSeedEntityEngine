@@ -76,7 +76,7 @@ public class GemGolemAttackGoal extends GoalSelector {
 
                     if (p != null) {
                         ParticlePacket packet = new ParticlePacket(
-                                Particle.FLAME.id(),
+                                Particle.FLAME,
                                 false,
                                 p.x(),
                                 p.y() + 1,
@@ -84,9 +84,8 @@ public class GemGolemAttackGoal extends GoalSelector {
                                 1,
                                 1,
                                 1,
-                                0f,
-                                1,
-                                new byte[0]
+                                0,
+                                1
                         );
                         entityCreature.sendPacketToViewers(packet);
                     }
@@ -94,7 +93,7 @@ public class GemGolemAttackGoal extends GoalSelector {
                     if (counter.addAndGet(1) > sections) {
                         if (p != null) {
                             ParticlePacket packet = new ParticlePacket(
-                                    Particle.EXPLOSION.id(),
+                                    Particle.EXPLOSION,
                                     false,
                                     p.x(),
                                     p.y() + 1,
@@ -102,9 +101,8 @@ public class GemGolemAttackGoal extends GoalSelector {
                                     1,
                                     1,
                                     1,
-                                    0f,
-                                    1,
-                                    new byte[0]
+                                    0,
+                                    1
                             );
                             entityCreature.sendPacketToViewers(packet);
                         }

@@ -11,7 +11,6 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
@@ -93,7 +92,7 @@ public class TuffGolemMob extends EntityCreature {
         this.model.destroy();
         this.animationHandler.destroy();
         ParticlePacket packet = new ParticlePacket(
-                Particle.POOF.id(),
+                Particle.POOF,
                 false,
                 this.position.x(),
                 this.position.y() + 1,
@@ -101,9 +100,8 @@ public class TuffGolemMob extends EntityCreature {
                 1,
                 1,
                 1,
-                0f,
-                50,
-                new byte[0]
+                0,
+                50
         );
         viewers.forEach(v -> v.sendPacket(packet));
 

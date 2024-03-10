@@ -1,6 +1,6 @@
 package net.worldseed.multipart.model_bones.armour_stand;
 
-import net.minestom.server.color.Color;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -41,7 +41,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
     }
 
     @Override
-    public void setGlowing(Color color) {
+    public void setGlowing(RGBLike color) {
         if (this.stand != null) this.stand.setGlowing(true);
     }
 
@@ -51,7 +51,7 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
     }
 
     @Override
-    public void setGlowing(Player player, Color color) {
+    public void setGlowing(Player player, RGBLike color) {
 
     }
 

@@ -117,7 +117,7 @@ public class BulbasaurMob extends EntityCreature {
             this.animationHandler.destroy();
 
             ParticlePacket packet = new ParticlePacket(
-                    Particle.POOF.id(),
+                    Particle.POOF,
                     false,
                     this.position.x(),
                     this.position.y() + 1,
@@ -125,9 +125,8 @@ public class BulbasaurMob extends EntityCreature {
                     1,
                     1,
                     1,
-                    0f,
-                    50,
-                    new byte[0]
+                    0,
+                    50
             );
             viewers.forEach(v -> v.sendPacket(packet));
 

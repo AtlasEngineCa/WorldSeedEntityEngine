@@ -1,14 +1,10 @@
 package net.worldseed.multipart.model_bones;
 
-import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Metadata;
-import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.ModelLoader.AnimationType;
@@ -19,7 +15,6 @@ import net.worldseed.multipart.animations.BoneAnimation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class ModelBoneImpl implements ModelBone {
