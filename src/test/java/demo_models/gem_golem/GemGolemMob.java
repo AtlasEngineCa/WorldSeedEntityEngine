@@ -142,7 +142,18 @@ public class GemGolemMob extends EntityCreature {
         this.animationHandler.playOnce("death", (cb) -> {
             this.model.destroy();
             this.animationHandler.destroy();
-            ParticlePacket packet = new ParticlePacket(Particle.POOF, position.x(), position.y() + 1, position.z(), 1, 1, 1, 0, 50);
+            ParticlePacket packet = new ParticlePacket(
+                    Particle.POOF,
+                    false,
+                    this.position.x(),
+                    this.position.y() + 1,
+                    this.position.z(),
+                    1,
+                    1,
+                    1,
+                    0,
+                    50
+            );
             viewers.forEach(v -> v.sendPacket(packet));
 
             super.remove();

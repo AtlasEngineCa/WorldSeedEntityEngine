@@ -1,6 +1,6 @@
 package net.worldseed.multipart.model_bones.misc;
 
-import net.minestom.server.color.Color;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -106,8 +106,18 @@ public class ModelBoneVFX extends ModelBoneImpl {
     }
 
     @Override
-    public void setGlowing(Color color) {
+    public void setGlowing(RGBLike color) {
         this.attached.forEach(model -> model.setGlowing(color));
+    }
+
+    @Override
+    public void removeGlowing(Player player) {
+        this.attached.forEach(model -> model.removeGlowing(player));
+    }
+
+    @Override
+    public void setGlowing(Player player, RGBLike color) {
+        this.attached.forEach(model -> model.setGlowing(player, color));
     }
 
 }

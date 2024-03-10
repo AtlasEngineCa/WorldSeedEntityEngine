@@ -1,6 +1,6 @@
 package net.worldseed.multipart.model_bones;
 
-import net.minestom.server.color.Color;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
@@ -47,7 +47,10 @@ public interface ModelBone {
     void setScale(float scale);
 
     void removeGlowing();
-    void setGlowing(Color color);
+    void setGlowing(RGBLike color);
+
+    void removeGlowing(Player player);
+    void setGlowing(Player player, RGBLike color);
 
     void attachModel(GenericModel model);
     List<GenericModel> getAttachedModels();

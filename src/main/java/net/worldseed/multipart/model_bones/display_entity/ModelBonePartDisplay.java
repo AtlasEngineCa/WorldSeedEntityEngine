@@ -1,17 +1,18 @@
 package net.worldseed.multipart.model_bones.display_entity;
 
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.color.Color;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
 import net.minestom.server.network.packet.server.play.SetPassengersPacket;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.Quaternion;
@@ -22,7 +23,9 @@ import net.worldseed.multipart.model_bones.ModelBoneViewable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
@@ -57,14 +60,62 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
-    public void setGlowing(Color color) {
+    public void setGlowing(RGBLike color) {
         if (this.stand != null) {
+            int rgb = 0;
+            rgb |= color.red() << 16;
+            rgb |= color.green() << 8;
+            rgb |= color.blue();
+
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
             meta.setHasGlowingEffect(true);
-            meta.setGlowColorOverride(color.asRGB());
+            meta.setGlowColorOverride(rgb);
         }
 
         this.attached.forEach(model -> model.setGlowing(color));
+    }
+
+    @Override
+    public void removeGlowing(Player player) {
+        if(this.stand == null)
+            return;
+
+        EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
+        Map<Integer, Metadata.Entry<?>> oldEntries = oldMetadataPacket.entries();
+        byte previousFlags = oldEntries.containsKey(0)
+                ? (byte) oldEntries.get(0).value()
+                : 0;
+
+        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(oldMetadataPacket.entries());
+        entries.put(0, Metadata.Byte((byte) (previousFlags & ~0x40)));
+        entries.put(22, Metadata.VarInt(-1));
+
+        player.sendPacket(new EntityMetaDataPacket(this.stand.getEntityId(), entries));
+        this.attached.forEach(model -> model.removeGlowing(player));
+    }
+
+    @Override
+    public void setGlowing(Player player, RGBLike color) {
+        if(this.stand == null)
+            return;
+
+        int rgb = 0;
+        rgb |= color.red() << 16;
+        rgb |= color.green() << 8;
+        rgb |= color.blue();
+
+        EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
+        Map<Integer, Metadata.Entry<?>> oldEntries = oldMetadataPacket.entries();
+        byte previousFlags = oldEntries.containsKey(0)
+                ? (byte) oldEntries.get(0).value()
+                : 0;
+
+        Map<Integer, Metadata.Entry<?>> entries = new HashMap<>(oldEntries);
+        entries.put(0, Metadata.Byte((byte) (previousFlags | 0x40)));
+        entries.put(22, Metadata.VarInt(rgb));
+
+        player.sendPacket(new EntityMetaDataPacket(this.stand.getEntityId(), entries));
+        this.attached.forEach(model -> model.setGlowing(player, color));
     }
 
     @Override

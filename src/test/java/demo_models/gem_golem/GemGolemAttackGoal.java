@@ -75,13 +75,35 @@ public class GemGolemAttackGoal extends GoalSelector {
                     Point p = model.getVFX("hit_vfx");
 
                     if (p != null) {
-                        ParticlePacket packet = new ParticlePacket(Particle.FLAME, p.x(), p.y(), p.z(), 0, 0, 0, 0, 1);
+                        ParticlePacket packet = new ParticlePacket(
+                                Particle.FLAME,
+                                false,
+                                p.x(),
+                                p.y() + 1,
+                                p.z(),
+                                1,
+                                1,
+                                1,
+                                0,
+                                1
+                        );
                         entityCreature.sendPacketToViewers(packet);
                     }
 
                     if (counter.addAndGet(1) > sections) {
                         if (p != null) {
-                            ParticlePacket packet = new ParticlePacket(Particle.EXPLOSION, p.x(), p.y(), p.z(), 0, 0, 0, 0, 1);
+                            ParticlePacket packet = new ParticlePacket(
+                                    Particle.EXPLOSION,
+                                    false,
+                                    p.x(),
+                                    p.y() + 1,
+                                    p.z(),
+                                    1,
+                                    1,
+                                    1,
+                                    0,
+                                    1
+                            );
                             entityCreature.sendPacketToViewers(packet);
                         }
 
