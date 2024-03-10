@@ -1,6 +1,6 @@
 package net.worldseed.multipart.model_bones.misc;
 
-import net.minestom.server.color.Color;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -30,7 +30,17 @@ public class ModelBoneNametag extends ModelBoneImpl {
     }
 
     @Override
-    public void setGlowing(Color color) {
+    public void setGlowing(RGBLike color) {
+
+    }
+
+    @Override
+    public void removeGlowing(Player player) {
+
+    }
+
+    @Override
+    public void setGlowing(Player player, RGBLike color) {
 
     }
 

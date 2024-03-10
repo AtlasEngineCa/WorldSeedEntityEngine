@@ -1,11 +1,12 @@
 package net.worldseed.multipart;
 
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.Viewable;
 import net.minestom.server.collision.Shape;
-import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventHandler;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
@@ -131,7 +132,10 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     void setScale(float scale);
 
     void removeGlowing();
-    void setGlowing(Color color);
+    void setGlowing(RGBLike color);
+
+    void removeGlowing(Player player);
+    void setGlowing(Player player, RGBLike color);
 
     void attachModel(GenericModel model, String boneName);
     Map<String, List<GenericModel>> getAttachedModels();

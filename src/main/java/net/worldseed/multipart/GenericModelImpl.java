@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerProcess;
 import net.minestom.server.collision.BoundingBox;
@@ -57,6 +58,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private final Set<Player> viewers = ConcurrentHashMap.newKeySet();
     private final EventNode<ModelEvent> eventNode;
+    private final Map<Player, RGBLike> playerGlowColors = Collections.synchronizedMap(new WeakHashMap<>());
 
     public GenericModelImpl() {
         final ServerProcess process = MinecraftServer.process();
@@ -369,6 +371,11 @@ public abstract class GenericModelImpl implements GenericModel {
     @Override
     public boolean addViewer(@NotNull Player player) {
         getParts().forEach(part -> part.addViewer(player));
+
+        var foundPlayerGlowing = this.playerGlowColors.get(player);
+        if(foundPlayerGlowing != null)
+            this.viewableBones.forEach(part -> part.setGlowing(player, foundPlayerGlowing));
+
         return this.viewers.add(player);
     }
 
@@ -451,13 +458,25 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public void setGlowing(Color color) {
+    public void setGlowing(RGBLike color) {
         this.viewableBones.forEach(part -> part.setGlowing(color));
     }
 
     @Override
     public void removeGlowing() {
         this.viewableBones.forEach(ModelBoneImpl::removeGlowing);
+    }
+
+    @Override
+    public void setGlowing(Player player, RGBLike color) {
+        this.playerGlowColors.put(player, color);
+        this.viewableBones.forEach(part -> part.setGlowing(player, color));
+    }
+
+    @Override
+    public void removeGlowing(Player player) {
+        this.playerGlowColors.remove(player);
+        this.viewableBones.forEach(part -> part.removeGlowing(player));
     }
 
     @Override
