@@ -18,12 +18,24 @@ import net.worldseed.multipart.model_bones.ModelBoneViewable;
 import java.util.List;
 
 public class ModelBonePartArmourStandHand extends ModelBoneImpl implements ModelBoneViewable {
+    private static final Pos SMALL_SUB = new Pos(0, 0.66, 0);
+    private static final Pos NORMAL_SUB = new Pos(0, 1.377, 0);
     private Point lastRotation = Vec.ZERO;
     private Point halfRotation = Vec.ZERO;
     private boolean update = true;
 
-    private final Pos SMALL_SUB = new Pos(0, 0.66, 0);
-    private final Pos NORMAL_SUB = new Pos(0, 1.377, 0);
+    public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
+
+        if (this.offset != null) {
+            this.stand = new BoneEntity(EntityType.ARMOR_STAND, model);
+
+            ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
+            stand.setInvisible(true);
+
+            meta.setHasNoBasePlate(true);
+        }
+    }
 
     @Override
     public void addViewer(Player player) {
@@ -75,19 +87,6 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
 
     }
 
-    public ModelBonePartArmourStandHand(Point pivot, String name, Point rotation, GenericModel model, float scale) {
-        super(pivot, name, rotation, model, scale);
-
-        if (this.offset != null) {
-            this.stand = new BoneEntity(EntityType.ARMOR_STAND, model);
-
-            ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
-            stand.setInvisible(true);
-
-            meta.setHasNoBasePlate(true);
-        }
-    }
-
     protected void setBoneRotation(Point rotation) {
         ArmorStandMeta meta = (ArmorStandMeta) this.stand.getEntityMeta();
 
@@ -108,15 +107,13 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
 
         double divisor = 0.624;
 
-        Pos newPos = endPos
+        return endPos
                 .div(6.4, 6.4, 6.4)
                 .div(divisor)
                 .sub(NORMAL_SUB)
                 .mul(scale)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset());
-
-        return newPos;
     }
 
     @Override

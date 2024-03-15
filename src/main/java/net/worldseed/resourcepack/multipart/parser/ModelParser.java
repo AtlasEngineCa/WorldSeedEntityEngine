@@ -1,9 +1,9 @@
-package net.worldseed.resourcepack.entitymodel.parser;
+package net.worldseed.resourcepack.multipart.parser;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
-import net.worldseed.resourcepack.entitymodel.generator.ModelGenerator;
-import net.worldseed.resourcepack.entitymodel.generator.TextureGenerator;
+import net.worldseed.resourcepack.multipart.generator.ModelGenerator;
+import net.worldseed.resourcepack.multipart.generator.TextureGenerator;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
@@ -11,58 +11,20 @@ import javax.json.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.*;
 
 public class ModelParser {
-    private static int index = 0;
-
     private static final Map<String, MappingEntry> mappings = new HashMap<>();
     private static final List<JsonObject> predicates = new ArrayList<>();
+    private static int index = 0;
 
-    public record TextureState(double r, double g, double b, double ar, double ag, double ab, String name) {
-        public static final TextureState NORMAL = new TextureState(1.0, 1.0, 1.0, 0, 0, 0, "normal");
-        public static final TextureState HIT = new TextureState(0.7, 0.7, 0.7, 255, 0, 0, "hit");
-
-        BufferedImage multiplyColour(BufferedImage oldImg) {
-            ColorModel cm = oldImg.getColorModel();
-            boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-            WritableRaster raster = oldImg.copyData(null);
-            BufferedImage img = new BufferedImage(cm, raster, isAlphaPremultiplied, null);
-
-            for (int i = 0; i < img.getWidth(); i++) {
-                for (int j = 0; j < img.getHeight(); j++) {
-                    int rgb = img.getRGB(i, j);
-                    double ir = (((rgb >> 16) & 0xFF) * r);
-                    double ig = (((rgb >> 8) & 0xFF) * g);
-                    double ib = ((rgb & 0xFF) * b);
-                    int ia = (rgb >> 24) & 0xFF;
-
-                    int lerpR = (int) (ir + ar * (1 - r));
-                    int lerpG = (int) (ig + ag * (1 - g));
-                    int lerpB = (int) (ib + ab * (1 - b));
-
-                    img.setRGB(i, j, (ia << 24) | (Math.min(lerpR, 255) << 16) | (Math.min(lerpG, 255) << 8) | Math.min(lerpB, 255));
-                }
-            }
-
-            return img;
-        }
-
-    }
-
-    private enum TextureFace {
-        north,
-        east,
-        south,
-        west,
-        up,
-        down
-    }
-
-    static JsonObject display(Point offset) {
+    private static JsonObject display(Point offset) {
         JsonArrayBuilder translationHead = Json.createArrayBuilder();
         translationHead.add(offset.x() * -4);
         translationHead.add(offset.y() * 4 - 6.5);
@@ -131,9 +93,6 @@ public class ModelParser {
             return Optional.of(new Vec(arr.getJsonNumber(0).doubleValue(), arr.getJsonNumber(1).doubleValue(), arr.getJsonNumber(2).doubleValue()));
         }
     }
-
-    public record ModelFile(Map<String, JsonObject> bones, Map<String, byte[]> textures, String id, TextureState state, int textureWidth, int textureHeight) {}
-    public record ModelEngineFiles(JsonObject mappings, JsonObject binding, List<ModelFile> models) {}
 
     public static ModelEngineFiles parse(Collection<ModelGenerator.BBEntityModel> data, Path modelPathMobs) throws Exception {
         List<ModelFile> models = new ArrayList<>();
@@ -316,8 +275,8 @@ public class ModelParser {
         }
 
         JsonArray textureSize = Json.createArrayBuilder()
-            .add(textureWidth)
-            .add(textureHeight).build();
+                .add(textureWidth)
+                .add(textureHeight).build();
 
         List<Bone> bones = new ArrayList<>();
 
@@ -388,7 +347,7 @@ public class ModelParser {
         double ey = uv.y2 * (16.0 / height);
 
         if (inverse)
-            return new UV(ex+sx, ey+sy, sx, sy, uv.texture);
+            return new UV(ex + sx, ey + sy, sx, sy, uv.texture);
         return new UV(sx, sy, ex + sx, ey + sy, uv.texture);
     }
 
@@ -434,9 +393,107 @@ public class ModelParser {
         return res.build();
     }
 
-    record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {}
-    record Bone(String name, List<Cube> cubes, Point pivot) {}
-    record ItemId(String name, String bone, Point offset, Point diff, int id) {}
+    private static JsonObject facesAsJson(Map<TextureFace, UV> faces) {
+        JsonObjectBuilder res = Json.createObjectBuilder();
+        for (TextureFace face : faces.keySet()) {
+            res.add(face.name(), faces.get(face).asJson());
+        }
+
+        return res.build();
+    }
+
+    private static JsonArray pointAsJson(Point from) {
+        JsonArrayBuilder res = Json.createArrayBuilder();
+        res.add(Math.round(from.x() * 10000) / 10000.0);
+        res.add(Math.round(from.y() * 10000) / 10000.0);
+        res.add(Math.round(from.z() * 10000) / 10000.0);
+        return res.build();
+    }
+
+    private static Map<TextureFace, UV> getUV(JsonObject uv) {
+        Map<TextureFace, UV> res = new HashMap<>();
+
+        for (TextureFace face : TextureFace.values()) {
+            String faceName = face.name().toLowerCase(Locale.ROOT);
+
+            JsonObject north = uv.getJsonObject(faceName);
+            JsonArray north_uv = north.getJsonArray("uv");
+            JsonArray north_size = north.getJsonArray("uv_size");
+            String texture = north.getString("texture");
+            UV uvNorth = new UV(north_uv.getJsonNumber(0).doubleValue(), north_uv.getJsonNumber(1).doubleValue(), north_size.getJsonNumber(0).doubleValue(), north_size.getJsonNumber(1).doubleValue(), texture);
+            res.put(face, uvNorth);
+        }
+
+        return res;
+    }
+
+    private static JsonObject createPredicate(int id, String name, String state, String bone) {
+        JsonObjectBuilder res = Json.createObjectBuilder();
+
+        JsonObjectBuilder customModelData = Json.createObjectBuilder();
+        customModelData.add("custom_model_data", id);
+
+        res.add("predicate", customModelData);
+        res.add("model", "worldseed:mobs/" + name + "/" + state + "/" + bone);
+
+        return res.build();
+    }
+
+    private enum TextureFace {
+        north,
+        east,
+        south,
+        west,
+        up,
+        down
+    }
+
+    public record TextureState(double r, double g, double b, double ar, double ag, double ab, String name) {
+        public static final TextureState NORMAL = new TextureState(1.0, 1.0, 1.0, 0, 0, 0, "normal");
+        public static final TextureState HIT = new TextureState(0.7, 0.7, 0.7, 255, 0, 0, "hit");
+
+        BufferedImage multiplyColour(BufferedImage oldImg) {
+            ColorModel cm = oldImg.getColorModel();
+            boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+            WritableRaster raster = oldImg.copyData(null);
+            BufferedImage img = new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+
+            for (int i = 0; i < img.getWidth(); i++) {
+                for (int j = 0; j < img.getHeight(); j++) {
+                    int rgb = img.getRGB(i, j);
+                    double ir = (((rgb >> 16) & 0xFF) * r);
+                    double ig = (((rgb >> 8) & 0xFF) * g);
+                    double ib = ((rgb & 0xFF) * b);
+                    int ia = (rgb >> 24) & 0xFF;
+
+                    int lerpR = (int) (ir + ar * (1 - r));
+                    int lerpG = (int) (ig + ag * (1 - g));
+                    int lerpB = (int) (ib + ab * (1 - b));
+
+                    img.setRGB(i, j, (ia << 24) | (Math.min(lerpR, 255) << 16) | (Math.min(lerpG, 255) << 8) | Math.min(lerpB, 255));
+                }
+            }
+
+            return img;
+        }
+
+    }
+
+    public record ModelFile(Map<String, JsonObject> bones, Map<String, byte[]> textures, String id, TextureState state,
+                            int textureWidth, int textureHeight) {
+    }
+
+    public record ModelEngineFiles(JsonObject mappings, JsonObject binding, List<ModelFile> models) {
+    }
+
+    record Cube(Point origin, Point size, Point pivot, Point rotation, Map<TextureFace, UV> uv) {
+    }
+
+    record Bone(String name, List<Cube> cubes, Point pivot) {
+    }
+
+    record ItemId(String name, String bone, Point offset, Point diff, int id) {
+    }
 
     record MappingEntry(Map<String, Integer> map, Point offset, Point diff) {
         public JsonObject asJson() {
@@ -486,51 +543,5 @@ public class ModelParser {
 
             return res.build();
         }
-    }
-
-    private static JsonObject facesAsJson(Map<TextureFace, UV> faces) {
-        JsonObjectBuilder res = Json.createObjectBuilder();
-        for (TextureFace face : faces.keySet()) {
-            res.add(face.name(), faces.get(face).asJson());
-        }
-
-        return res.build();
-    }
-
-    private static JsonArray pointAsJson(Point from) {
-        JsonArrayBuilder res = Json.createArrayBuilder();
-        res.add(Math.round(from.x() * 10000) / 10000.0);
-        res.add(Math.round(from.y() * 10000) / 10000.0);
-        res.add(Math.round(from.z() * 10000) / 10000.0);
-        return res.build();
-    }
-
-    private static Map<TextureFace, UV> getUV(JsonObject uv) {
-        Map<TextureFace, UV> res = new HashMap<>();
-
-        for (TextureFace face : TextureFace.values()) {
-            String faceName = face.name().toLowerCase(Locale.ROOT);
-
-            JsonObject north = uv.getJsonObject(faceName);
-            JsonArray north_uv = north.getJsonArray("uv");
-            JsonArray north_size = north.getJsonArray("uv_size");
-            String texture = north.getString("texture");
-            UV uvNorth = new UV(north_uv.getJsonNumber(0).doubleValue(), north_uv.getJsonNumber(1).doubleValue(), north_size.getJsonNumber(0).doubleValue(), north_size.getJsonNumber(1).doubleValue(), texture);
-            res.put(face, uvNorth);
-        }
-
-        return res;
-    }
-
-    private static JsonObject createPredicate(int id, String name, String state, String bone) {
-        JsonObjectBuilder res = Json.createObjectBuilder();
-
-        JsonObjectBuilder customModelData = Json.createObjectBuilder();
-        customModelData.add("custom_model_data", id);
-
-        res.add("predicate", customModelData);
-        res.add("model", "worldseed:mobs/" + name + "/" + state + "/" + bone);
-
-        return res.build();
     }
 }

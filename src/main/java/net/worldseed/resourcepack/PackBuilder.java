@@ -1,9 +1,9 @@
 package net.worldseed.resourcepack;
 
 import net.worldseed.multipart.ModelEngine;
-import net.worldseed.resourcepack.entitymodel.generator.ModelGenerator;
-import net.worldseed.resourcepack.entitymodel.generator.TextureGenerator;
-import net.worldseed.resourcepack.entitymodel.parser.ModelParser;
+import net.worldseed.resourcepack.multipart.generator.ModelGenerator;
+import net.worldseed.resourcepack.multipart.generator.TextureGenerator;
+import net.worldseed.resourcepack.multipart.parser.ModelParser;
 import org.apache.commons.io.FileUtils;
 
 import javax.json.*;
@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 public class PackBuilder {
-    public record Model(String data, String name, JsonObject additionalStates) {}
-    public record ConfigJson(String modelMappings) {}
-
     public static JsonArray applyInflate(JsonArray from, double inflate) {
         JsonArrayBuilder inflated = Json.createArrayBuilder();
         for (int i = 0; i < from.size(); ++i) {
@@ -134,5 +131,11 @@ public class PackBuilder {
         final String itemName = ModelEngine.getModelMaterial().name().replace("minecraft:", "");
         FileUtils.writeStringToFile(baseModelPath.resolve(itemName + ".json").toFile(), modelData.binding().toString(), Charset.defaultCharset());
         return modelData.mappings();
+    }
+
+    public record Model(String data, String name, JsonObject additionalStates) {
+    }
+
+    public record ConfigJson(String modelMappings) {
     }
 }

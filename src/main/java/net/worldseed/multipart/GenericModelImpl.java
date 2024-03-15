@@ -10,7 +10,6 @@ import net.minestom.server.ServerProcess;
 import net.minestom.server.collision.BoundingBox;
 import net.minestom.server.collision.Shape;
 import net.minestom.server.collision.SweepResult;
-import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -47,23 +46,20 @@ public abstract class GenericModelImpl implements GenericModel {
     protected final Map<String, ModelBoneVFX> VFXBones = new LinkedHashMap<>();
 
     private final Collection<ModelBone> additionalBones = new ArrayList<>();
-
-    private ModelBoneSeat seat;
-    private ModelBoneHead head;
-    private ModelBoneNametag nametag;
-
-    private Pos position;
-    private double globalRotation;
-    protected Instance instance;
-
     private final Set<Player> viewers = ConcurrentHashMap.newKeySet();
     private final EventNode<ModelEvent> eventNode;
     private final Map<Player, RGBLike> playerGlowColors = Collections.synchronizedMap(new WeakHashMap<>());
+    protected Instance instance;
+    private ModelBoneSeat seat;
+    private ModelBoneHead head;
+    private ModelBoneNametag nametag;
+    private Pos position;
+    private double globalRotation;
 
     public GenericModelImpl() {
         final ServerProcess process = MinecraftServer.process();
         if (process != null) {
-            this.eventNode = process.eventHandler().map(this, EventFilter.from(ModelEvent.class, GenericModel.class, ModelEvent::getModel));
+            this.eventNode = process.eventHandler().map(this, EventFilter.from(ModelEvent.class, GenericModel.class, ModelEvent::model));
         } else {
             // Local nodes require a server process
             this.eventNode = null;
@@ -80,9 +76,21 @@ public abstract class GenericModelImpl implements GenericModel {
         return globalRotation;
     }
 
+    public void setGlobalRotation(double rotation) {
+        this.globalRotation = rotation;
+
+        this.viewableBones.forEach(part -> {
+            part.setGlobalRotation(rotation);
+        });
+    }
+
     @Override
     public Pos getPosition() {
         return position;
+    }
+
+    public void setPosition(Pos pos) {
+        this.position = pos;
     }
 
     public void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction) {
@@ -132,7 +140,7 @@ public abstract class GenericModelImpl implements GenericModel {
             String name = bone.getAsJsonObject().get("name").getAsString();
 
             Point boneRotation = ModelEngine.getPos(bone.getAsJsonObject().get("rotation")).orElse(Pos.ZERO).mul(-1, -1, 1);
-            Point pivotPos = ModelEngine.getPos(pivot).orElse(Pos.ZERO).mul(-1,1,1);
+            Point pivotPos = ModelEngine.getPos(pivot).orElse(Pos.ZERO).mul(-1, 1, 1);
 
             ModelBone modelBonePart = null;
 
@@ -196,25 +204,13 @@ public abstract class GenericModelImpl implements GenericModel {
         return created.getParts();
     }
 
-    public void setNametagEntity(BoneEntity entity) {
-        if (this.nametag != null) this.nametag.linkEntity(entity);
-    }
-
     public Entity getNametagEntity() {
         if (this.nametag != null) return this.nametag.getStand();
         return null;
     }
 
-    public void setPosition(Pos pos) {
-        this.position = pos;
-    }
-
-    public void setGlobalRotation(double rotation) {
-        this.globalRotation = rotation;
-
-        this.viewableBones.forEach(part -> {
-            part.setGlobalRotation(rotation);
-        });
+    public void setNametagEntity(BoneEntity entity) {
+        if (this.nametag != null) this.nametag.linkEntity(entity);
     }
 
     public Instance getInstance() {
@@ -311,6 +307,7 @@ public abstract class GenericModelImpl implements GenericModel {
     public Pos getPivot() {
         return Pos.ZERO;
     }
+
     public Pos getGlobalOffset() {
         return Pos.ZERO;
     }
@@ -373,7 +370,7 @@ public abstract class GenericModelImpl implements GenericModel {
         getParts().forEach(part -> part.addViewer(player));
 
         var foundPlayerGlowing = this.playerGlowColors.get(player);
-        if(foundPlayerGlowing != null)
+        if (foundPlayerGlowing != null)
             this.viewableBones.forEach(part -> part.setGlowing(player, foundPlayerGlowing));
 
         return this.viewers.add(player);

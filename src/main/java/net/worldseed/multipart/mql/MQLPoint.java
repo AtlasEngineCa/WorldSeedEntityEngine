@@ -10,17 +10,14 @@ import net.minestom.server.coordinate.Vec;
 import java.lang.reflect.InvocationTargetException;
 
 public class MQLPoint {
+    public static final MQLPoint ZERO = new MQLPoint();
     MQLEvaluator molangX = null;
     MQLEvaluator molangY = null;
     MQLEvaluator molangZ = null;
-
     double x = 0;
     double y = 0;
     double z = 0;
-
     MQLData data = new MQLData();
-
-    public static final MQLPoint ZERO = new MQLPoint();
 
     public MQLPoint() {
         x = 0;
@@ -86,6 +83,17 @@ public class MQLPoint {
         }
     }
 
+    static MQLEvaluator fromDouble(double value) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        return fromString(Double.toString(value));
+    }
+
+    static MQLEvaluator fromString(String s) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if (s == null || s.isBlank()) return fromDouble(0);
+        MqlCompiler<MQLEvaluator> compiler = new MqlCompiler<>(MQLEvaluator.class);
+        Class<MQLEvaluator> scriptClass = compiler.compile(s.trim().replace("Math", "math"));
+        return scriptClass.getDeclaredConstructor().newInstance();
+    }
+
     public Point evaluate(double time) {
         data.setTime(time);
 
@@ -117,16 +125,5 @@ public class MQLPoint {
         }
 
         return new Vec(evaluatedX, evaluatedY, evaluatedZ);
-    }
-
-    static MQLEvaluator fromDouble(double value) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        return fromString(Double.toString(value));
-    }
-
-    static MQLEvaluator fromString(String s) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        if (s == null || s.isBlank()) return fromDouble(0);
-        MqlCompiler<MQLEvaluator> compiler = new MqlCompiler<>(MQLEvaluator.class);
-        Class<MQLEvaluator> scriptClass = compiler.compile(s.trim().replace("Math", "math"));
-        return scriptClass.getDeclaredConstructor().newInstance();
     }
 }

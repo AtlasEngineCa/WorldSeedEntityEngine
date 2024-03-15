@@ -22,48 +22,56 @@ import java.util.Set;
 public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape {
     /**
      * Get the ID of the model
+     *
      * @return the model ID
      */
     String getId();
 
     /**
      * Get the pivot point of the model. Used for global rotation
+     *
      * @return the global rotation pivot point
      */
     Point getPivot();
 
     /**
      * Get the rotation of the model on the Y axis
+     *
      * @return the global rotation
      */
     double getGlobalRotation();
 
     /**
      * Set the rotation of the model on the Y axis
+     *
      * @param rotation new global rotation
      */
     void setGlobalRotation(double rotation);
 
     /**
      * Get the postion offset for drawing the model
+     *
      * @return the position
      */
     Point getGlobalOffset();
 
     /**
      * Get the position the model is being drawn at
+     *
      * @return the model position
      */
     Pos getPosition();
 
     /**
      * Set the position of the model
+     *
      * @param pos new model position
      */
     void setPosition(Pos pos);
 
     /**
      * Set the state of the model. By default, `normal` and `hit` are supported
+     *
      * @param state the new state
      */
     void setState(String state);
@@ -79,11 +87,14 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     void removeHitboxes();
 
     void mountEntity(Entity entity);
+
     void dismountEntity(Entity entity);
+
     Set<Entity> getPassengers();
 
     /**
      * Get a VFX bone location
+     *
      * @param name the name of the bone
      * @return the bone location
      */
@@ -97,6 +108,7 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
 
     /**
      * Set the model's head rotation
+     *
      * @param rotation rotation of head
      */
     void setHeadRotation(double rotation);
@@ -107,24 +119,28 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
 
     /**
      * Check where a bone will be at a specified time during a specified animation
+     *
      * @param animation animation
-     * @param bone bone name
-     * @param time time in ticks
+     * @param bone      bone name
+     * @param time      time in ticks
      * @return position of bone
      */
     Point getBoneAtTime(String animation, String bone, int time);
 
+    Entity getNametagEntity();
+
     /**
      * Set the entity used for the nametag
      * Takes over control of entity movement.
+     *
      * @param entity the entity
      */
     void setNametagEntity(BoneEntity entity);
-    Entity getNametagEntity();
 
     Instance getInstance();
 
     Point getOffset(String bone);
+
     Point getDiff(String bone);
 
     void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction);
@@ -132,12 +148,16 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     void setScale(float scale);
 
     void removeGlowing();
+
     void setGlowing(RGBLike color);
 
     void removeGlowing(Player player);
+
     void setGlowing(Player player, RGBLike color);
 
     void attachModel(GenericModel model, String boneName);
+
     Map<String, List<GenericModel>> getAttachedModels();
+
     void detachModel(GenericModel model, String boneName);
 }

@@ -4,21 +4,19 @@ import net.minestom.server.entity.Entity;
 import net.worldseed.multipart.GenericModel;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelDismountEvent implements ModelEvent {
-    private final GenericModel model;
-    private final Entity rider;
-
+public record ModelDismountEvent(GenericModel model, Entity rider) implements ModelEvent {
     public ModelDismountEvent(@NotNull GenericModel model, Entity rider) {
         this.rider = rider;
         this.model = model;
     }
 
     @Override
-    public @NotNull GenericModel getModel() {
+    public @NotNull GenericModel model() {
         return model;
     }
 
-    public @NotNull Entity getRider() {
+    @Override
+    public @NotNull Entity rider() {
         return rider;
     }
 }

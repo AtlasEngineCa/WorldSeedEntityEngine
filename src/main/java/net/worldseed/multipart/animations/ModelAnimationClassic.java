@@ -6,9 +6,9 @@ import java.util.Set;
 public class ModelAnimationClassic implements ModelAnimation {
     private final String name;
     private final int priority;
-    int animationTime;
-    AnimationHandler.AnimationDirection direction;
-    Set<BoneAnimation> boneAnimations;
+    private final int animationTime;
+    private AnimationHandler.AnimationDirection direction;
+    private final Set<BoneAnimation> boneAnimations;
 
     public ModelAnimationClassic(String name, int animationTime, int priority, HashSet<BoneAnimation> animationSet) {
         this.direction = AnimationHandler.AnimationDirection.PAUSE;

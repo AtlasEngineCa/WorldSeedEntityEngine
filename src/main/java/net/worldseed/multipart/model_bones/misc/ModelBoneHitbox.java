@@ -28,11 +28,48 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ModelBoneHitbox extends ModelBoneImpl {
-    private final JsonArray cubes;
-    Collection<ModelBoneHitbox> illegitimateChildren = new ConcurrentLinkedDeque<>();
-
     private static final int INTERPOLATE_TICKS = 2;
+    private static final Tag<String> WSEE = Tag.String("WSEE");
+    private final JsonArray cubes;
+    private final Collection<ModelBoneHitbox> illegitimateChildren = new ConcurrentLinkedDeque<>();
     private Task positionTask;
+
+    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent, float scale) {
+        super(pivot, name, rotation, model, scale);
+
+        this.cubes = cubes;
+
+        if (parent) {
+            generateStands(cubes, pivot, name, rotation, model);
+            this.offset = null;
+        } else {
+            if (this.offset != null) {
+                this.stand = new BoneEntity(EntityType.INTERACTION, model) {
+                    @Override
+                    public void updateNewViewer(@NotNull Player player) {
+                        super.updateNewViewer(player);
+
+                        EntityTeleportPacket packet = new EntityTeleportPacket(this.getEntityId(), this.position, true);
+                        player.getPlayerConnection().sendPacket(packet);
+                    }
+
+                    @Override
+                    public void updateOldViewer(@NotNull Player player) {
+                        super.updateOldViewer(player);
+                    }
+                };
+
+                this.stand.setTag(WSEE, "hitbox");
+                this.offset = newOffset;
+
+                InteractionMeta meta = (InteractionMeta) this.stand.getEntityMeta();
+                meta.setHeight((float) (sizeY / 4f) * scale);
+                meta.setWidth((float) (sizeX / 4f) * scale);
+
+                this.stand.setBoundingBox(sizeX / 4f * scale, sizeY / 4f * scale, sizeX / 4f * scale);
+            }
+        }
+    }
 
     public void addViewer(Player player) {
         if (this.stand != null) this.stand.addViewer(player);
@@ -88,45 +125,6 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     @Override
     public void setGlobalRotation(double rotation) {
 
-    }
-
-    private static final Tag<String> WSEE = Tag.String("WSEE");
-
-    public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent, float scale) {
-        super(pivot, name, rotation, model, scale);
-
-        this.cubes = cubes;
-
-        if (parent) {
-            generateStands(cubes, pivot, name, rotation, model);
-            this.offset = null;
-        } else {
-            if (this.offset != null) {
-                this.stand = new BoneEntity(EntityType.INTERACTION, model) {
-                    @Override
-                    public void updateNewViewer(@NotNull Player player) {
-                        super.updateNewViewer(player);
-
-                        EntityTeleportPacket packet = new EntityTeleportPacket(this.getEntityId(), this.position, true);
-                        player.getPlayerConnection().sendPacket(packet);
-                    }
-
-                    @Override
-                    public void updateOldViewer(@NotNull Player player) {
-                        super.updateOldViewer(player);
-                    }
-                };
-
-                this.stand.setTag(WSEE, "hitbox");
-                this.offset = newOffset;
-
-                InteractionMeta meta = (InteractionMeta) this.stand.getEntityMeta();
-                meta.setHeight((float) (sizeY / 4f) * scale);
-                meta.setWidth((float) (sizeX / 4f) * scale);
-
-                this.stand.setBoundingBox(sizeX / 4f * scale, sizeY / 4f * scale, sizeX / 4f * scale);
-            }
-        }
     }
 
     public void generateStands(JsonArray cubes, Point pivotPos, String name, Point boneRotation, GenericModel genericModel) {
@@ -204,7 +202,8 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     }
 
     @Override
-    public void setState(String state) { }
+    public void setState(String state) {
+    }
 
     @Override
     public Pos calculatePosition() {

@@ -1,16 +1,16 @@
-package net.worldseed.resourcepack.entitymodel.generator;
+package net.worldseed.resourcepack.multipart.generator;
 
 import net.worldseed.resourcepack.PackBuilder;
-import net.worldseed.resourcepack.entitymodel.AdditionalStates;
+import net.worldseed.resourcepack.multipart.AdditionalStates;
 
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ModelGenerator {
-    public record BBEntityModel(JsonObject geo, JsonObject animations, Map<String, TextureGenerator.TextureData> textures, String id, AdditionalStates additionalStates) {}
-
     public static BBEntityModel generate(PackBuilder.Model modelObj) {
         JsonObject model = Json.createReader(new StringReader(modelObj.data())).readObject();
 
@@ -59,5 +59,10 @@ public class ModelGenerator {
         }
 
         return new BBEntityModel(geometry, anim, textures, modelObj.name(), AdditionalStates.EMPTY());
+    }
+
+    public record BBEntityModel(JsonObject geo, JsonObject animations,
+                                Map<String, TextureGenerator.TextureData> textures, String id,
+                                AdditionalStates additionalStates) {
     }
 }

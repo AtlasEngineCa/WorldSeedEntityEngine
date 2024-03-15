@@ -5,12 +5,20 @@ import net.worldseed.multipart.ModelLoader;
 
 public interface BoneAnimation {
     String name();
+
     ModelLoader.AnimationType getType();
+
     Point getTransformAtTime(int time);
+
     boolean isPlaying();
+
     Point getTransform();
+
     void setDirection(AnimationHandler.AnimationDirection direction);
+
     void stop();
+
     void play();
+
     void tick();
 }

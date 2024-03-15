@@ -18,6 +18,11 @@ public class ModelBoneVFX extends ModelBoneImpl {
     private final List<GenericModel> attached = new ArrayList<>();
     private Pos position = Pos.ZERO;
 
+    public ModelBoneVFX(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
+        this.stand = null;
+    }
+
     @Override
     public void attachModel(GenericModel model) {
         attached.add(model);
@@ -42,13 +47,9 @@ public class ModelBoneVFX extends ModelBoneImpl {
         return position;
     }
 
-    public ModelBoneVFX(Point pivot, String name, Point rotation, GenericModel model, float scale) {
-        super(pivot, name, rotation, model, scale);
-        this.stand = null;
-    }
-
     @Override
-    public void setState(String state) {}
+    public void setState(String state) {
+    }
 
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
         return CompletableFuture.completedFuture(null);
@@ -88,7 +89,8 @@ public class ModelBoneVFX extends ModelBoneImpl {
     }
 
     @Override
-    public void destroy() { }
+    public void destroy() {
+    }
 
     @Override
     public void addViewer(Player player) {

@@ -66,11 +66,11 @@ public class GemGolemMob extends EntityCreature {
                     damage(event.getDamage().getType(), event.getDamage().getAmount());
                 })
                 .addListener(ModelInteractEvent.class, event -> model.mountEntity(event.getInteracted()))
-                .addListener(ModelDismountEvent.class, event -> model.dismountEntity(event.getRider()))
+                .addListener(ModelDismountEvent.class, event -> model.dismountEntity(event.rider()))
                 .addListener(ModelControlEvent.class, event -> {
-                    controlGoal.setForward(event.getForward());
-                    controlGoal.setSideways(event.getSideways());
-                    controlGoal.setJump(event.getJump());
+                    controlGoal.setForward(event.forward());
+                    controlGoal.setSideways(event.sideways());
+                    controlGoal.setJump(event.jump());
                 });
 
         addAIGroup(
@@ -132,7 +132,7 @@ public class GemGolemMob extends EntityCreature {
         this.stateTask = MinecraftServer.getSchedulerManager()
                 .buildTask(() -> this.model.setState("normal")).delay(7, TimeUnit.CLIENT_TICK)
                 .schedule();
-        
+
         return super.damage(type, value);
     }
 
@@ -172,12 +172,12 @@ public class GemGolemMob extends EntityCreature {
         this.model.removeViewer(player);
     }
 
-    public void setSleeping(boolean sleeping) {
-        this.sleeping = sleeping;
-    }
-
     public boolean isSleeping() {
         return sleeping;
+    }
+
+    public void setSleeping(boolean sleeping) {
+        this.sleeping = sleeping;
     }
 
     @Override

@@ -32,7 +32,8 @@ public class BoneEntity extends LivingEntity {
     }
 
     @Override
-    public void tick(long time) { }
+    public void tick(long time) {
+    }
 
     @Override
     public void updateNewViewer(@NotNull Player player) {

@@ -22,7 +22,7 @@ public class CachedFrameProvider implements FrameProvider {
         for (int i = 0; i <= ticks; i++) {
             var p = calculateTransform(i, t, type, animationTime);
             if (type == ModelLoader.AnimationType.TRANSLATION) p = p.div(4);
-            transform.put((short)i, p);
+            transform.put((short) i, p);
         }
 
         return transform;

@@ -8,9 +8,9 @@ import net.worldseed.multipart.mql.MQLPoint;
 import java.util.LinkedHashMap;
 
 public class Interpolator {
-    record StartEnd (BoneAnimationImpl.PointInterpolation s, BoneAnimationImpl.PointInterpolation e, double st, double et) {}
     private static StartEnd getStartEnd(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
-        if (transform.isEmpty()) return new StartEnd(new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), 0, 0);
+        if (transform.isEmpty())
+            return new StartEnd(new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), 0, 0);
         BoneAnimationImpl.PointInterpolation lastPoint = transform.get(transform.keySet().iterator().next());
         double lastTime = 0;
 
@@ -31,7 +31,7 @@ public class Interpolator {
         // Calculate angle between them.
         double cosHalfTheta = qa.w() * qb.w() + qa.x() * qb.x() + qa.y() * qb.y() + qa.z() * qb.z();
         // if qa=qb or qa=-qb then theta = 0 and we can return qa
-        if (Math.abs(cosHalfTheta) >= 1.0){
+        if (Math.abs(cosHalfTheta) >= 1.0) {
             double qmw = qa.w();
             double qmx = qa.x();
             double qmy = qa.y();
@@ -40,10 +40,10 @@ public class Interpolator {
         }
         // Calculate temporary values.
         double halfTheta = Math.acos(cosHalfTheta);
-        double sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta*cosHalfTheta);
+        double sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);
         // if theta = 180 degrees then result is not fully defined
         // we could rotate around any axis normal to qa or qb
-        if (Math.abs(sinHalfTheta) < 0.001){ // fabs is floating point absolute
+        if (Math.abs(sinHalfTheta) < 0.001) { // fabs is floating point absolute
             double qmw = (qa.w() * 0.5 + qb.w() * 0.5);
             double qmx = (qa.x() * 0.5 + qb.x() * 0.5);
             double qmy = (qa.y() * 0.5 + qb.y() * 0.5);
@@ -94,5 +94,9 @@ public class Interpolator {
         Vec pe = Vec.fromPoint(points.e.p().evaluate(time));
 
         return ps.lerp(pe, timePercent);
+    }
+
+    record StartEnd(BoneAnimationImpl.PointInterpolation s, BoneAnimationImpl.PointInterpolation e, double st,
+                    double et) {
     }
 }

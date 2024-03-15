@@ -18,48 +18,12 @@ public class BoneAnimationImpl implements BoneAnimation {
     private final ModelLoader.AnimationType type;
 
     private final FrameProvider frameProvider;
-
-    private boolean playing = false;
     private final int length;
-    private short tick = 0;
-
     private final String name;
+    private boolean playing = false;
+    private short tick = 0;
     private AnimationHandlerImpl.AnimationDirection direction = AnimationHandlerImpl.AnimationDirection.FORWARD;
 
-    public ModelLoader.AnimationType getType() {
-        return type;
-    }
-
-    public boolean isPlaying() {
-        return playing;
-    }
-
-    public void tick() {
-        if (playing) {
-            if (direction == AnimationHandlerImpl.AnimationDirection.FORWARD) {
-                tick++;
-                if (tick > length && length != 0) tick = 0;
-            } else if (direction == AnimationHandlerImpl.AnimationDirection.BACKWARD) {
-                tick--;
-                if (tick < 0 && length != 0) tick = (short) length;
-            }
-        }
-    }
-
-    public Point getTransform() {
-        if (!this.playing) return Pos.ZERO;
-        return this.frameProvider.getFrame(tick);
-    }
-
-    public Point getTransformAtTime(int time) {
-        return this.frameProvider.getFrame(time);
-    }
-
-    public void setDirection(AnimationHandlerImpl.AnimationDirection direction) {
-        this.direction = direction;
-    }
-
-    record PointInterpolation(MQLPoint p, String lerp) {}
     BoneAnimationImpl(String modelName, String animationName, String boneName, ModelBone bone, JsonElement keyframes, ModelLoader.AnimationType animationType, double length) {
         this.type = animationType;
         this.length = (int) (length * 20);
@@ -96,6 +60,38 @@ public class BoneAnimationImpl implements BoneAnimation {
         bone.addAnimation(this);
     }
 
+    public ModelLoader.AnimationType getType() {
+        return type;
+    }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
+    public void tick() {
+        if (playing) {
+            if (direction == AnimationHandlerImpl.AnimationDirection.FORWARD) {
+                tick++;
+                if (tick > length && length != 0) tick = 0;
+            } else if (direction == AnimationHandlerImpl.AnimationDirection.BACKWARD) {
+                tick--;
+                if (tick < 0 && length != 0) tick = (short) length;
+            }
+        }
+    }
+
+    public Point getTransform() {
+        if (!this.playing) return Pos.ZERO;
+        return this.frameProvider.getFrame(tick);
+    }
+
+    public Point getTransformAtTime(int time) {
+        return this.frameProvider.getFrame(time);
+    }
+
+    public void setDirection(AnimationHandlerImpl.AnimationDirection direction) {
+        this.direction = direction;
+    }
 
     private FrameProvider computeMathTransforms(JsonElement keyframes) {
         LinkedHashMap<Double, PointInterpolation> transform = new LinkedHashMap<>();
@@ -165,5 +161,8 @@ public class BoneAnimationImpl implements BoneAnimation {
 
     public String name() {
         return name;
+    }
+
+    record PointInterpolation(MQLPoint p, String lerp) {
     }
 }

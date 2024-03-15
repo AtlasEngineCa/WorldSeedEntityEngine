@@ -52,7 +52,7 @@ public class GemGolemControlGoal extends GoalSelector {
         }
 
         final Vec movement = passenger.getPosition().withPitch(0.3f).direction().normalize().mul(20).mul(forward);
-        ((GemGolemMob)entityCreature).facePoint(entityCreature.getPosition().add(movement));
+        ((GemGolemMob) entityCreature).facePoint(entityCreature.getPosition().add(movement));
         entityCreature.setVelocity(movement.mul(entityCreature.getAttribute(Attribute.MOVEMENT_SPEED).getValue()));
     }
 
@@ -71,7 +71,8 @@ public class GemGolemControlGoal extends GoalSelector {
     public void setJump(boolean jump) {
         if (jump && !jumpCooldown) {
             jumpCooldown = true;
-            animationHandler.playOnce("attack", (i) -> {});
+            animationHandler.playOnce("attack", (i) -> {
+            });
 
             MinecraftServer.getSchedulerManager().scheduleTask(() -> {
                 jumpCooldown = false;

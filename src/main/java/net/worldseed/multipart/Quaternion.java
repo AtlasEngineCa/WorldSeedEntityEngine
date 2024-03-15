@@ -50,23 +50,23 @@ final public class Quaternion {
     }
 
     public Point toEuler() {
-        double t0 = (x+z)*(x-z);        // x^2-z^2
-        double t1 = (w+y)*(w-y);        // w^2-y^2
-        double xx = 0.5*(t0+t1);        // 1/2 x of x'
-        double xy = x*y+w*z;            // 1/2 y of x'
-        double xz = w*y-x*z;            // 1/2 z of x'
-        double t  = xx*xx+xy*xy;        // cos(theta)^2
-        double yz = 2.0*(y*z+w*x);      // z of y'
+        double t0 = (x + z) * (x - z);        // x^2-z^2
+        double t1 = (w + y) * (w - y);        // w^2-y^2
+        double xx = 0.5 * (t0 + t1);        // 1/2 x of x'
+        double xy = x * y + w * z;            // 1/2 y of x'
+        double xz = w * y - x * z;            // 1/2 z of x'
+        double t = xx * xx + xy * xy;        // cos(theta)^2
+        double yz = 2.0 * (y * z + w * x);      // z of y'
 
         double vx, vy, vz;
 
-        vz = (float)Math.atan2(xy, xx);    // yaw   (psi)
-        vy = (float)Math.atan(xz/Math.sqrt(t)); // pitch (theta)
+        vz = (float) Math.atan2(xy, xx);    // yaw   (psi)
+        vy = (float) Math.atan(xz / Math.sqrt(t)); // pitch (theta)
 
         if (t != 0)
-            vx = (float)Math.atan2(yz, t1-t0);
+            vx = (float) Math.atan2(yz, t1 - t0);
         else
-            vx = (float)(2.0*Math.atan2(x,w) - Math.signum(xz)*vz);
+            vx = (float) (2.0 * Math.atan2(x, w) - Math.signum(xz) * vz);
 
         return ModelMath.toDegrees(new Vec(vx, vy, vz));
     }
@@ -78,7 +78,7 @@ final public class Quaternion {
         double z = this.w * q.z + this.x * q.y - this.y * q.x + this.z * q.w;
 
         return new Quaternion(
-            x,y,z,w
+                x, y, z, w
         );
     }
 
@@ -92,19 +92,19 @@ final public class Quaternion {
                 '}';
     }
 
-    Point threeAxisRot(double r11, double r12, double r21, double r31, double r32){
+    Point threeAxisRot(double r11, double r12, double r21, double r31, double r32) {
         double x = Math.atan2(r31, r32);
         double y = Math.asin(r21);
         double z = Math.atan2(r11, r12);
-        return new Vec(x,z,y);
+        return new Vec(x, z, y);
     }
 
     public Point toEulerYZX() {
         Quaternion q = this;
-        return ModelMath.toDegrees(threeAxisRot( -2*(q.x*q.z - q.w*q.y),
-                q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z,
-                2*(q.x*q.y + q.w*q.z),
-                -2*(q.y*q.z - q.w*q.x),
-                q.w*q.w - q.x*q.x + q.y*q.y - q.z*q.z));
+        return ModelMath.toDegrees(threeAxisRot(-2 * (q.x * q.z - q.w * q.y),
+                q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z,
+                2 * (q.x * q.y + q.w * q.z),
+                -2 * (q.y * q.z - q.w * q.x),
+                q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z));
     }
 }

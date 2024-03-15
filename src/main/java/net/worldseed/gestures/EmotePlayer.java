@@ -43,7 +43,8 @@ public abstract class EmotePlayer extends EntityCreature {
 
         this.animationHandler = new AnimationHandlerImpl(model) {
             @Override
-            protected void loadDefaultAnimations() {}
+            protected void loadDefaultAnimations() {
+            }
         };
 
         this.eventNode().addListener(EntityDamageEvent.class, (event) -> {
@@ -65,6 +66,7 @@ public abstract class EmotePlayer extends EntityCreature {
 
     /**
      * Loads the emotes into the animation handler
+     *
      * @param emotes Map containing the emote name, and emote data
      */
     public void loadEmotes(Map<String, JsonObject> emotes) {

@@ -9,7 +9,10 @@ import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelLoader;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -17,12 +20,12 @@ public class AnimationHandlerImpl implements AnimationHandler {
     private final GenericModel model;
     private final Task task;
 
-    Map<String, ModelAnimation> animations = new ConcurrentHashMap<>();
-    TreeMap<Integer, ModelAnimation> repeating = new TreeMap<>();
-    String playingOnce = null;
+    private final Map<String, ModelAnimation> animations = new ConcurrentHashMap<>();
+    private final TreeMap<Integer, ModelAnimation> repeating = new TreeMap<>();
+    private String playingOnce = null;
 
-    Map<String, Consumer<Void>> callbacks = new ConcurrentHashMap<>();
-    Map<String, Integer> callbackTimers = new ConcurrentHashMap<>();
+    private final Map<String, Consumer<Void>> callbacks = new ConcurrentHashMap<>();
+    private final Map<String, Integer> callbackTimers = new ConcurrentHashMap<>();
 
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
@@ -78,7 +81,8 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
     @Override
     public void playRepeat(String animation, AnimationDirection direction) throws IllegalArgumentException {
-        if (this.animationPriorities().get(animation) == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
+        if (this.animationPriorities().get(animation) == null)
+            throw new IllegalArgumentException("Animation " + animation + " does not exist");
         var modelAnimation = this.animations.get(animation);
 
         if (this.repeating.containsKey(this.animationPriorities().get(animation))
@@ -102,7 +106,8 @@ public class AnimationHandlerImpl implements AnimationHandler {
     }
 
     public void stopRepeat(String animation) throws IllegalArgumentException {
-        if (this.animationPriorities().get(animation) == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
+        if (this.animationPriorities().get(animation) == null)
+            throw new IllegalArgumentException("Animation " + animation + " does not exist");
 
         var modelAnimation = this.animations.get(animation);
 
@@ -126,7 +131,8 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
     @Override
     public void playOnce(String animation, AnimationDirection direction, Consumer<Void> cb) throws IllegalArgumentException {
-        if (this.animationPriorities().get(animation) == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
+        if (this.animationPriorities().get(animation) == null)
+            throw new IllegalArgumentException("Animation " + animation + " does not exist");
 
         var modelAnimation = this.animations.get(animation);
 
