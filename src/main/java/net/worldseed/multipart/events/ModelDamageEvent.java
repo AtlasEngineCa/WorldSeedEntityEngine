@@ -1,7 +1,6 @@
 package net.worldseed.multipart.events;
 
 import net.minestom.server.entity.damage.Damage;
-import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.trait.CancellableEvent;
 import net.minestom.server.sound.SoundEvent;
@@ -88,7 +87,7 @@ public class ModelDamageEvent implements ModelEvent, CancellableEvent {
     }
 
     @Override
-    public GenericModel getModel() {
+    public GenericModel model() {
         return model;
     }
 }

@@ -3,12 +3,7 @@ package net.worldseed.multipart.events;
 import net.worldseed.multipart.GenericModel;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelControlEvent implements ModelEvent {
-    private final GenericModel model;
-    private final float forward;
-    private final float sideways;
-    private final boolean jump;
-
+public record ModelControlEvent(GenericModel model, float forward, float sideways, boolean jump) implements ModelEvent {
     public ModelControlEvent(@NotNull GenericModel model, float forward, float sideways, boolean jump) {
         this.model = model;
         this.forward = forward;
@@ -17,20 +12,8 @@ public class ModelControlEvent implements ModelEvent {
     }
 
     @Override
-    public @NotNull GenericModel getModel() {
+    public @NotNull GenericModel model() {
         return model;
-    }
-
-    public float getForward() {
-        return forward;
-    }
-
-    public float getSideways() {
-        return sideways;
-    }
-
-    public boolean getJump() {
-        return jump;
     }
 }
 

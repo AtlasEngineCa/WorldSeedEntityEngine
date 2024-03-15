@@ -1,4 +1,4 @@
-package net.worldseed.resourcepack.entitymodel.generator;
+package net.worldseed.resourcepack.multipart.generator;
 
 import javax.json.*;
 import java.util.ArrayList;

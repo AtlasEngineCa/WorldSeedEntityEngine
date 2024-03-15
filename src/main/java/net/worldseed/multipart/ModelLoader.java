@@ -30,10 +30,6 @@ public class ModelLoader {
         loadedModels.clear();
     }
 
-    public enum AnimationType {
-        ROTATION, TRANSLATION
-    }
-
     public static JsonObject loadAnimations(String toLoad) {
         if (loadedAnimations.containsKey(toLoad))
             return loadedAnimations.get(toLoad);
@@ -42,11 +38,11 @@ public class ModelLoader {
 
         try {
             loadedAnimations1 = GSON
-                .fromJson(
-                    new InputStreamReader(new FileInputStream(ModelEngine.getAnimationPath(toLoad))),
-                    JsonObject.class
-                );
-        } catch(FileNotFoundException e) {
+                    .fromJson(
+                            new InputStreamReader(new FileInputStream(ModelEngine.getAnimationPath(toLoad))),
+                            JsonObject.class
+                    );
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             loadedAnimations1 = null;
         }
@@ -106,5 +102,9 @@ public class ModelLoader {
         }
 
         return res;
+    }
+
+    public enum AnimationType {
+        ROTATION, TRANSLATION
     }
 }

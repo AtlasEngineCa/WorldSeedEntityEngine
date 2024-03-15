@@ -29,18 +29,58 @@ import java.util.HashMap;
 import java.util.Optional;
 
 public class ModelEngine {
-    static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-
-    private final static HashMap<String, HashMap<String, ItemStack>> blockMappings = new HashMap<>();
     public final static HashMap<String, Point> offsetMappings = new HashMap<>();
     public final static HashMap<String, Point> diffMappings = new HashMap<>();
+    static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    private final static HashMap<String, HashMap<String, ItemStack>> blockMappings = new HashMap<>();
+    private static final EventListener<PlayerPacketEvent> playerListener = EventListener.of(PlayerPacketEvent.class, event -> {
+        if (event.getPacket() instanceof ClientSteerVehiclePacket packet) {
+            Entity ridingEntity = event.getPlayer().getVehicle();
+
+            if (ridingEntity instanceof BoneEntity bone) {
+                if (packet.flags() == 2) {
+                    ModelDismountEvent entityRideEvent = new ModelDismountEvent(bone.getModel(), event.getPlayer());
+                    EventDispatcher.call(entityRideEvent);
+                }
+
+                if (packet.flags() == 1) {
+                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), true));
+                }
+
+                if (packet.flags() == 0) {
+                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), false));
+                }
+            }
+        }
+    });
+    private static final EventListener<PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
+        if (event.getTarget() instanceof BoneEntity bone) {
+            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event.getPlayer());
+            EventDispatcher.call(modelInteractEvent);
+        }
+    });
+    private static final EventListener<EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
+        if (event.getEntity() instanceof BoneEntity bone) {
+            event.setCancelled(true);
+            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(bone.getModel(), event);
+            MinecraftServer.getGlobalEventHandler().call(modelDamageEvent);
+        }
+    });
     private static Path modelPath;
     private static Material modelMaterial = Material.MAGMA_CREAM;
 
+    static {
+        MinecraftServer.getGlobalEventHandler()
+                .addListener(playerListener)
+                .addListener(playerInteractListener)
+                .addListener(entityDamageListener);
+    }
+
     /**
      * Loads the model from the given path
+     *
      * @param mappingsData mappings file created by model parser
-     * @param modelPath path of the models
+     * @param modelPath    path of the models
      */
     public static void loadMappings(Reader mappingsData, Path modelPath) {
         JsonObject map = GSON.fromJson(mappingsData, JsonObject.class);
@@ -66,49 +106,6 @@ public class ModelEngine {
         });
     }
 
-    private static final EventListener<PlayerPacketEvent> playerListener = EventListener.of(PlayerPacketEvent.class, event -> {
-        if (event.getPacket() instanceof ClientSteerVehiclePacket packet) {
-            Entity ridingEntity = event.getPlayer().getVehicle();
-
-            if (ridingEntity instanceof BoneEntity bone) {
-                if (packet.flags() == 2) {
-                    ModelDismountEvent entityRideEvent = new ModelDismountEvent(bone.getModel(), event.getPlayer());
-                    EventDispatcher.call(entityRideEvent);
-                }
-
-                if (packet.flags() == 1) {
-                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), true));
-                }
-
-                if (packet.flags() == 0) {
-                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), false));
-                }
-            }
-        }
-    });
-
-    private static final EventListener<PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
-        if (event.getTarget() instanceof BoneEntity bone) {
-            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event.getPlayer());
-            EventDispatcher.call(modelInteractEvent);
-        }
-    });
-
-    private static final EventListener<EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
-        if (event.getEntity() instanceof BoneEntity bone) {
-            event.setCancelled(true);
-            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(bone.getModel(), event);
-            MinecraftServer.getGlobalEventHandler().call(modelDamageEvent);
-        }
-    });
-
-    static {
-        MinecraftServer.getGlobalEventHandler()
-                .addListener(playerListener)
-                .addListener(playerInteractListener)
-                .addListener(entityDamageListener);
-    }
-
     private static ItemStack generateBoneItem(int model_id) {
         return ItemStack.builder(modelMaterial).meta(itemMetaBuilder -> {
             itemMetaBuilder
@@ -127,6 +124,7 @@ public class ModelEngine {
     public static String getGeoPath(String id) {
         return modelPath + "/" + id + "/model.geo.json";
     }
+
     public static String getAnimationPath(String id) {
         return modelPath + "/" + id + "/model.animation.json";
     }

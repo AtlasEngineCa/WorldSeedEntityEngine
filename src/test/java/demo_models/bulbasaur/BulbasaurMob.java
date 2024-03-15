@@ -27,8 +27,8 @@ import java.util.Set;
 public class BulbasaurMob extends EntityCreature {
     private final BulbasaurModel model;
     private final AnimationHandler animationHandler;
-    private Task stateTask;
     boolean dying = false;
+    private Task stateTask;
 
     public BulbasaurMob(Instance instance, Pos pos) {
         super(EntityType.ZOMBIE);
@@ -97,7 +97,8 @@ public class BulbasaurMob extends EntityCreature {
     @Override
     public boolean damage(@NotNull DamageType type, float amount) {
         if (this.dying) return false;
-        this.animationHandler.playOnce("animation.bulbasaur.cry", (cb) -> {});
+        this.animationHandler.playOnce("animation.bulbasaur.cry", (cb) -> {
+        });
         this.model.setState("hit");
 
         if (stateTask != null && stateTask.isAlive()) stateTask.cancel();

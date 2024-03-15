@@ -11,14 +11,13 @@ import java.time.Duration;
 
 public class BulbasaurMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
+    private final Duration pathDuration = Duration.ofSeconds(1);
+    private final int minDistance = 3;
+    private final int maxDistance = 40;
     private Entity target = null;
     private Pos lastTargetPos = Pos.ZERO;
     private boolean forceEnd;
-    private final Duration pathDuration = Duration.ofSeconds(1);
     private long lastUpdateTime;
-
-    private final int minDistance = 3;
-    private final int maxDistance = 40;
 
     public BulbasaurMoveGoal(@NotNull BulbasaurMob entityCreature, AnimationHandler handler) {
         super(entityCreature);

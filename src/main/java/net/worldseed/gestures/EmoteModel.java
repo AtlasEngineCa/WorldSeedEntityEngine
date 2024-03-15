@@ -27,21 +27,21 @@ public class EmoteModel extends GenericModelImpl {
     private static final JsonObject MODEL_JSON;
 
     private static final Map<String, Point> BONE_OFFSETS = Map.ofEntries(
-            Map.entry("_head", new Vec(0.0,5.616,0.0)),
-            Map.entry("body", new Vec(0.0,5.616,0.0)),
-            Map.entry("right_arm", new Vec(1.17,5.148,0.0)),
-            Map.entry("left_arm", new Vec(-1.17,5.148,0.0)),
-            Map.entry("right_leg", new Vec(0.4446,2.808,0.0)),
-            Map.entry("left_leg", new Vec(-0.4446,2.808,0.0))
+            Map.entry("_head", new Vec(0.0, 5.616, 0.0)),
+            Map.entry("body", new Vec(0.0, 5.616, 0.0)),
+            Map.entry("right_arm", new Vec(1.17, 5.148, 0.0)),
+            Map.entry("left_arm", new Vec(-1.17, 5.148, 0.0)),
+            Map.entry("right_leg", new Vec(0.4446, 2.808, 0.0)),
+            Map.entry("left_leg", new Vec(-0.4446, 2.808, 0.0))
     );
 
     private static final Map<String, Point> BONE_DIFFS = Map.ofEntries(
-            Map.entry("_head", new Vec(8.936,8.0,8.936)),
-            Map.entry("body", new Vec(8.936,10.808,8.468)),
-            Map.entry("right_arm", new Vec(8.234,10.34,8.468)),
-            Map.entry("left_arm", new Vec(8.702,10.34,8.468)),
-            Map.entry("right_leg", new Vec(8.4446,10.808,8.468)),
-            Map.entry("left_leg", new Vec(8.4914,10.808,8.468))
+            Map.entry("_head", new Vec(8.936, 8.0, 8.936)),
+            Map.entry("body", new Vec(8.936, 10.808, 8.468)),
+            Map.entry("right_arm", new Vec(8.234, 10.34, 8.468)),
+            Map.entry("left_arm", new Vec(8.702, 10.34, 8.468)),
+            Map.entry("right_leg", new Vec(8.4446, 10.808, 8.468)),
+            Map.entry("left_leg", new Vec(8.4914, 10.808, 8.468))
     );
 
     private static final String[] SPAWN_ORDER = {
@@ -60,6 +60,10 @@ public class EmoteModel extends GenericModelImpl {
     private final List<ModelBone> standBones = new ArrayList<>();
     private final PlayerSkin skin;
 
+    public EmoteModel(PlayerSkin skin) {
+        this.skin = skin;
+    }
+
     @Override
     public boolean addViewer(@NotNull Player player) {
         standBones.forEach(bone -> bone.addViewer(player));
@@ -70,10 +74,6 @@ public class EmoteModel extends GenericModelImpl {
     public boolean removeViewer(@NotNull Player player) {
         standBones.forEach(bone -> bone.removeViewer(player));
         return super.removeViewer(player);
-    }
-
-    public EmoteModel(PlayerSkin skin) {
-        this.skin = skin;
     }
 
     @Override
@@ -122,7 +122,7 @@ public class EmoteModel extends GenericModelImpl {
     private void setHeads(Map<Integer, ItemStack> heads) {
         for (int i = 0; i < SPAWN_ORDER.length; ++i) {
             LivingEntity f = standBones.get(i).getEntity();
-            f.setItemInMainHand(heads.get(i+1));
+            f.setItemInMainHand(heads.get(i + 1));
         }
     }
 

@@ -16,44 +16,63 @@ import java.util.concurrent.CompletableFuture;
 @ApiStatus.Internal
 public interface ModelBone {
     CompletableFuture<Void> spawn(Instance instance, Pos position);
+
     Point applyTransform(Point p);
+
     void draw();
+
     void destroy();
 
     Point simulateTransform(Point p, String animation, int time);
+
     Point simulateRotation(String animation, int time);
 
     void setState(String state);
-    void setParent(ModelBone parent);
 
     String getName();
+
     BoneEntity getEntity();
+
     Point getOffset();
+
     Point getPosition();
+
     ModelBone getParent();
+
+    void setParent(ModelBone parent);
+
     Point getPropogatedRotation();
 
     Point calculateRotation(Point p, Point rotation, Point pivot);
+
     Quaternion calculateFinalAngle(Quaternion q);
+
     Pos calculatePosition();
+
     Point calculateRotation();
 
     void addChild(ModelBone child);
+
     void addAnimation(BoneAnimation animation);
 
     void addViewer(Player player);
+
     void removeViewer(Player player);
 
     void setScale(float scale);
 
     void removeGlowing();
+
     void setGlowing(RGBLike color);
 
     void removeGlowing(Player player);
+
     void setGlowing(Player player, RGBLike color);
 
     void attachModel(GenericModel model);
+
     List<GenericModel> getAttachedModels();
+
     void detachModel(GenericModel model);
 
     void setGlobalRotation(double rotation);

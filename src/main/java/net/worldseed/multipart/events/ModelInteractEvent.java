@@ -21,7 +21,7 @@ public class ModelInteractEvent implements ModelEvent {
     }
 
     @Override
-    public @NotNull GenericModel getModel() {
+    public @NotNull GenericModel model() {
         return model;
     }
 

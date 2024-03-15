@@ -20,40 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PackEvent {
-    static class PackHandler implements HttpHandler {
-        private final File zipFile;
-        private final String expectedHash;
-
-        public PackHandler(File zipFile, String expectedHash) {
-            this.zipFile = zipFile;
-            this.expectedHash = expectedHash;
-        }
-
-        public void handle(HttpExchange t) throws IOException {
-            String requestHash = getHashFromQuery(t.getRequestURI().getQuery());
-            if (expectedHash.equals(requestHash)) {
-                t.sendResponseHeaders(200, zipFile.length());
-                OutputStream os = t.getResponseBody();
-                Files.copy(zipFile.toPath(), os);
-                os.close();
-            } else {
-                t.sendResponseHeaders(404, 0); // Invalid hash, return 404
-            }
-        }
-
-        private String getHashFromQuery(String query) {
-            if (query != null && !query.isEmpty()) {
-                Map<String, String> queryMap = new HashMap<>();
-                for (String param : query.split("&")) {
-                    String[] pair = param.split("=");
-                    queryMap.put(pair[0], pair[1]);
-                }
-                return queryMap.get("hash");
-            }
-            return null;
-        }
-    }
-
     private static void startHttpServer(File zipFile, String hash) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/pack", new PackHandler(zipFile, hash));
@@ -87,5 +53,39 @@ public class PackEvent {
                 event.getPlayer().sendResourcePacks(resourcePackInfo);
             }, TaskSchedule.tick(20), TaskSchedule.stop());
         });
+    }
+
+    static class PackHandler implements HttpHandler {
+        private final File zipFile;
+        private final String expectedHash;
+
+        public PackHandler(File zipFile, String expectedHash) {
+            this.zipFile = zipFile;
+            this.expectedHash = expectedHash;
+        }
+
+        public void handle(HttpExchange t) throws IOException {
+            String requestHash = getHashFromQuery(t.getRequestURI().getQuery());
+            if (expectedHash.equals(requestHash)) {
+                t.sendResponseHeaders(200, zipFile.length());
+                OutputStream os = t.getResponseBody();
+                Files.copy(zipFile.toPath(), os);
+                os.close();
+            } else {
+                t.sendResponseHeaders(404, 0); // Invalid hash, return 404
+            }
+        }
+
+        private String getHashFromQuery(String query) {
+            if (query != null && !query.isEmpty()) {
+                Map<String, String> queryMap = new HashMap<>();
+                for (String param : query.split("&")) {
+                    String[] pair = param.split("=");
+                    queryMap.put(pair[0], pair[1]);
+                }
+                return queryMap.get("hash");
+            }
+            return null;
+        }
     }
 }

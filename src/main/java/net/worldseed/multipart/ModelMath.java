@@ -52,6 +52,7 @@ public class ModelMath {
     static Point toRadians(Point vector) {
         return vector.mul(DEGREE);
     }
+
     static Point toDegrees(Point vector) {
         return vector.mul(RADIAN);
     }

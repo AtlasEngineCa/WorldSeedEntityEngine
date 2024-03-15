@@ -1,15 +1,14 @@
-package net.worldseed.resourcepack.entitymodel.generator;
+package net.worldseed.resourcepack.multipart.generator;
 
-import com.google.gson.JsonElement;
-
-import javax.json.*;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TextureGenerator {
-    public record TextureData(byte[] value, int width, int height, String name, String id, JsonObject mcmeta) {}
-
     public static Map<String, TextureData> generate(JsonArray textures, Map<String, JsonObject> mcmetas, int width, int height) {
         Map<String, TextureData> textureMap = new LinkedHashMap<>();
 
@@ -31,5 +30,8 @@ public class TextureGenerator {
         }
 
         return textureMap;
+    }
+
+    public record TextureData(byte[] value, int width, int height, String name, String id, JsonObject mcmeta) {
     }
 }

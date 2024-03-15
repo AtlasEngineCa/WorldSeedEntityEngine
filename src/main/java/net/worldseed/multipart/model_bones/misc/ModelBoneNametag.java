@@ -15,6 +15,15 @@ import java.util.List;
 
 public class ModelBoneNametag extends ModelBoneImpl {
 
+    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity, float scale) {
+        super(pivot, name, rotation, model, scale);
+
+        if (this.offset != null && nametagEntity != null) {
+            this.stand = nametagEntity;
+            this.stand.setTag(Tag.String("WSEE"), "nametag");
+        }
+    }
+
     @Override
     public void addViewer(Player player) {
         if (this.stand != null) this.stand.addViewer(player);
@@ -64,17 +73,9 @@ public class ModelBoneNametag extends ModelBoneImpl {
 
     }
 
-    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity, float scale) {
-        super(pivot, name, rotation, model, scale);
-
-        if (this.offset != null && nametagEntity != null) {
-            this.stand = nametagEntity;
-            this.stand.setTag(Tag.String("WSEE"), "nametag");
-        }
-    }
-
     @Override
-    public void setState(String state) { }
+    public void setState(String state) {
+    }
 
     @Override
     public Point getPosition() {

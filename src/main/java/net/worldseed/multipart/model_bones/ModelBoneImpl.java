@@ -19,20 +19,34 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class ModelBoneImpl implements ModelBone {
     protected final HashMap<String, ItemStack> items;
-    final Point diff;
     protected final Point pivot;
     protected final String name;
-    protected float scale;
-
     protected final List<BoneAnimation> allAnimations = new ArrayList<>();
-
-    protected Point offset;
-    protected Point rotation;
-    ModelBone parent;
-    protected BoneEntity stand;
-
     protected final ArrayList<ModelBone> children = new ArrayList<>();
     protected final GenericModel model;
+    private final Point diff;
+    protected float scale;
+    protected Point offset;
+    protected Point rotation;
+    protected BoneEntity stand;
+    private ModelBone parent;
+
+    public ModelBoneImpl(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        this.name = name;
+        this.rotation = rotation;
+        this.model = model;
+
+        this.diff = model.getDiff(name);
+        this.offset = model.getOffset(name);
+
+        if (this.diff != null)
+            this.pivot = pivot.add(this.diff);
+        else
+            this.pivot = pivot;
+
+        this.items = ModelEngine.getItems(model.getId(), name);
+        this.scale = scale;
+    }
 
     @Override
     public BoneEntity getEntity() {
@@ -52,23 +66,6 @@ public abstract class ModelBoneImpl implements ModelBone {
     @Override
     public String getName() {
         return this.name;
-    }
-
-    public ModelBoneImpl(Point pivot, String name, Point rotation, GenericModel model, float scale) {
-        this.name = name;
-        this.rotation = rotation;
-        this.model = model;
-
-        this.diff = model.getDiff(name);
-        this.offset = model.getOffset(name);
-
-        if (this.diff != null)
-            this.pivot = pivot.add(this.diff);
-        else
-            this.pivot = pivot;
-
-        this.items = ModelEngine.getItems(model.getId(), name);
-        this.scale = scale;
     }
 
     @Override
@@ -176,6 +173,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     public void addAnimation(BoneAnimation animation) {
         this.allAnimations.add(animation);
     }
+
     public void addChild(ModelBone child) {
         this.children.add(child);
     }
@@ -205,5 +203,6 @@ public abstract class ModelBoneImpl implements ModelBone {
     }
 
     public abstract Pos calculatePosition();
+
     public abstract Point calculateRotation();
 }

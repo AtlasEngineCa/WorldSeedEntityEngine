@@ -29,8 +29,24 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneViewable {
-    private Entity baseStand;
     private final List<GenericModel> attached = new ArrayList<>();
+    private Entity baseStand;
+
+    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
+
+        if (this.offset != null) {
+            this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model);
+
+            var itemMeta = (ItemDisplayMeta) this.stand.getEntityMeta();
+
+            itemMeta.setScale(new Vec(scale, scale, scale));
+            itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
+            itemMeta.setTransformationInterpolationDuration(2);
+            itemMeta.setPosRotInterpolationDuration(2);
+            itemMeta.setViewRange(1000);
+        }
+    }
 
     @Override
     public void addViewer(Player player) {
@@ -77,7 +93,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public void removeGlowing(Player player) {
-        if(this.stand == null)
+        if (this.stand == null)
             return;
 
         EntityMetaDataPacket oldMetadataPacket = this.stand.getMetadataPacket();
@@ -96,7 +112,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public void setGlowing(Player player, RGBLike color) {
-        if(this.stand == null)
+        if (this.stand == null)
             return;
 
         int rgb = 0;
@@ -146,22 +162,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         if (this.stand != null) this.stand.removeViewer(player);
         if (this.baseStand != null) this.baseStand.removeViewer(player);
         this.attached.forEach(model -> model.removeViewer(player));
-    }
-
-    public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, float scale) {
-        super(pivot, name, rotation, model, scale);
-
-        if (this.offset != null) {
-            this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model);
-
-            var itemMeta = (ItemDisplayMeta) this.stand.getEntityMeta();
-
-            itemMeta.setScale(new Vec(scale, scale, scale));
-            itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
-            itemMeta.setTransformationInterpolationDuration(2);
-            itemMeta.setPosRotInterpolationDuration(2);
-            itemMeta.setViewRange(1000);
-        }
     }
 
     @Override

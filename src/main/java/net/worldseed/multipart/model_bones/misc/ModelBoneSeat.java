@@ -19,6 +19,16 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModelBoneSeat extends ModelBoneImpl {
 
+    public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, float scale) {
+        super(pivot, name, rotation, model, scale);
+
+        if (this.offset != null) {
+            this.stand = new BoneEntity(EntityType.ZOMBIE, model);
+            this.stand.setTag(Tag.String("WSEE"), "seat");
+            stand.setInvisible(true);
+        }
+    }
+
     @Override
     public void addViewer(Player player) {
         if (this.stand != null) this.stand.addViewer(player);
@@ -69,18 +79,9 @@ public class ModelBoneSeat extends ModelBoneImpl {
 
     }
 
-    public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, float scale) {
-        super(pivot, name, rotation, model, scale);
-
-        if (this.offset != null) {
-            this.stand = new BoneEntity(EntityType.ZOMBIE, model);
-            this.stand.setTag(Tag.String("WSEE"), "seat");
-            stand.setInvisible(true);
-        }
-    }
-
     @Override
-    public void setState(String state) { }
+    public void setState(String state) {
+    }
 
     @Override
     public Point getPosition() {
@@ -126,7 +127,7 @@ public class ModelBoneSeat extends ModelBoneImpl {
 
         Pos found = calculatePosition();
 
-        // TODO: I think this sends two packets?
+        // TODO: needed by minestom?
         stand.setView(found.yaw(), found.pitch());
         stand.teleport(found);
     }

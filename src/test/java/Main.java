@@ -54,7 +54,8 @@ public class Main {
 
         try {
             FileUtils.deleteDirectory(BASE_PATH.resolve("resourcepack").toFile());
-        } catch (IllegalArgumentException ignored) { }
+        } catch (IllegalArgumentException ignored) {
+        }
 
         ModelEngine.setModelMaterial(Material.MAGMA_CREAM);
 

@@ -1,4 +1,4 @@
-package net.worldseed.resourcepack.entitymodel.generator;
+package net.worldseed.resourcepack.multipart.generator;
 
 import net.minestom.server.coordinate.Vec;
 import net.worldseed.resourcepack.PackBuilder;
@@ -47,8 +47,8 @@ public class GeoGenerator {
                 if (cubeRotation.z() != 0) rotationCount++;
 
                 if (rotationCount > 1 || (cubeRotation.x() != 45 && cubeRotation.x() != -22.5 && cubeRotation.x() != 22.5 && cubeRotation.x() != -45 && cubeRotation.x() != 0)
-                    || (cubeRotation.y() != 45 && cubeRotation.y() != -22.5 && cubeRotation.y() != 22.5 && cubeRotation.y() != -45 && cubeRotation.y() != 0)
-                    || (cubeRotation.z() != 45 && cubeRotation.z() != -22.5 && cubeRotation.z() != 22.5 && cubeRotation.z() != -45 && cubeRotation.z() != 0)) {
+                        || (cubeRotation.y() != 45 && cubeRotation.y() != -22.5 && cubeRotation.y() != 22.5 && cubeRotation.y() != -45 && cubeRotation.y() != 0)
+                        || (cubeRotation.z() != 45 && cubeRotation.z() != -22.5 && cubeRotation.z() != 22.5 && cubeRotation.z() != -45 && cubeRotation.z() != 0)) {
                     JsonObjectBuilder clonedCube = Json.createObjectBuilder(cube)
                             .add("rotation", Json.createArrayBuilder().add(0).add(0).add(0).build())
                             .add("name", name + "_fix_" + UUID.randomUUID());
@@ -71,10 +71,10 @@ public class GeoGenerator {
         }
 
         JsonObjectBuilder thisEl = Json.createObjectBuilder()
-            .add("name", name)
-            .add("pivot", pivot)
-            .add("rotation", rotation)
-            .add("cubes", cubes);
+                .add("name", name)
+                .add("pivot", pivot)
+                .add("rotation", rotation)
+                .add("cubes", cubes);
 
         if (parent != null) {
             thisEl.add("parent", parent);
@@ -127,8 +127,8 @@ public class GeoGenerator {
         JsonArray origin = el.getJsonArray("origin");
         origin = Json.createArrayBuilder()
                 .add(-Math.round(origin.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
-                .add(Math.round(origin.getJsonNumber(1).doubleValue() * 10000  * scale) / 10000.0)
-                .add(Math.round(origin.getJsonNumber(2).doubleValue() * 10000  * scale) / 10000.0)
+                .add(Math.round(origin.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(origin.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
                 .build();
 
         JsonArray from = PackBuilder.applyInflate(el.getJsonArray("from"), -inflate);
@@ -159,9 +159,9 @@ public class GeoGenerator {
             rotation = Json.createArrayBuilder().add(0).add(0).add(0).build();
         } else {
             JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-            arrayBuilder.add(-Math.round(rotation.getJsonNumber(0).doubleValue()*100)/100.0);
-            arrayBuilder.add(-Math.round(rotation.getJsonNumber(1).doubleValue()*100)/100.0);
-            arrayBuilder.add(Math.round(rotation.getJsonNumber(2).doubleValue()*100)/100.0);
+            arrayBuilder.add(-Math.round(rotation.getJsonNumber(0).doubleValue() * 100) / 100.0);
+            arrayBuilder.add(-Math.round(rotation.getJsonNumber(1).doubleValue() * 100) / 100.0);
+            arrayBuilder.add(Math.round(rotation.getJsonNumber(2).doubleValue() * 100) / 100.0);
             rotation = arrayBuilder.build();
         }
 
@@ -189,9 +189,9 @@ public class GeoGenerator {
             JsonArray shape = uv.asJsonArray();
 
             JsonArray size = Json.createArrayBuilder()
-                .add(shape.getJsonNumber(2).doubleValue() - shape.getJsonNumber(0).doubleValue())
-                .add(shape.getJsonNumber(3).doubleValue() - shape.getJsonNumber(1).doubleValue())
-                .build();
+                    .add(shape.getJsonNumber(2).doubleValue() - shape.getJsonNumber(0).doubleValue())
+                    .add(shape.getJsonNumber(3).doubleValue() - shape.getJsonNumber(1).doubleValue())
+                    .build();
 
             JsonArray from = Json.createArrayBuilder()
                     .add(shape.getJsonNumber(0).doubleValue())
@@ -200,14 +200,14 @@ public class GeoGenerator {
 
             if (invert) {
                 from = Json.createArrayBuilder()
-                    .add(from.getJsonNumber(0).doubleValue() + size.getJsonNumber(0).doubleValue())
-                    .add(from.getJsonNumber(1).doubleValue() + size.getJsonNumber(1).doubleValue())
-                    .build();
+                        .add(from.getJsonNumber(0).doubleValue() + size.getJsonNumber(0).doubleValue())
+                        .add(from.getJsonNumber(1).doubleValue() + size.getJsonNumber(1).doubleValue())
+                        .build();
 
                 size = Json.createArrayBuilder()
-                    .add(-size.getJsonNumber(0).doubleValue())
-                    .add(-size.getJsonNumber(1).doubleValue())
-                    .build();
+                        .add(-size.getJsonNumber(0).doubleValue())
+                        .add(-size.getJsonNumber(1).doubleValue())
+                        .build();
             }
 
             String texture = "#0";
@@ -216,15 +216,15 @@ public class GeoGenerator {
             var n = entry.getValue().asJsonObject().get("texture");
             if (n != null && n.getValueType() != JsonValue.ValueType.NULL) {
                 int nInt = ((JsonNumber) n).intValue();
-                if (textures.values().size() <= nInt)  texture = "#" + nInt;
+                if (textures.values().size() <= nInt) texture = "#" + nInt;
                 else texture = textures.values().toArray(new TextureGenerator.TextureData[0])[nInt].id();
             }
 
             JsonObject faceParsed = Json.createObjectBuilder()
-                .add("uv", from)
-                .add("uv_size", size)
-                .add("texture", texture)
-                .build();
+                    .add("uv", from)
+                    .add("uv_size", size)
+                    .add("texture", texture)
+                    .build();
 
             res.add(face, faceParsed);
         }
