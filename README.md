@@ -79,7 +79,7 @@ The lastest version number can be found [here](https://reposilite.worldseed.onli
 Add the following VM arguments to your run configuration
 
 ```
---add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+--add-opens java.base/java.lang=ALL-UNNAMED
 ```
 
 This is required for the molang compiler library.
