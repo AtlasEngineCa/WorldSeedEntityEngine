@@ -125,6 +125,11 @@ public class ModelBonePartArmourStandHand extends ModelBoneImpl implements Model
         return q.toEuler();
     }
 
+    @Override
+    public Point calculateScale() {
+        return Vec.ZERO;
+    }
+
     public void draw() {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;

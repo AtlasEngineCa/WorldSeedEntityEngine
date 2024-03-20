@@ -96,6 +96,20 @@ public class Interpolator {
         return ps.lerp(pe, timePercent);
     }
 
+    public static Point interpolateScale(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
+        StartEnd points = getStartEnd(time, transform, animationTime);
+
+        double timeDiff = points.et - points.st;
+
+        if (timeDiff == 0) return points.s.p().evaluate(time);
+        double timePercent = (time - points.st) / timeDiff;
+
+        Vec ps = Vec.fromPoint(points.s.p().evaluate(time));
+        Vec pe = Vec.fromPoint(points.e.p().evaluate(time));
+
+        return ps.lerp(pe, timePercent);
+    }
+
     record StartEnd(BoneAnimationImpl.PointInterpolation s, BoneAnimationImpl.PointInterpolation e, double st,
                     double et) {
     }

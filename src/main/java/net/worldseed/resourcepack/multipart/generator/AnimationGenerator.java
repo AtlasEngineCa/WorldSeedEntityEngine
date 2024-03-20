@@ -34,6 +34,7 @@ public class AnimationGenerator {
 
                 List<Map.Entry<Double, JsonObject>> rotation = new ArrayList<>();
                 List<Map.Entry<Double, JsonObject>> position = new ArrayList<>();
+                List<Map.Entry<Double, JsonObject>> scale = new ArrayList<>();
 
                 JsonArray keyframes = animator.getJsonArray("keyframes");
 
@@ -50,18 +51,20 @@ public class AnimationGenerator {
                             .add("lerp_mode", interpolation)
                             .build();
 
-                    if (channel.equals("rotation")) {
-                        rotation.add(Map.entry(time, built));
-                    } else if (channel.equals("position")) {
-                        position.add(Map.entry((time), built));
+                    switch (channel) {
+                        case "rotation" -> rotation.add(Map.entry(time, built));
+                        case "position" -> position.add(Map.entry((time), built));
+                        case "scale" -> scale.add(Map.entry((time), built));
                     }
                 }
 
                 rotation.sort(Map.Entry.comparingByKey());
                 position.sort(Map.Entry.comparingByKey());
+                scale.sort(Map.Entry.comparingByKey());
 
                 JsonObjectBuilder rotationJson = Json.createObjectBuilder();
                 JsonObjectBuilder positionJson = Json.createObjectBuilder();
+                JsonObjectBuilder scaleJson = Json.createObjectBuilder();
 
                 for (var rotation_ : rotation) {
                     rotationJson.add(rotation_.getKey().toString(), rotation_.getValue());
@@ -71,9 +74,14 @@ public class AnimationGenerator {
                     positionJson.add(position_.getKey().toString(), position_.getValue());
                 }
 
+                for (var scale_ : scale) {
+                    scaleJson.add(scale_.getKey().toString(), scale_.getValue());
+                }
+
                 JsonObject built = Json.createObjectBuilder()
                         .add("rotation", rotationJson)
                         .add("position", positionJson)
+                        .add("scale", scaleJson)
                         .build();
 
                 bones.add(boneName, built);

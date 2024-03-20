@@ -43,13 +43,21 @@ public interface ModelBone {
 
     Point getPropogatedRotation();
 
-    Point calculateRotation(Point p, Point rotation, Point pivot);
+    Point getPropogatedScale();
 
-    Quaternion calculateFinalAngle(Quaternion q);
+    Point calculateScale();
 
     Pos calculatePosition();
 
+    Point calculateRotation(Point p, Point rotation, Point pivot);
+
+    Point calculateScale(Point p, Point scale, Point pivot);
+
     Point calculateRotation();
+
+    Point calculateFinalScale(Point p);
+
+    Quaternion calculateFinalAngle(Quaternion q);
 
     void addChild(ModelBone child);
 
@@ -59,7 +67,7 @@ public interface ModelBone {
 
     void removeViewer(Player player);
 
-    void setScale(float scale);
+    void setGlobalScale(float scale);
 
     void removeGlowing();
 
@@ -76,4 +84,6 @@ public interface ModelBone {
     void detachModel(GenericModel model);
 
     void setGlobalRotation(double rotation);
+
+    Point simulateScale(String animation, int time);
 }

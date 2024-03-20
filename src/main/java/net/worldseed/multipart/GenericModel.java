@@ -145,7 +145,7 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
 
     void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction);
 
-    void setScale(float scale);
+    void setGlobalScale(float scale);
 
     void removeGlowing();
 

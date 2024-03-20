@@ -56,16 +56,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
-    public void setScale(float scale) {
-        super.setScale(scale);
-
-        if (this.stand != null) {
-            var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
-            meta.setScale(new Vec(scale, scale, scale));
-        }
-    }
-
-    @Override
     public void removeGlowing() {
         if (this.stand != null) {
             var meta = (ItemDisplayMeta) this.stand.getEntityMeta();
@@ -190,6 +180,11 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         return q.toEuler();
     }
 
+    @Override
+    public Point calculateScale() {
+        return calculateFinalScale(getPropogatedScale());
+    }
+
     public void draw() {
         if (this.baseStand != null && !baseStand.getPosition().samePoint(model.getPosition())) {
             this.baseStand.teleport(Pos.fromPoint(model.getPosition()));
@@ -200,12 +195,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
         if (this.stand != null) {
             var position = calculatePositionInternal();
+            var scale = calculateScale();
 
             if (this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
                 Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
 
                 meta.setNotifyAboutChanges(false);
                 meta.setTransformationInterpolationStartDelta(0);
+                meta.setScale(new Vec(scale.x() * this.scale, scale.y() * this.scale, scale.z() * this.scale));
                 meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
                 meta.setTranslation(position);
                 meta.setNotifyAboutChanges(true);

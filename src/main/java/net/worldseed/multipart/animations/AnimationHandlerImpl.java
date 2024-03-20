@@ -56,6 +56,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
             JsonElement animationRotation = boneEntry.getValue().getAsJsonObject().get("rotation");
             JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
+            JsonElement animationScale = boneEntry.getValue().getAsJsonObject().get("scale");
 
             if (animationRotation != null) {
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationRotation, ModelLoader.AnimationType.ROTATION, length);
@@ -63,6 +64,10 @@ public class AnimationHandlerImpl implements AnimationHandler {
             }
             if (animationPosition != null) {
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationPosition, ModelLoader.AnimationType.TRANSLATION, length);
+                animationSet.add(boneAnimation);
+            }
+            if (animationScale != null) {
+                BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationScale, ModelLoader.AnimationType.SCALE, length);
                 animationSet.add(boneAnimation);
             }
         }

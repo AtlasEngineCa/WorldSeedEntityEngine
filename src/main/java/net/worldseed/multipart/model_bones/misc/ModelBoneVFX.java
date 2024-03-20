@@ -75,6 +75,11 @@ public class ModelBoneVFX extends ModelBoneImpl {
         return Vec.ZERO;
     }
 
+    @Override
+    public Point calculateScale() {
+        return Vec.ZERO;
+    }
+
     public void draw() {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
