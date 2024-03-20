@@ -26,6 +26,7 @@ public class ComputedFrameProvider implements FrameProvider {
         var point = first.p().evaluate(toInterpolate);
 
         if (type == ModelLoader.AnimationType.ROTATION) return point.mul(RotationMul);
-        return point.mul(TranslationMul).mul(0.25);
+        if (type == ModelLoader.AnimationType.TRANSLATION) return point.mul(TranslationMul).mul(0.25);
+        return point;
     }
 }

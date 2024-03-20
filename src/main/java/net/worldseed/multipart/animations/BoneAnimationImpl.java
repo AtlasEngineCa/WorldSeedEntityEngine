@@ -32,8 +32,12 @@ public class BoneAnimationImpl implements BoneAnimation {
         FrameProvider found;
         if (this.type == ModelLoader.AnimationType.ROTATION) {
             found = ModelLoader.getCacheRotation(modelName, bone.getName() + "/" + animationName);
-        } else {
+        } else if (this.type == ModelLoader.AnimationType.TRANSLATION) {
             found = ModelLoader.getCacheTranslation(modelName, bone.getName() + "/" + animationName);
+        } else if (this.type == ModelLoader.AnimationType.SCALE) {
+            found = ModelLoader.getCacheScale(modelName, bone.getName() + "/" + animationName);
+        } else {
+            found = null;
         }
 
         if (found == null) {
@@ -42,16 +46,20 @@ public class BoneAnimationImpl implements BoneAnimation {
 
                 if (this.type == ModelLoader.AnimationType.ROTATION) {
                     ModelLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
-                } else {
+                } else if (this.type == ModelLoader.AnimationType.TRANSLATION) {
                     ModelLoader.addToTranslationCache(modelName, bone.getName() + "/" + animationName, found);
+                } else if (this.type == ModelLoader.AnimationType.SCALE) {
+                    ModelLoader.addToScaleCache(modelName, bone.getName() + "/" + animationName, found);
                 }
             } else {
                 found = computeMathTransforms(keyframes);
 
                 if (this.type == ModelLoader.AnimationType.ROTATION) {
                     ModelLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
-                } else {
+                } else if (this.type == ModelLoader.AnimationType.TRANSLATION) {
                     ModelLoader.addToTranslationCache(modelName, bone.getName() + "/" + animationName, found);
+                } else if (this.type == ModelLoader.AnimationType.SCALE) {
+                    ModelLoader.addToScaleCache(modelName, bone.getName() + "/" + animationName, found);
                 }
             }
         }

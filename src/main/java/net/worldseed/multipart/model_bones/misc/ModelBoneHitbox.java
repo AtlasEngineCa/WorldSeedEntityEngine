@@ -32,11 +32,13 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     private static final Tag<String> WSEE = Tag.String("WSEE");
     private final JsonArray cubes;
     private final Collection<ModelBoneHitbox> illegitimateChildren = new ConcurrentLinkedDeque<>();
+    private final Point orgPivot;
     private Task positionTask;
 
     public ModelBoneHitbox(Point pivot, String name, Point rotation, GenericModel model, Point newOffset, double sizeX, double sizeY, JsonArray cubes, boolean parent, float scale) {
         super(pivot, name, rotation, model, scale);
 
+        this.orgPivot = pivot;
         this.cubes = cubes;
 
         if (parent) {
@@ -82,13 +84,18 @@ public class ModelBoneHitbox extends ModelBoneImpl {
     }
 
     @Override
-    public void setScale(float scale) {
-        super.setScale(scale);
+    public void setGlobalScale(float scale) {
+        super.setGlobalScale(scale);
 
-        this.destroy();
+        illegitimateChildren.forEach(ModelBone::destroy);
         this.illegitimateChildren.clear();
-        generateStands(this.cubes, this.pivot, this.name, this.rotation, this.model);
-        this.illegitimateChildren.forEach(modelBone -> modelBone.spawn(model.getInstance(), model.getPosition()));
+
+        generateStands(this.cubes, orgPivot, this.name, this.rotation, this.model);
+        this.illegitimateChildren.forEach(modelBone -> {
+            modelBone.spawn(model.getInstance(), model.getPosition());
+            modelBone.setParent(getParent());
+            model.getViewers().forEach(modelBone::addViewer);
+        });
     }
 
     @Override
@@ -124,7 +131,6 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
     @Override
     public void setGlobalRotation(double rotation) {
-
     }
 
     public void generateStands(JsonArray cubes, Point pivotPos, String name, Point boneRotation, GenericModel genericModel) {
@@ -224,6 +230,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
 
     @Override
     public Point calculateRotation() {
+        return Vec.ZERO;
+    }
+
+    @Override
+    public Point calculateScale() {
         return Vec.ZERO;
     }
 

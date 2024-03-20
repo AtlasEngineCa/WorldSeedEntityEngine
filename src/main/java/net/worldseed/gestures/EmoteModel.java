@@ -132,7 +132,7 @@ public class EmoteModel extends GenericModelImpl {
     }
 
     @Override
-    public void setScale(float scale) {
+    public void setGlobalScale(float scale) {
     }
 
     @Override

@@ -127,9 +127,9 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public void setScale(float scale) {
+    public void setGlobalScale(float scale) {
         for (ModelBone modelBonePart : this.parts.values()) {
-            modelBonePart.setScale(scale);
+            modelBonePart.setGlobalScale(scale);
         }
     }
 

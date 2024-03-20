@@ -22,10 +22,12 @@ public class ModelLoader {
     // <Model> -> <Bone/Animation>
     private static final Map<String, Map<String, FrameProvider>> interpolationTranslateCache = new HashMap<>();
     private static final Map<String, Map<String, FrameProvider>> interpolationRotateCache = new HashMap<>();
+    private static final Map<String, Map<String, FrameProvider>> interpolationScaleCache = new HashMap<>();
 
     public static void clearCache() {
         interpolationTranslateCache.clear();
         interpolationRotateCache.clear();
+        interpolationScaleCache.clear();
         loadedAnimations.clear();
         loadedModels.clear();
     }
@@ -81,6 +83,13 @@ public class ModelLoader {
         interpolationRotateCache.get(model).put(key, val);
     }
 
+    public static void addToScaleCache(String key, String model, FrameProvider val) {
+        if (!interpolationScaleCache.containsKey(model))
+            interpolationScaleCache.put(model, new HashMap<>());
+
+        interpolationScaleCache.get(model).put(key, val);
+    }
+
     public static FrameProvider getCacheRotation(String key, String model) {
         Map<String, FrameProvider> m = interpolationRotateCache.get(model);
         if (m == null) return null;
@@ -91,6 +100,12 @@ public class ModelLoader {
         Map<String, FrameProvider> m = interpolationTranslateCache.get(model);
         if (m == null) return null;
         return m.get(key);
+    }
+
+    public static FrameProvider getCacheScale(String modelName, String s) {
+        Map<String, FrameProvider> m = interpolationScaleCache.get(modelName);
+        if (m == null) return null;
+        return m.get(s);
     }
 
     public static Map<String, JsonObject> parseAnimations(String animationString) {
@@ -105,6 +120,6 @@ public class ModelLoader {
     }
 
     public enum AnimationType {
-        ROTATION, TRANSLATION
+        ROTATION, SCALE, TRANSLATION
     }
 }

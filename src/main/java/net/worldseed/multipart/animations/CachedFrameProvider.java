@@ -33,9 +33,13 @@ public class CachedFrameProvider implements FrameProvider {
 
         if (type == ModelLoader.AnimationType.ROTATION) {
             return Interpolator.interpolateRotation(toInterpolate, transform, length).mul(RotationMul);
+        } else if (type == ModelLoader.AnimationType.SCALE) {
+            return Interpolator.interpolateScale(toInterpolate, transform, length);
+        } else if (type == ModelLoader.AnimationType.TRANSLATION) {
+            return Interpolator.interpolateTranslation(toInterpolate, transform, length).mul(TranslationMul);
         }
 
-        return Interpolator.interpolateTranslation(toInterpolate, transform, length).mul(TranslationMul);
+        return Vec.ZERO;
     }
 
     @Override

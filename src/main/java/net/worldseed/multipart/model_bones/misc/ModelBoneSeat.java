@@ -121,6 +121,11 @@ public class ModelBoneSeat extends ModelBoneImpl {
         return q.toEulerYZX();
     }
 
+    @Override
+    public Point calculateScale() {
+        return Vec.ZERO;
+    }
+
     public void draw() {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;

@@ -115,4 +115,9 @@ public class ModelBoneNametag extends ModelBoneImpl {
     public Point calculateRotation() {
         return Vec.ZERO;
     }
+
+    @Override
+    public Point calculateScale() {
+        return Vec.ZERO;
+    }
 }
