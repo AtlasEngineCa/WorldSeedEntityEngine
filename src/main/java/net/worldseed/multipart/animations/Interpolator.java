@@ -3,14 +3,13 @@ package net.worldseed.multipart.animations;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.Quaternion;
-import net.worldseed.multipart.mql.MQLPoint;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 
 public class Interpolator {
-    private static StartEnd getStartEnd(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
-        if (transform.isEmpty())
-            return new StartEnd(new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), new BoneAnimationImpl.PointInterpolation(MQLPoint.ZERO, "linear"), 0, 0);
+    private static @Nullable StartEnd getStartEnd(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
+        if (transform.isEmpty()) return null;
         BoneAnimationImpl.PointInterpolation lastPoint = transform.get(transform.keySet().iterator().next());
         double lastTime = 0;
 
@@ -62,6 +61,7 @@ public class Interpolator {
 
     static Point interpolateRotation(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
+        if (points == null) return Vec.ZERO;
 
         double timeDiff = points.et - points.st;
 
@@ -84,6 +84,7 @@ public class Interpolator {
 
     static Point interpolateTranslation(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
+        if (points == null) return Vec.ZERO;
 
         double timeDiff = points.et - points.st;
 
@@ -98,6 +99,7 @@ public class Interpolator {
 
     public static Point interpolateScale(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
+        if (points == null) return Vec.ONE;
 
         double timeDiff = points.et - points.st;
 

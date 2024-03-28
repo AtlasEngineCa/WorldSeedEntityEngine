@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.multipart.ModelLoader;
 import net.worldseed.multipart.model_bones.ModelBone;
@@ -89,7 +89,10 @@ public class BoneAnimationImpl implements BoneAnimation {
     }
 
     public Point getTransform() {
-        if (!this.playing) return Pos.ZERO;
+        if (!this.playing) return switch (this.type) {
+            case ROTATION, TRANSLATION -> Vec.ZERO;
+            case SCALE -> Vec.ONE;
+        };
         return this.frameProvider.getFrame(tick);
     }
 
