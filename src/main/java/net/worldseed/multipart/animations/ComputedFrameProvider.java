@@ -20,7 +20,10 @@ public class ComputedFrameProvider implements FrameProvider {
     @Override
     public Point getFrame(int tick) {
         var first = transform.get(lowestKey);
-        if (first == null) return Vec.ZERO;
+        if (first == null) return switch (type) {
+            case TRANSLATION, ROTATION -> Vec.ZERO;
+            case SCALE -> Vec.ONE;
+        };
 
         double toInterpolate = tick * 50.0 / 1000;
         var point = first.p().evaluate(toInterpolate);
