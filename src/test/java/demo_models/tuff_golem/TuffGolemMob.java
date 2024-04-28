@@ -2,11 +2,11 @@ package demo_models.tuff_golem;
 
 import demo_models.gem_golem.GemGolemTarget;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
@@ -48,7 +48,7 @@ public class TuffGolemMob extends EntityCreature {
 
         setBoundingBox(1, 4, 1);
         this.setInstance(instance, pos);
-        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.12f);
+        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.12f);
     }
 
     @Override

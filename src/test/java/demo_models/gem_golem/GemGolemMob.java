@@ -2,10 +2,10 @@ package demo_models.gem_golem;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.*;
+import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.damage.EntityDamage;
 import net.minestom.server.entity.metadata.other.ArmorStandMeta;
@@ -86,7 +86,7 @@ public class GemGolemMob extends EntityCreature {
         );
 
         setBoundingBox(3, 3, 3);
-        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3f);
+        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3f);
 
         // Add the shadow for the entity
         int size = 15;

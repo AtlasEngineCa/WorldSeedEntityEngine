@@ -2,10 +2,10 @@ package demo_models.gem_golem;
 
 
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.ai.GoalSelector;
+import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.animations.AnimationHandler;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +53,7 @@ public class GemGolemControlGoal extends GoalSelector {
 
         final Vec movement = passenger.getPosition().withPitch(0.3f).direction().normalize().mul(20).mul(forward);
         ((GemGolemMob) entityCreature).facePoint(entityCreature.getPosition().add(movement));
-        entityCreature.setVelocity(movement.mul(entityCreature.getAttribute(Attribute.MOVEMENT_SPEED).getValue()));
+        entityCreature.setVelocity(movement.mul(entityCreature.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getValue()));
     }
 
     @Override

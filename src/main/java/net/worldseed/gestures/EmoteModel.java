@@ -10,9 +10,10 @@ import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.item.metadata.PlayerHeadMeta;
+import net.minestom.server.item.component.HeadProfile;
 import net.worldseed.multipart.GenericModelImpl;
 import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.NotNull;
@@ -108,10 +109,9 @@ public class EmoteModel extends GenericModelImpl {
         for (int i = 1; i <= SPAWN_ORDER.length; ++i) {
             int finalI = i;
             ItemStack playerHeads = ItemStack.builder(Material.PLAYER_HEAD)
-                    .meta(PlayerHeadMeta.class, meta -> {
-                        meta.skullOwner(UUID.randomUUID()).playerSkin(skin);
-                        meta.customModelData(finalI);
-                    }).build();
+                    .set(ItemComponent.PROFILE, new HeadProfile(skin))
+                    .set(ItemComponent.CUSTOM_MODEL_DATA, finalI)
+                    .build();
 
             heads.put(i, playerHeads);
         }
