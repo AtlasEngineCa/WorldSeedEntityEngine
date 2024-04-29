@@ -12,6 +12,7 @@ import net.minestom.server.event.EventListener;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
+import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.network.packet.client.play.ClientSteerVehiclePacket;
@@ -107,14 +108,7 @@ public class ModelEngine {
     }
 
     private static ItemStack generateBoneItem(int model_id) {
-        return ItemStack.builder(modelMaterial).meta(itemMetaBuilder -> {
-            itemMetaBuilder
-                    .displayName(Component.empty())
-                    .unbreakable(true)
-                    .hideFlag(127);
-
-            itemMetaBuilder.customModelData(model_id);
-        }).build();
+        return ItemStack.builder(modelMaterial).set(ItemComponent.CUSTOM_MODEL_DATA, model_id).build();
     }
 
     public static HashMap<String, ItemStack> getItems(String model, String name) {

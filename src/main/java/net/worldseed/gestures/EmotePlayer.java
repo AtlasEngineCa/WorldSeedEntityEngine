@@ -1,9 +1,9 @@
 package net.worldseed.gestures;
 
 import com.google.gson.JsonObject;
-import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.*;
+import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
@@ -38,7 +38,7 @@ public abstract class EmotePlayer extends EntityCreature {
 
         setBoundingBox(0.8, 1.8, 0.8);
         this.setInvisible(true);
-        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.001f);
+        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.001f);
         this.setInstance(instance, pos).join();
 
         this.animationHandler = new AnimationHandlerImpl(model) {
