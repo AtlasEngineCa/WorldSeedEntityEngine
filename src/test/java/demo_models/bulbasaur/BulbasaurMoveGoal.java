@@ -32,7 +32,7 @@ public class BulbasaurMoveGoal extends GoalSelector {
         if (!this.animationHandler.getPlaying().equals("animation.bulbasaur.ground_idle")) return false;
 
         if (entityCreature.getNavigator().getPathPosition() != null)
-            if (entityCreature.getNavigator().getPathPosition().samePoint(lastTargetPos)) return false;
+            if (entityCreature.getNavigator().getPathPosition().samePoint(target.getPosition())) return false;
 
         return entityCreature.getDistance(target) < maxDistance && entityCreature.getDistance(target) > minDistance;
     }
@@ -59,7 +59,6 @@ public class BulbasaurMoveGoal extends GoalSelector {
             return;
         }
         final Pos targetPos = entityCreature.getTarget() != null ? entityCreature.getTarget().getPosition() : null;
-
         if (targetPos != null && !targetPos.samePoint(lastTargetPos)) {
             this.lastUpdateTime = time;
             this.lastTargetPos = targetPos;

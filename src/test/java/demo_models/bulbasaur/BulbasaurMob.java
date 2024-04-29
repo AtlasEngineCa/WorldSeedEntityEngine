@@ -1,13 +1,13 @@
 package demo_models.bulbasaur;
 
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.attribute.Attribute;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.damage.EntityDamage;
 import net.minestom.server.instance.Instance;
@@ -33,7 +33,7 @@ public class BulbasaurMob extends EntityCreature {
     public BulbasaurMob(Instance instance, Pos pos) {
         super(EntityType.ZOMBIE);
         this.setInvisible(true);
-        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.1f);
+        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.1f);
 
         this.model = new BulbasaurModel();
         model.init(instance, pos, 1f);
