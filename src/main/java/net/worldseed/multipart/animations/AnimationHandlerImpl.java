@@ -24,7 +24,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
     private final TreeMap<Integer, ModelAnimation> repeating = new TreeMap<>();
     private String playingOnce = null;
 
-    private final Map<String, Consumer<Void>> callbacks = new ConcurrentHashMap<>();
+    private final Map<String, Runnable> callbacks = new ConcurrentHashMap<>();
     private final Map<String, Integer> callbackTimers = new ConcurrentHashMap<>();
 
     public AnimationHandlerImpl(GenericModel model) {
@@ -130,12 +130,12 @@ public class AnimationHandlerImpl implements AnimationHandler {
         }
     }
 
-    public void playOnce(String animation, Consumer<Void> cb) throws IllegalArgumentException {
+    public void playOnce(String animation, Runnable cb) throws IllegalArgumentException {
         this.playOnce(animation, AnimationDirection.FORWARD, cb);
     }
 
     @Override
-    public void playOnce(String animation, AnimationDirection direction, Consumer<Void> cb) throws IllegalArgumentException {
+    public void playOnce(String animation, AnimationDirection direction, Runnable cb) throws IllegalArgumentException {
         if (this.animationPriorities().get(animation) == null)
             throw new IllegalArgumentException("Animation " + animation + " does not exist");
 
@@ -145,7 +145,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
         modelAnimation.setDirection(direction);
 
         if (this.callbacks.containsKey(animation)) {
-            this.callbacks.get(animation).accept(null);
+            this.callbacks.get(animation).run();
         }
 
         int callbackTimer = this.callbackTimers.getOrDefault(animation, 0);
@@ -196,7 +196,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
                     callbackTimers.remove(entry.getKey());
 
                     var cb = callbacks.remove(entry.getKey());
-                    if (cb != null) cb.accept(null);
+                    if (cb != null) cb.run();
                 } else {
                     if (modelAnimation.direction() != AnimationDirection.PAUSE) {
                         callbackTimers.put(entry.getKey(), entry.getValue() - 1);
