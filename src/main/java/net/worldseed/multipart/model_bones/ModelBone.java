@@ -87,5 +87,5 @@ public interface ModelBone {
 
     Point simulateScale(String animation, int time);
 
-    void teleport(Point position);
+    default void teleport(Point position) {}
 }
