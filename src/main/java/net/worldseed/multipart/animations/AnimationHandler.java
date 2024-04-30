@@ -32,9 +32,9 @@ public interface AnimationHandler {
      * @param animation name of animation to play
      * @param cb        callback to call when animation is finished
      */
-    void playOnce(String animation, Consumer<Void> cb) throws IllegalArgumentException;
+    void playOnce(String animation, Runnable cb) throws IllegalArgumentException;
 
-    void playOnce(String animation, AnimationHandlerImpl.AnimationDirection direction, Consumer<Void> cb) throws IllegalArgumentException;
+    void playOnce(String animation, AnimationHandlerImpl.AnimationDirection direction, Runnable cb) throws IllegalArgumentException;
 
     /**
      * Destroy the animation handler
