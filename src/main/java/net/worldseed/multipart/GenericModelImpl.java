@@ -91,6 +91,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     public void setPosition(Pos pos) {
         this.position = pos;
+        this.parts.values().forEach(part -> part.teleport(pos));
     }
 
     public void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction) {

@@ -86,4 +86,6 @@ public interface ModelBone {
     void setGlobalRotation(double rotation);
 
     Point simulateScale(String animation, int time);
+
+    void teleport(Point position);
 }

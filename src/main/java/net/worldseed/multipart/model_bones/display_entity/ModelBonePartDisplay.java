@@ -185,11 +185,12 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         return calculateFinalScale(getPropogatedScale());
     }
 
-    public void draw() {
-        if (this.baseStand != null && !baseStand.getPosition().samePoint(model.getPosition())) {
-            this.baseStand.teleport(Pos.fromPoint(model.getPosition()));
-        }
+    @Override
+    public void teleport(Point position) {
+        if (this.baseStand != null) this.baseStand.teleport(Pos.fromPoint(position));
+    }
 
+    public void draw() {
         this.children.forEach(ModelBone::draw);
         if (this.offset == null) return;
 
@@ -246,7 +247,6 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
                 this.baseStand.setInvisible(true);
                 this.baseStand.setNoGravity(true);
                 this.baseStand.setInstance(instance, position).join();
-
             }
         });
     }
