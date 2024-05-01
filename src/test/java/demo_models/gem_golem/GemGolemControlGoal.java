@@ -71,7 +71,7 @@ public class GemGolemControlGoal extends GoalSelector {
     public void setJump(boolean jump) {
         if (jump && !jumpCooldown) {
             jumpCooldown = true;
-            animationHandler.playOnce("attack", (i) -> {
+            animationHandler.playOnce("attack", () -> {
             });
 
             MinecraftServer.getSchedulerManager().scheduleTask(() -> {

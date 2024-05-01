@@ -24,7 +24,7 @@ public class GemGolemActivateGoal extends GoalSelector {
     private void activate() {
         playing = true;
 
-        animationHandler.playOnce("extend", (v) -> {
+        animationHandler.playOnce("extend", () -> {
             ((GemGolemMob) entityCreature).setSleeping(false);
             animationHandler.playRepeat("idle_extended");
             playing = false;
@@ -37,8 +37,8 @@ public class GemGolemActivateGoal extends GoalSelector {
 
         animationHandler.stopRepeat("idle_extended");
 
-        animationHandler.playOnce("retract", (v) -> {
-            animationHandler.playOnce("idle_retracted", (v2) -> {
+        animationHandler.playOnce("retract", () -> {
+            animationHandler.playOnce("idle_retracted", () -> {
                 playing = false;
             });
         });
