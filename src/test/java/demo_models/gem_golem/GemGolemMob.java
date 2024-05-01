@@ -139,7 +139,7 @@ public class GemGolemMob extends EntityCreature {
     @Override
     public void remove() {
         var viewers = Set.copyOf(this.getViewers());
-        this.animationHandler.playOnce("death", (cb) -> {
+        this.animationHandler.playOnce("death", () -> {
             this.model.destroy();
             this.animationHandler.destroy();
             ParticlePacket packet = new ParticlePacket(

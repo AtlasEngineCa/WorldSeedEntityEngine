@@ -59,11 +59,11 @@ public class GemGolemAttackGoal extends GoalSelector {
 
     private void attackNear() {
         if (attackIndex == 0) {
-            animationHandler.playOnce("attack", (a) -> {
+            animationHandler.playOnce("attack", () -> {
             });
             attackIndex = 1;
         } else {
-            animationHandler.playOnce("attack_near", (a) -> {
+            animationHandler.playOnce("attack_near", () -> {
             });
 
             MinecraftServer.getSchedulerManager().scheduleTask(() -> {

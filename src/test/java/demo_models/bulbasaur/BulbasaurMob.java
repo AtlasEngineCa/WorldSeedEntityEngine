@@ -97,7 +97,7 @@ public class BulbasaurMob extends EntityCreature {
     @Override
     public boolean damage(@NotNull DamageType type, float amount) {
         if (this.dying) return false;
-        this.animationHandler.playOnce("animation.bulbasaur.cry", (cb) -> {
+        this.animationHandler.playOnce("animation.bulbasaur.cry", () -> {
         });
         this.model.setState("hit");
 
@@ -113,7 +113,7 @@ public class BulbasaurMob extends EntityCreature {
     public void remove() {
         var viewers = Set.copyOf(this.getViewers());
         this.dying = true;
-        this.animationHandler.playOnce("animation.bulbasaur.faint", (cb) -> {
+        this.animationHandler.playOnce("animation.bulbasaur.faint", () -> {
             this.model.destroy();
             this.animationHandler.destroy();
 
