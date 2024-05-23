@@ -25,6 +25,14 @@ public class TextureGenerator {
                 JsonValue frameTime = textureObj.get("frame_time");
                 JsonValue frame_interpolate = textureObj.get("frame_interpolate");
 
+                JsonValue uv_height = textureObj.get("uv_height");
+                JsonValue uv_width = textureObj.get("uv_width");
+                JsonValue t_height = textureObj.get("height");
+                JsonValue t_width = textureObj.get("width");
+
+                boolean hsame = uv_height instanceof JsonNumber h && t_height instanceof JsonNumber t_h && h.intValue() == t_h.intValue();
+                boolean wsame = uv_width instanceof JsonNumber w && t_width instanceof JsonNumber t_w && w.intValue() == t_w.intValue();
+
                 boolean hasValues = false;
                 JsonObjectBuilder builder = Json.createObjectBuilder();
 
@@ -43,7 +51,7 @@ public class TextureGenerator {
                     }
                 } catch (Exception ignored) {}
 
-                if (hasValues) {
+                if (hasValues && (!hsame || !wsame)) {
                     mcmeta = Json.createObjectBuilder().add("animation", builder.build()).build();
                 }
             }
