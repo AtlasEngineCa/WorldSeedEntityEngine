@@ -113,8 +113,8 @@ public class GemGolemAttackGoal extends GoalSelector {
                     } else {
                         return TaskSchedule.millis(intervals);
                     }
-                }, ExecutionType.ASYNC);
-            }, TaskSchedule.millis(1000), TaskSchedule.stop(), ExecutionType.ASYNC);
+                }, ExecutionType.TICK_START);
+            }, TaskSchedule.millis(1000), TaskSchedule.stop(), ExecutionType.TICK_START);
 
             attackIndex = 0;
         }

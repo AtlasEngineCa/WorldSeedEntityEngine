@@ -30,7 +30,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
         loadDefaultAnimations();
-        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.ASYNC);
+        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.TICK_START);
     }
 
     protected void loadDefaultAnimations() {
