@@ -238,6 +238,11 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         return Vec.ZERO;
     }
 
+    @Override
+    public void teleport(Point position) {
+        draw();
+    }
+
     public void draw() {
         if (!this.illegitimateChildren.isEmpty()) {
             this.children.forEach(ModelBone::draw);
