@@ -1,7 +1,6 @@
 package net.worldseed.multipart;
 
 import com.google.gson.*;
-import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;

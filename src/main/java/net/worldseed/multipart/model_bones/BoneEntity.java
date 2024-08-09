@@ -20,6 +20,9 @@ public class BoneEntity extends LivingEntity {
         this.setAutoViewable(false);
         setTag(Tag.String("WSEE"), "part");
         this.model = model;
+
+        this.setNoGravity(true);
+        this.setSynchronizationTicks(Integer.MAX_VALUE);
     }
 
     @Override

@@ -26,6 +26,7 @@ import net.worldseed.multipart.events.AnimationCompleteEvent;
 import net.worldseed.multipart.events.ModelEvent;
 import net.worldseed.multipart.model_bones.*;
 import net.worldseed.multipart.model_bones.armour_stand.ModelBonePartArmourStandHand;
+import net.worldseed.multipart.model_bones.display_entity.BaseEntity;
 import net.worldseed.multipart.model_bones.display_entity.ModelBoneHeadDisplay;
 import net.worldseed.multipart.model_bones.display_entity.ModelBonePartDisplay;
 import net.worldseed.multipart.model_bones.misc.ModelBoneHitbox;
@@ -92,6 +93,11 @@ public abstract class GenericModelImpl implements GenericModel {
     public void setPosition(Pos pos) {
         this.position = pos;
         this.parts.values().forEach(part -> part.teleport(pos));
+    }
+
+    @Override
+    public BoneEntity getBase() {
+        return new BaseEntity(this);
     }
 
     public void triggerAnimationEnd(String animation, AnimationHandlerImpl.AnimationDirection direction) {
