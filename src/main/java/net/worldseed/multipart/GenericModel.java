@@ -160,4 +160,6 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     Map<String, List<GenericModel>> getAttachedModels();
 
     void detachModel(GenericModel model, String boneName);
+
+    BoneEntity getBase();
 }

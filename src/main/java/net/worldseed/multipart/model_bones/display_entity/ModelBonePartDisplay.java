@@ -9,18 +9,15 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Metadata;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
-import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.network.packet.server.play.EntityMetaDataPacket;
-import net.minestom.server.network.packet.server.play.SetPassengersPacket;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -227,25 +224,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             }
 
             if (!(this.getParent() instanceof ModelBonePartDisplay)) {
-                this.baseStand = new BoneEntity(EntityType.ARMOR_STAND, model) {
-                    @Override
-                    public void updateNewViewer(@NotNull Player player) {
-                        super.updateNewViewer(player);
-
-                        List<Integer> parts = model.getParts().stream()
-                                .map(ModelBone::getEntity)
-                                .filter(e -> e != null && e.getEntityType() == EntityType.ITEM_DISPLAY)
-                                .map(Entity::getEntityId)
-                                .toList();
-                        SetPassengersPacket packet = new SetPassengersPacket(baseStand.getEntityId(), parts);
-                        player.sendPacket(packet);
-                    }
-                };
-                ArmorStandMeta meta = (ArmorStandMeta) this.baseStand.getEntityMeta();
-                meta.setMarker(true);
-
-                this.baseStand.setInvisible(true);
-                this.baseStand.setNoGravity(true);
+                this.baseStand = model.getBase();
                 this.baseStand.setInstance(instance, position).join();
             }
         });
