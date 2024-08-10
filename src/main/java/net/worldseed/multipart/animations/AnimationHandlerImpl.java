@@ -101,7 +101,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
         if (top != null && animation.equals(top.getValue().name())) {
             this.repeating.values().forEach(v -> {
                 if (!v.name().equals(animation)) {
-                    this.animations.forEach((k, a) -> a.stop());
+                    this.repeating.forEach((k, a) -> a.stop());
                 }
             });
             if (playingOnce == null) {
