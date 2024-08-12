@@ -160,7 +160,10 @@ public class AnimationHandlerImpl implements AnimationHandler {
             if (currentDirection != AnimationDirection.PAUSE)
                 this.callbackTimers.put(animation, modelAnimation.animationTime() - callbackTimer + 1);
         } else if (direction != AnimationDirection.PAUSE) {
-            if (playingOnce != null) modelAnimation.stop();
+            if (playingOnce != null) {
+                this.animations.get(playingOnce).stop();
+                modelAnimation.stop();
+            }
             playingOnce = animation;
 
             this.callbacks.put(animation, cb);
