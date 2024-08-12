@@ -21,7 +21,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "10.7.0"
+        version = "10.7.5"
 
         from(components["java"])
     }
@@ -51,7 +51,7 @@ dependencies {
     implementation("javax.json:javax.json-api:1.1.4")
     implementation("org.glassfish:javax.json:1.1.4")
 
-    implementation("com.github.hollow-cube.common:mql:2b48ad430f")
+    implementation("dev.hollowcube:mql:1.0.1")
 }
 
 tasks.getByName<Test>("test") {
