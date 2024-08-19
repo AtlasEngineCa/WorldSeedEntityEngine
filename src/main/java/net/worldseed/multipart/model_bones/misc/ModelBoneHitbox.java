@@ -19,6 +19,7 @@ import net.worldseed.multipart.animations.BoneAnimation;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
+import net.worldseed.multipart.model_bones.bone_types.HitboxBone;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -27,11 +28,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ModelBoneHitbox extends ModelBoneImpl {
+public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
     private static final int INTERPOLATE_TICKS = 2;
     private static final Tag<String> WSEE = Tag.String("WSEE");
     private final JsonArray cubes;
-    private final Collection<ModelBoneHitbox> illegitimateChildren = new ConcurrentLinkedDeque<>();
+    private final Collection<ModelBone> illegitimateChildren = new ConcurrentLinkedDeque<>();
     private final Point orgPivot;
     private Task positionTask;
 
@@ -142,7 +143,7 @@ public class ModelBoneHitbox extends ModelBoneImpl {
             Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat());
 
             double maxSize = Math.max(Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 0.5);
-            while (maxSize > (32 / scale)) {
+            while (maxSize > (16 / scale)) {
                 maxSize /= 2;
             }
 
@@ -187,7 +188,8 @@ public class ModelBoneHitbox extends ModelBoneImpl {
         return stand.getPosition();
     }
 
-    public Collection<ModelBoneHitbox> getParts() {
+    @Override
+    public @NotNull Collection<ModelBone> getChildren() {
         if (this.illegitimateChildren == null) return List.of();
         return this.illegitimateChildren;
     }

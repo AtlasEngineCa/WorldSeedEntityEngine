@@ -24,7 +24,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     protected final List<BoneAnimation> allAnimations = new ArrayList<>();
     protected final ArrayList<ModelBone> children = new ArrayList<>();
     protected final GenericModel model;
-    protected final Point diff;
+    protected Point diff;
     protected float scale;
     protected Point offset;
     protected Point rotation;
@@ -39,10 +39,8 @@ public abstract class ModelBoneImpl implements ModelBone {
         this.diff = model.getDiff(name);
         this.offset = model.getOffset(name);
 
-        if (this.diff != null)
-            this.pivot = pivot.add(this.diff);
-        else
-            this.pivot = pivot;
+        if (this.diff != null) this.pivot = pivot.add(this.diff);
+        else this.pivot = pivot;
 
         this.items = ModelEngine.getItems(model.getId(), name);
         this.scale = scale;
@@ -202,63 +200,4 @@ public abstract class ModelBoneImpl implements ModelBone {
     public abstract Point calculateRotation();
 
     public abstract Point calculateScale();
-
-    @Override
-    public Point simulateTransform(Point p, String animation, int time) {
-        Point endPos = p;
-
-        if (this.diff != null) {
-            endPos = calculateScale(endPos, this.simulateScale(animation, time), this.pivot.sub(this.diff));
-            endPos = calculateRotation(endPos, this.simulateRotation(animation, time), this.pivot.sub(this.diff));
-        } else {
-            endPos = calculateScale(endPos, this.simulateScale(animation, time), this.pivot);
-            endPos = calculateRotation(endPos, this.simulateRotation(animation, time), this.pivot);
-        }
-
-        for (BoneAnimation currentAnimation : this.allAnimations) {
-            if (currentAnimation == null || !currentAnimation.name().equals(animation)) continue;
-
-            if (currentAnimation.getType() == AnimationType.TRANSLATION) {
-                var calculatedTransform = currentAnimation.getTransformAtTime(time);
-                endPos = endPos.add(calculatedTransform);
-            }
-        }
-
-        if (this.parent != null) {
-            endPos = parent.simulateTransform(endPos, animation, time);
-        }
-
-        return endPos;
-    }
-
-    public Point simulateRotation(String animation, int time) {
-        Point netTransform = Vec.ZERO;
-
-        for (BoneAnimation currentAnimation : this.allAnimations) {
-            if (currentAnimation == null || !currentAnimation.name().equals(animation)) continue;
-
-            if (currentAnimation.getType() == AnimationType.ROTATION) {
-                Point calculatedTransform = currentAnimation.getTransformAtTime(time);
-                netTransform = netTransform.add(calculatedTransform);
-            }
-        }
-
-        return this.rotation.add(netTransform);
-    }
-
-    @Override
-    public Point simulateScale(String animation, int time) {
-        Point netTransform = Vec.ONE;
-
-        for (BoneAnimation currentAnimation : this.allAnimations) {
-            if (currentAnimation == null || !currentAnimation.name().equals(animation)) continue;
-
-            if (currentAnimation.getType() == AnimationType.SCALE) {
-                Point calculatedTransform = currentAnimation.getTransformAtTime(time);
-                netTransform = netTransform.mul(calculatedTransform);
-            }
-        }
-
-        return netTransform;
-    }
 }

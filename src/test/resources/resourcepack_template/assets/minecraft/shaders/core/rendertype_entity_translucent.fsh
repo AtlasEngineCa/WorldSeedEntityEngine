@@ -14,33 +14,32 @@ in vec4 vertexColor;
 in vec4 lightMapColor;
 in vec4 overlayColor;
 in vec2 texCoord0;
-in vec2 texCoord1;
-in vec4 normal;
-
-in vec3 a, b;
 
 out vec4 fragColor;
 
-vec2 getSize() {
-    vec2 uv1 = a.xy / a.z;
-    vec2 uv2 = b.xy / b.z;
-    return round((max(uv1, uv2) - min(uv1, uv2)) * 64);
-}
+uniform mat4 ModelViewMat;
+uniform mat4 ProjMat;
+uniform mat3 IViewRotMat;
+
+in vec2 texCoord1;
+in float part;
 
 void main() {
-
-    if(texCoord0.x < 0) {
+    vec4 color = texture(Sampler0, texCoord0);
+    if (color.a < 0.1 || abs(mod(part + 0.5, 1.0) - 0.5) > 0.001) {
         discard;
     }
 
-    vec2 uv = texCoord0;
-    if(getSize() != vec2(8, 8))
-        uv = texCoord1;
-
-    vec4 color = texture(Sampler0, uv);
-    if (color.a < 0.1) {
-        discard;
+    if (color.a < 1.0 && part > 0.5) {
+        vec4 color2 = texture(Sampler0, texCoord1);
+        if (color.a < 0.75 && int(gl_FragCoord.x + gl_FragCoord.y) % 2 == 0) {
+            discard;
+        } else {
+            color.rgb = mix(color2.rgb, color.rgb, min(1.0, color.a * 2));
+            color.a = 1.0;
+        }
     }
+
     color *= vertexColor * ColorModulator;
     color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
     color *= lightMapColor;

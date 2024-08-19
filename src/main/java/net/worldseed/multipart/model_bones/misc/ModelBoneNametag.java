@@ -6,32 +6,27 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
-import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
-import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
+import net.worldseed.multipart.model_bones.bone_types.NametagBone;
 
 import java.util.List;
 
-public class ModelBoneNametag extends ModelBoneImpl {
+public class ModelBoneNametag extends ModelBoneImpl implements NametagBone {
+    private Entity bound;
 
-    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, BoneEntity nametagEntity, float scale) {
+    public ModelBoneNametag(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         super(pivot, name, rotation, model, scale);
-
-        if (this.offset != null && nametagEntity != null) {
-            this.stand = nametagEntity;
-            this.stand.setTag(Tag.String("WSEE"), "nametag");
-        }
     }
 
     @Override
     public void addViewer(Player player) {
-        if (this.stand != null) this.stand.addViewer(player);
+        if (this.bound != null) this.bound.addViewer(player);
     }
 
     @Override
     public void removeViewer(Player player) {
-        if (this.stand != null) this.stand.removeViewer(player);
+        if (this.bound != null) this.bound.removeViewer(player);
     }
 
     @Override
@@ -40,17 +35,14 @@ public class ModelBoneNametag extends ModelBoneImpl {
 
     @Override
     public void setGlowing(RGBLike color) {
-
     }
 
     @Override
     public void removeGlowing(Player player) {
-
     }
 
     @Override
     public void setGlowing(Player player, RGBLike color) {
-
     }
 
     @Override
@@ -65,12 +57,11 @@ public class ModelBoneNametag extends ModelBoneImpl {
 
     @Override
     public void detachModel(GenericModel model) {
-
+        throw new UnsupportedOperationException("Cannot detach a model from a nametag");
     }
 
     @Override
     public void setGlobalRotation(double rotation) {
-
     }
 
     @Override
@@ -82,23 +73,18 @@ public class ModelBoneNametag extends ModelBoneImpl {
         return calculatePosition();
     }
 
-    public void linkEntity(BoneEntity entity) {
-        this.stand = entity;
-        this.stand.setTag(Tag.String("WSEE"), "nametag");
+    public void bind(Entity entity) {
+        this.bound = entity;
     }
 
     public void draw() {
-        if (this.offset == null) return;
-        if (this.stand == null) return;
-        stand.teleport(calculatePosition());
-    }
-
-    public Entity getStand() {
-        return stand;
+        if (this.offset == null || bound == null) return;
+        bound.teleport(calculatePosition());
     }
 
     @Override
     public Pos calculatePosition() {
+        if (this.bound == null) return Pos.ZERO;
         if (this.offset == null) return Pos.ZERO;
 
         Point p = this.offset;
@@ -119,5 +105,15 @@ public class ModelBoneNametag extends ModelBoneImpl {
     @Override
     public Point calculateScale() {
         return Vec.ZERO;
+    }
+
+    @Override
+    public void unbind() {
+        this.bound = null;
+    }
+
+    @Override
+    public Entity getNametag() {
+        return this.bound;
     }
 }

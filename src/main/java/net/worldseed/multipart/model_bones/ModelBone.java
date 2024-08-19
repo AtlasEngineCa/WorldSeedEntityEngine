@@ -9,7 +9,9 @@ import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.animations.BoneAnimation;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -22,10 +24,6 @@ public interface ModelBone {
     void draw();
 
     void destroy();
-
-    Point simulateTransform(Point p, String animation, int time);
-
-    Point simulateRotation(String animation, int time);
 
     void setState(String state);
 
@@ -85,7 +83,9 @@ public interface ModelBone {
 
     void setGlobalRotation(double rotation);
 
-    Point simulateScale(String animation, int time);
-
     default void teleport(Point position) {}
+
+    default @NotNull Collection<ModelBone> getChildren() {
+        return List.of();
+    };
 }

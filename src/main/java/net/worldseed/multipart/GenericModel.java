@@ -14,10 +14,12 @@ import net.worldseed.multipart.events.ModelEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape {
     /**
@@ -81,16 +83,11 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
      */
     void destroy();
 
-    /**
-     * Remove all hitboxes from the model
-     */
-    void removeHitboxes();
+    void mountEntity(String name, Entity entity);
 
-    void mountEntity(Entity entity);
+    void dismountEntity(String name, Entity entity);
 
-    void dismountEntity(Entity entity);
-
-    Set<Entity> getPassengers();
+    Collection<Entity> getPassengers(String name);
 
     /**
      * Get a VFX bone location
@@ -109,33 +106,12 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     /**
      * Set the model's head rotation
      *
+     * @param name     name of the bone
      * @param rotation rotation of head
      */
-    void setHeadRotation(double rotation);
+    void setHeadRotation(String name, double rotation);
 
-    List<ModelBone> getParts();
-
-    ModelBone getSeat();
-
-    /**
-     * Check where a bone will be at a specified time during a specified animation
-     *
-     * @param animation animation
-     * @param bone      bone name
-     * @param time      time in ticks
-     * @return position of bone
-     */
-    Point getBoneAtTime(String animation, String bone, int time);
-
-    Entity getNametagEntity();
-
-    /**
-     * Set the entity used for the nametag
-     * Takes over control of entity movement.
-     *
-     * @param entity the entity
-     */
-    void setNametagEntity(BoneEntity entity);
+    @NotNull List<ModelBone> getParts();
 
     Instance getInstance();
 
@@ -161,5 +137,9 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
 
     void detachModel(GenericModel model, String boneName);
 
-    BoneEntity getBase();
+    @Nullable BoneEntity generateRoot();
+
+    void bindNametag(String name, Entity nametag);
+    void unbindNametag(String name);
+    @Nullable Entity getNametag(String name);
 }

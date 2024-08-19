@@ -4,6 +4,7 @@ import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
@@ -13,11 +14,14 @@ import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
+import net.worldseed.multipart.model_bones.bone_types.RideableBone;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public class ModelBoneSeat extends ModelBoneImpl {
+public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
 
     public ModelBoneSeat(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         super(pivot, name, rotation, model, scale);
@@ -135,5 +139,20 @@ public class ModelBoneSeat extends ModelBoneImpl {
         // TODO: needed by minestom?
         stand.setView(found.yaw(), found.pitch());
         stand.teleport(found);
+    }
+
+    @Override
+    public void addPassenger(Entity entity) {
+        this.stand.addPassenger(entity);
+    }
+
+    @Override
+    public void removePassenger(Entity entity) {
+        this.stand.removePassenger(entity);
+    }
+
+    @Override
+    public Set<Entity> getPassengers() {
+        return this.stand.getPassengers();
     }
 }

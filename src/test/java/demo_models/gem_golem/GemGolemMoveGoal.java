@@ -13,7 +13,7 @@ public class GemGolemMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
     private final Duration pathDuration = Duration.ofSeconds(1);
     private final int minDistance = 5;
-    private final int maxDistance = 40;
+    private final int maxDistance = 60;
     private Entity target = null;
     private Pos lastTargetPos = Pos.ZERO;
     private boolean forceEnd;
@@ -30,10 +30,10 @@ public class GemGolemMoveGoal extends GoalSelector {
         if (target == null) return false;
         if (entityCreature.getPassengers().contains(target)) return false;
         if (((GemGolemMob) entityCreature).isSleeping()) return false;
+
         if (!this.animationHandler.getPlaying().equals("idle_extended")) return false;
 
-        if (entityCreature.getNavigator().getPathPosition() != null)
-            if (entityCreature.getNavigator().getPathPosition().samePoint(lastTargetPos)) return false;
+        if (target.getPosition().samePoint(lastTargetPos)) return false;
 
         return entityCreature.getDistance(target) < maxDistance && entityCreature.getDistance(target) > minDistance;
     }

@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static demo_models.gem_golem.GemGolemMob.SEAT;
+
 public class GemGolemAttackGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
     private final Duration attackDuration = Duration.ofSeconds(6);
@@ -36,8 +38,7 @@ public class GemGolemAttackGoal extends GoalSelector {
             if (entityCreature.getTarget() == null) return false;
         }
 
-        if (!model.getPassengers().isEmpty()) return false;
-
+        if (!model.getPassengers(SEAT).isEmpty()) return false;
         return (entityCreature.getDistance(entityCreature.getTarget()) <= 5);
     }
 
@@ -127,7 +128,7 @@ public class GemGolemAttackGoal extends GoalSelector {
                 target.isRemoved() ||
                 entityCreature.isDead() ||
                 entityCreature.isRemoved() ||
-                !model.getPassengers().isEmpty() ||
+                !model.getPassengers(SEAT).isEmpty() ||
                 target.getPosition().distance(entityCreature.getPosition()) <= 5;
     }
 

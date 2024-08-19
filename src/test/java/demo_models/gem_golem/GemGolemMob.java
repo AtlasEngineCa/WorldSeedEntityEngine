@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Set;
 
 public class GemGolemMob extends EntityCreature {
+    static final String SEAT = "seat";
+
     private final GemGolemModel model;
     private final AnimationHandler animationHandler;
     private final GemGolemControlGoal controlGoal;
@@ -61,13 +63,13 @@ public class GemGolemMob extends EntityCreature {
         model.eventNode()
                 .addListener(ModelDamageEvent.class, event -> {
                     if (event.getDamage() instanceof EntityDamage entityDamage) {
-                        if (model.getPassengers().contains(entityDamage.getSource())) return;
+                        if (model.getPassengers(SEAT).contains(entityDamage.getSource())) return;
                     }
 
                     damage(event.getDamage().getType(), event.getDamage().getAmount());
                 })
-                .addListener(ModelInteractEvent.class, event -> model.mountEntity(event.getInteracted()))
-                .addListener(ModelDismountEvent.class, event -> model.dismountEntity(event.rider()))
+                .addListener(ModelInteractEvent.class, event -> model.mountEntity(SEAT, event.getInteracted()))
+                .addListener(ModelDismountEvent.class, event -> model.dismountEntity(SEAT, event.rider()))
                 .addListener(ModelControlEvent.class, event -> {
                     controlGoal.setForward(event.forward());
                     controlGoal.setSideways(event.sideways());
@@ -183,6 +185,6 @@ public class GemGolemMob extends EntityCreature {
 
     @Override
     public @NotNull Set<Entity> getPassengers() {
-        return model.getPassengers();
+        return model.getPassengers(SEAT);
     }
 }

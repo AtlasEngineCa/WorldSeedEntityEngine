@@ -12,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class BaseEntity extends BoneEntity {
-    public BaseEntity(GenericModel model) {
+public class RootBoneEntity extends BoneEntity {
+    public RootBoneEntity(GenericModel model) {
         super(EntityType.ARMOR_STAND, model);
 
         ArmorStandMeta meta = (ArmorStandMeta) this.getEntityMeta();
