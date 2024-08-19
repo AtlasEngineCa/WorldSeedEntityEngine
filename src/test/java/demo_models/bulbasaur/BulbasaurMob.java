@@ -40,10 +40,6 @@ public class BulbasaurMob extends EntityCreature {
         model.init(instance, pos, 1f);
 
         model.eventNode().addListener(ModelDamageEvent.class, (event) -> {
-            if (event.getDamage() instanceof EntityDamage entityDamage) {
-                if (model.getPassengers().contains(entityDamage.getSource())) return;
-            }
-
             damage(event.getDamage().getType(), event.getDamage().getAmount());
         });
 

@@ -3,144 +3,149 @@
 #moj_import <light.glsl>
 #moj_import <fog.glsl>
 
-in vec3 Position, Normal;
+in vec3 Position;
 in vec4 Color;
 in vec2 UV0;
-in ivec2 UV1, UV2;
+in ivec2 UV1;
+in ivec2 UV2;
+in vec3 Normal;
 
-uniform sampler2D Sampler0, Sampler1, Sampler2;
+uniform sampler2D Sampler1;
+uniform sampler2D Sampler2;
 
-uniform mat4 ModelViewMat, ProjMat;
+uniform mat4 ModelViewMat;
+uniform mat4 ProjMat;
 uniform int FogShape;
 
-uniform vec3 Light0_Direction, Light1_Direction;
+uniform vec3 Light0_Direction;
+uniform vec3 Light1_Direction;
 
 out float vertexDistance;
-out vec4 vertexColor, lightMapColor, overlayColor, normal;
-out vec2 texCoord0, texCoord1;
-out vec3 a, b;
+out vec4 vertexColor;
+out vec4 lightMapColor;
+out vec4 overlayColor;
+out vec2 texCoord0;
 
-vec3 getCubeSize(int cube) {
-    switch(cube) {
-        case 2: // Body
-        case 3: // Jacket
-            return vec3(8, 12, 4);
-        case 4: // Arms
-        case 5:
-        case 6:
-        case 7:
-            return vec3(3, 12, 4);
-        case 8: // Legs
-        case 9:
-        case 10:
-        case 11:
-            return vec3(4, 12, 4);
+uniform sampler2D Sampler0;
+out vec2 texCoord1;
+out float part;
 
-    }
+#define SPACING 1024.0
+#define MAXRANGE (0.5 * SPACING)
 
-    return vec3(8, 8, 8);
-}
+const vec4[] subuvs = vec4[](
+    vec4(4.0,  0.0,  8.0,  4.0 ), // 4x4x12
+    vec4(8.0,  0.0,  12.0, 4.0 ),
+    vec4(0.0,  4.0,  4.0,  16.0),
+    vec4(4.0,  4.0,  8.0,  16.0),
+    vec4(8.0,  4.0,  12.0, 16.0),
+    vec4(12.0, 4.0,  16.0, 16.0),
+    vec4(4.0,  0.0,  7.0,  4.0 ), // 4x3x12
+    vec4(7.0,  0.0,  10.0, 4.0 ),
+    vec4(0.0,  4.0,  4.0,  16.0),
+    vec4(4.0,  4.0,  7.0,  16.0),
+    vec4(7.0,  4.0,  11.0, 16.0),
+    vec4(11.0, 4.0,  14.0, 16.0),
+    vec4(4.0,  0.0,  12.0, 4.0 ), // 4x8x12
+    vec4(12.0,  0.0, 20.0, 4.0 ),
+    vec4(0.0,  4.0,  4.0,  16.0),
+    vec4(4.0,  4.0,  12.0, 16.0),
+    vec4(12.0, 4.0,  16.0, 16.0),
+    vec4(16.0, 4.0,  24.0, 16.0)
+);
 
-vec2 getBoxUV(int cube) {
-    switch(cube) {
-        case 0: // Head
-            return vec2(0, 0);
-        case 1: // Hat
-            return vec2(32, 0);
-        case 2: // Body
-            return vec2(16, 16);
-        case 3: // Jacket
-            return vec2(16, 32);
-        case 4: // Right arm
-            return vec2(40, 16);
-        case 5: // Right sleave
-            return vec2(40, 32);
-        case 6:
-            return vec2(32, 48);
-        case 7: // Left Sleeve
-            return vec2(48, 48);
-        case 8: // Right Leg
-            return vec2(0, 16);
-        case 9: // Right Pant
-            return vec2(0, 32);
-        case 10: // Left Leg
-            return vec2(16, 48);
-        case 11: // Left Pant
-            return vec2(0, 48);
-
-    }
-    return vec2(0, 0);
-}
-
-vec2 getUVOffset(int corner, vec3 cubeSize) {
-    vec2 offset, uv;
-    switch(corner / 4) {
-        case 1: // BOTTOM
-            offset = vec2(cubeSize.z + cubeSize.x, 0);
-            uv = vec2(cubeSize.x, cubeSize.z);
-            break;
-        case 4: // LEFT
-            offset = vec2(cubeSize.z + cubeSize.x, cubeSize.z);
-            uv = vec2(cubeSize.z, cubeSize.y);
-            break;
-        case 2: // RIGHT
-            offset = vec2(0, cubeSize.z);
-            uv = vec2(cubeSize.x, cubeSize.y);
-            break;
-        case 5: // BACK
-            offset = vec2(2 * cubeSize.z + cubeSize.x, cubeSize.z);
-            uv = vec2(cubeSize.z, cubeSize.y);
-            break;
-        case 0: // TOP
-            offset = vec2(cubeSize.z, 0);
-            uv = vec2(cubeSize.x, cubeSize.z);
-            break;
-        case 3: // FRONT
-			offset = vec2(cubeSize.z, cubeSize.z);
-            uv = vec2(cubeSize.x, cubeSize.y);
-            break;
-    }
-
-    switch(corner % 4) {
-        case 0:
-            offset += vec2(uv.x, 0);
-            break;
-        case 2:
-            offset += vec2(0, uv.y);
-            break;
-        case 3:
-            offset += vec2(uv.x, uv.y);
-            break;
-    }
-
-    return offset;
-}
+const vec2[] origins = vec2[](
+    vec2(40.0, 16.0), // right arm
+    vec2(40.0, 32.0),
+    vec2(32.0, 48.0), // left arm
+    vec2(48.0, 48.0),
+    vec2(16.0, 16.0), // torso
+    vec2(16.0, 32.0),
+    vec2(0.0,  16.0), // right leg
+    vec2(0.0,  32.0),
+    vec2(16.0, 48.0), // left leg
+    vec2(0.0,  48.0)
+);
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
-    a = b = vec3(0);
-    if(textureSize(Sampler0, 0) == vec2(64, 64) && UV0.y <= 0.25 && (gl_VertexID / 24 != 6 || UV0.x <= 0.5)) {
-        switch(gl_VertexID % 4) {
-            case 0: a = vec3(UV0, 1); break;
-            case 2: b = vec3(UV0, 1); break;
-        }
-		// 1 3 5 9 11 13 15 17
-        int cube = (gl_VertexID / 24) % 24;
-        int corner = gl_VertexID % 24;
-        vec3 cubeSize = getCubeSize(cube) / 64;
-        vec2 boxUV = getBoxUV(cube) / 64;
-        vec2 uvOffset = getUVOffset(corner, cubeSize);
-        texCoord0 = boxUV + uvOffset;
-    } else {
-        texCoord0 = UV0;
-    }
-
-    // vertexDistance = fog_distance(ModelViewMat, IViewRotMat * Position, FogShape);
-    vertexDistance = length((ModelViewMat * vec4(Position, 1.0)).xyz);
+    vertexDistance = fog_distance(Position, FogShape);
     vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);
     lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);
     overlayColor = texelFetch(Sampler1, UV1, 0);
-    texCoord1 = UV0;
-    normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
+    texCoord0 = UV0;
+
+    ivec2 dim = textureSize(Sampler0, 0);
+
+    if (ProjMat[2][3] == 0.0 || dim.x != 64 || dim.y != 64) {
+        part = 0.0;
+        texCoord1 = vec2(0.0);
+    } else {
+        vec3 wpos = Position;
+        vec2 UVout = UV0;
+        vec2 UVout2 = vec2(0.0);
+        int partId = -int((Position.y - MAXRANGE) / SPACING);
+
+        part = float(partId);
+
+        if (partId != 0) {
+            vec4 samp1 = texture(Sampler0, vec2(54.0 / 64.0, 20.0 / 64.0));
+            vec4 samp2 = texture(Sampler0, vec2(55.0 / 64.0, 20.0 / 64.0));
+            bool slim = samp1.a == 0.0 || (((samp1.r + samp1.g + samp1.b) == 0.0) && ((samp2.r + samp2.g + samp2.b) == 0.0) && samp1.a == 1.0 && samp2.a == 1.0);
+            int outerLayer = (gl_VertexID / 24) % 2;
+            int faceId = (gl_VertexID % 24) / 4;
+            int vertexId = gl_VertexID % 4;
+            int subuvIndex = faceId;
+
+            wpos.y += SPACING * partId;
+            gl_Position = ProjMat * ModelViewMat * vec4(wpos, 1.0);
+
+            UVout = origins[2 * (partId - 1) + outerLayer];
+            UVout2 = origins[2 * (partId - 1)];
+
+            if (slim && (partId == 1 || partId == 2)) {
+                subuvIndex += 6;
+            } else if (partId == 3) {
+                subuvIndex += 12;
+            }
+
+            vec4 subuv = subuvs[subuvIndex];
+            vec2 offset = vec2(0.0);
+
+            if (faceId == 1) {
+                if (vertexId == 0) {
+                    offset += subuv.zw;
+                } else if (vertexId == 1) {
+                    offset += subuv.xw;
+                } else if (vertexId == 2) {
+                    offset += subuv.xy;
+                } else {
+                    offset += subuv.zy;
+                }
+            } else {
+                if (vertexId == 0) {
+                    offset += subuv.zy;
+                } else if (vertexId == 1) {
+                    offset += subuv.xy;
+                } else if (vertexId == 2) {
+                    offset += subuv.xw;
+                } else {
+                    offset += subuv.zw;
+                }
+            }
+
+            UVout += offset;
+            UVout2 += offset;
+            UVout /= 64.0;
+            UVout2 /= 64.0;
+        } else {
+            // gl_Position = ProjMat * ModelViewMat * vec4(Position + vec3(0, 5, 0), 1.0);
+        }
+
+        vertexDistance = fog_distance(wpos, FogShape);
+        texCoord0 = UVout;
+        texCoord1 = UVout2;
+    }
+
 }

@@ -224,7 +224,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             }
 
             if (!(this.getParent() instanceof ModelBonePartDisplay)) {
-                this.baseStand = model.getBase();
+                this.baseStand = model.generateRoot();
                 this.baseStand.setInstance(instance, position).join();
             }
         });

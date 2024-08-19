@@ -5,10 +5,9 @@ import net.minestom.server.coordinate.Vec;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelLoader;
 import net.worldseed.multipart.animations.BoneAnimation;
-import net.worldseed.multipart.model_bones.ModelBoneHead;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
 
-public class ModelBoneHeadDisplay extends ModelBonePartDisplay implements ModelBoneHead, ModelBoneViewable {
+public class ModelBoneHeadDisplay extends ModelBonePartDisplay implements ModelBoneViewable {
     private double headRotation;
 
     public ModelBoneHeadDisplay(Point pivot, String name, Point rotation, GenericModel model, float scale) {

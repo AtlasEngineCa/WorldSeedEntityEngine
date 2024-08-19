@@ -9,12 +9,13 @@ import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
+import net.worldseed.multipart.model_bones.bone_types.VFXBone;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class ModelBoneVFX extends ModelBoneImpl {
+public class ModelBoneVFX extends ModelBoneImpl implements VFXBone {
     private final List<GenericModel> attached = new ArrayList<>();
     private Pos position = Pos.ZERO;
 

@@ -6,59 +6,72 @@ import com.google.gson.JsonObject;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.item.ItemComponent;
-import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.Material;
-import net.minestom.server.item.component.HeadProfile;
 import net.worldseed.multipart.GenericModelImpl;
 import net.worldseed.multipart.model_bones.ModelBone;
+import net.worldseed.multipart.model_bones.ModelBoneImpl;
+import net.worldseed.multipart.model_bones.ModelBoneViewable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.StringReader;
-import java.util.*;
+import java.util.Map;
 
 public class EmoteModel extends GenericModelImpl {
     protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-    private static final String MODEL_STRING = "{\"format_version\":\"1.12.0\",\"minecraft:geometry\":[{\"description\":{\"identifier\":\"geometry.unknown\",\"texture_width\":64,\"texture_height\":64},\"bones\":[{\"name\":\"right_leg\",\"pivot\":[-0.4446,2.8080000000000003,0.0],\"rotation\":[0,0,0],\"cubes\":[{\"origin\":[-0.936,0.0,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[-0.0234,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[4.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[0.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[12.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[8.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[4.0,16.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[8.0,20.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}},{\"origin\":[-0.936,0.0,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[-0.0234,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[4.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[0.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[12.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[8.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[4.0,16.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[8.0,20.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}}],\"parent\":\"model\"},{\"name\":\"left_leg\",\"pivot\":[0.4446,2.8080000000000003,0.0],\"rotation\":[0,0,0],\"cubes\":[{\"origin\":[0.0,0.0,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[0.0234,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[20.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[16.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[28.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[24.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[20.0,48.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[24.0,52.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}},{\"origin\":[0.0,0.0,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[0.0234,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[20.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[16.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[28.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[24.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[20.0,48.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[24.0,52.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}}],\"parent\":\"model\"},{\"name\":\"right_arm\",\"pivot\":[-1.1700000000000002,5.148000000000001,0.0],\"rotation\":[0,0,0],\"cubes\":[{\"origin\":[-1.872,2.808,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[44.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[40.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[52.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[48.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[44.0,16.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[48.0,20.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}},{\"origin\":[-1.872,2.808,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[44.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[40.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[52.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[48.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[44.0,16.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[48.0,20.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}}],\"parent\":\"body\"},{\"name\":\"left_arm\",\"pivot\":[1.1700000000000002,5.148000000000001,0.0],\"rotation\":[0,0,0],\"cubes\":[{\"origin\":[0.936,2.808,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[36.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[32.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[44.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[40.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[36.0,48.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[40.0,52.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}},{\"origin\":[0.936,2.808,-0.468],\"size\":[0.936,2.808,0.936],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[36.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[32.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[44.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[40.0,52.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[36.0,48.0],\"uv_size\":[4.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[40.0,52.0],\"uv_size\":[4.0,-4.0],\"texture\":\"0\"}}}],\"parent\":\"body\"},{\"name\":\"body\",\"pivot\":[0.0,2.8660000000000005,0.0],\"rotation\":[0,0,0],\"cubes\":[{\"origin\":[-0.936,2.808,-0.468],\"size\":[1.872,2.808,0.936],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[20.0,20.0],\"uv_size\":[8.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[16.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[32.0,20.0],\"uv_size\":[8.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[28.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[20.0,16.0],\"uv_size\":[8.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[28.0,20.0],\"uv_size\":[8.0,-4.0],\"texture\":\"0\"}}},{\"origin\":[-0.936,2.808,-0.468],\"size\":[1.872,2.808,0.936],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[20.0,20.0],\"uv_size\":[8.0,12.0],\"texture\":\"0\"},\"east\":{\"uv\":[16.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"south\":{\"uv\":[32.0,20.0],\"uv_size\":[8.0,12.0],\"texture\":\"0\"},\"west\":{\"uv\":[28.0,20.0],\"uv_size\":[4.0,12.0],\"texture\":\"0\"},\"up\":{\"uv\":[20.0,16.0],\"uv_size\":[8.0,4.0],\"texture\":\"0\"},\"down\":{\"uv\":[28.0,20.0],\"uv_size\":[8.0,-4.0],\"texture\":\"0\"}}}],\"parent\":\"torso\"},{\"name\":\"_head\",\"pivot\":[0.0,5.6160000000000005,0.0],\"rotation\":[0,0,0],\"cubes\":[{\"origin\":[-0.936,5.616,-0.936],\"size\":[1.872,1.872,1.872],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[8.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"east\":{\"uv\":[0.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"south\":{\"uv\":[24.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"west\":{\"uv\":[16.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"up\":{\"uv\":[8.0,0.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"down\":{\"uv\":[16.0,8.0],\"uv_size\":[8.0,-8.0],\"texture\":\"0\"}}},{\"origin\":[-0.936,5.616,-0.936],\"size\":[1.872,1.872,1.872],\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"uv\":{\"north\":{\"uv\":[8.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"east\":{\"uv\":[0.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"south\":{\"uv\":[24.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"west\":{\"uv\":[16.0,8.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"up\":{\"uv\":[8.0,0.0],\"uv_size\":[8.0,8.0],\"texture\":\"0\"},\"down\":{\"uv\":[16.0,8.0],\"uv_size\":[8.0,-8.0],\"texture\":\"0\"}}}],\"parent\":\"torso\"},{\"name\":\"torso\",\"pivot\":[0.0,2.75,0.0],\"rotation\":[0,0,0],\"cubes\":[],\"parent\":\"model\"},{\"name\":\"model\",\"pivot\":[0.0,0.0,0.0],\"rotation\":[0,0,0],\"cubes\":[]}]}]}";
     private static final JsonObject MODEL_JSON;
 
+    // summon minecraft:item_display ~ ~1.4 ~ {Tags:["head"],item_display:"thirdperson_righthand",view_range:0.6f,transformation:{translation:[0.0f,0.0f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]}}
+    // summon minecraft:item_display ~ ~1.4 ~ {Tags:["arm_r"],item_display:"thirdperson_righthand",view_range:0.6f,transformation:{translation:[0.0f,-1024.0f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]}}
+    // summon minecraft:item_display ~ ~1.4 ~ {Tags:["arm_l"],item_display:"thirdperson_righthand",view_range:0.6f,transformation:{translation:[0.0f,-2048.0f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]}}
+    // summon minecraft:item_display ~ ~1.4 ~ {Tags:["torso"],item_display:"thirdperson_righthand",view_range:0.6f,transformation:{translation:[0.0f,-3072.0f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]}}
+    // summon minecraft:item_display ~ ~0.7 ~ {Tags:["leg_r"],item_display:"thirdperson_righthand",view_range:0.6f,transformation:{translation:[0.0f,-4096.0f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]}}
+    // summon minecraft:item_display ~ ~0.7 ~ {Tags:["leg_l"],item_display:"thirdperson_righthand",view_range:0.6f,transformation:{translation:[0.0f,-5120.0f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]}}
+    // item replace entity @e[tag=head] hotbar.0 with minecraft:player_head{SkullOwner:"Notch",CustomModelData:1}
+    // item replace entity @e[tag=arm_r] hotbar.0 with minecraft:player_head{SkullOwner:"Notch",CustomModelData:2}
+    // item replace entity @e[tag=arm_l] hotbar.0 with minecraft:player_head{SkullOwner:"Notch",CustomModelData:3}
+    // item replace entity @e[tag=torso] hotbar.0 with minecraft:player_head{SkullOwner:"Notch",CustomModelData:4}
+    // item replace entity @e[tag=leg_r] hotbar.0 with minecraft:player_head{SkullOwner:"Notch",CustomModelData:5}
+    // item replace entity @e[tag=leg_l] hotbar.0 with minecraft:player_head{SkullOwner:"Notch",CustomModelData:6}
+
     private static final Map<String, Point> BONE_OFFSETS = Map.ofEntries(
-            Map.entry("_head", new Vec(0.0, 5.616, 0.0)),
-            Map.entry("body", new Vec(0.0, 5.616, 0.0)),
-            Map.entry("right_arm", new Vec(1.17, 5.148, 0.0)),
-            Map.entry("left_arm", new Vec(-1.17, 5.148, 0.0)),
-            Map.entry("right_leg", new Vec(0.4446, 2.808, 0.0)),
-            Map.entry("left_leg", new Vec(-0.4446, 2.808, 0.0))
+            Map.entry("Head", new Vec(0, 0, 0)),
+            Map.entry("RightArm", new Vec(1.17, 0, 0)),
+            Map.entry("LeftArm", new Vec(-1.17, 0, 0)),
+            Map.entry("Body", new Vec(0, 0, 0)),
+            Map.entry("RightLeg", new Vec(0.4446, 0, 0)),
+            Map.entry("LeftLeg", new Vec(-0.4446, 0, 0))
+    );
+
+    private static final Map<String, Double> VERTICAL_OFFSETS = Map.of(
+            "Head", 1.4,
+            "RightArm", 1.4,
+            "LeftArm", 1.4,
+            "Body", 1.4,
+            "RightLeg", 0.7,
+            "LeftLeg", 0.7
+    );
+
+    private static final Map<String, Integer> BONE_TRANSLATIONS = Map.of(
+            "Head", 0,
+            "RightArm", -1024,
+            "LeftArm", -2048,
+            "Body", -3072,
+            "RightLeg", -4096,
+            "LeftLeg", -5120
     );
 
     private static final Map<String, Point> BONE_DIFFS = Map.ofEntries(
-            Map.entry("_head", new Vec(8.936, 8.0, 8.936)),
-            Map.entry("body", new Vec(8.936, 10.808, 8.468)),
-            Map.entry("right_arm", new Vec(8.234, 10.34, 8.468)),
-            Map.entry("left_arm", new Vec(8.702, 10.34, 8.468)),
-            Map.entry("right_leg", new Vec(8.4446, 10.808, 8.468)),
-            Map.entry("left_leg", new Vec(8.4914, 10.808, 8.468))
+            // Map.entry("RightArm", new Vec(0, 0, 0)),
+            // Map.entry("LeftArm", new Vec(0, 0, 0))
     );
 
-    private static final String[] SPAWN_ORDER = {
-            "_head",
-            "body",
-            "right_arm",
-            "left_arm",
-            "right_leg",
-            "left_leg",
-    };
-
     static {
-        MODEL_JSON = GSON.fromJson(new StringReader(MODEL_STRING), JsonObject.class);
+        MODEL_JSON = GSON.fromJson(new StringReader(SteveModel.MODEL_STRING), JsonObject.class);
     }
 
-    private final List<ModelBone> standBones = new ArrayList<>();
     private final PlayerSkin skin;
 
     public EmoteModel(PlayerSkin skin) {
@@ -66,14 +79,21 @@ public class EmoteModel extends GenericModelImpl {
     }
 
     @Override
+    protected void registerBoneSuppliers() {
+        boneSuppliers.put(name -> true, (info) -> {
+            return new ModelBoneEmote(info.pivot(), info.name(), info.rotation(), info.model(), BONE_TRANSLATIONS.get(info.name()), VERTICAL_OFFSETS.getOrDefault(info.name(), 0.0), skin);
+        });
+    }
+
+    @Override
     public boolean addViewer(@NotNull Player player) {
-        standBones.forEach(bone -> bone.addViewer(player));
+        System.out.println("Adding viewer " + player.getUsername());
         return super.addViewer(player);
     }
 
     @Override
     public boolean removeViewer(@NotNull Player player) {
-        standBones.forEach(bone -> bone.removeViewer(player));
+        System.out.println("Removing viewer " + player.getUsername());
         return super.removeViewer(player);
     }
 
@@ -83,47 +103,37 @@ public class EmoteModel extends GenericModelImpl {
     }
 
     private void init_(@Nullable Instance instance, @NotNull Pos position) {
+        System.out.println("Initing " + position);
         this.instance = instance;
         this.setPosition(position);
 
         this.setGlobalRotation(position.yaw());
-        loadBones(MODEL_JSON, 1);
 
-        for (String boneName : SPAWN_ORDER) {
-            ModelBone bone = this.parts.get(boneName);
-            standBones.add(bone);
-            if (bone != null) {
-                bone.spawn(instance, bone.calculatePosition()).join();
-            }
+        try {
+            super.loadBones(MODEL_JSON, 1);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        draw();
-        draw();
+        System.out.println(this.parts);
+        for (ModelBone modelBonePart : this.parts.values()) {
+            if (modelBonePart instanceof ModelBoneViewable)
+                viewableBones.add((ModelBoneImpl) modelBonePart);
+
+            System.out.println("Spawning " + modelBonePart);
+            modelBonePart.spawn(instance, modelBonePart.calculatePosition()).join();
+        }
+
         draw();
     }
 
     public void init(@Nullable Instance instance, @NotNull Pos position) {
         this.init_(instance, position);
-
-        Map<Integer, ItemStack> heads = new HashMap<>();
-        for (int i = 1; i <= SPAWN_ORDER.length; ++i) {
-            ItemStack playerHeads = ItemStack.builder(Material.PLAYER_HEAD).set(ItemComponent.PROFILE, new HeadProfile(skin)).build();
-            heads.put(i, playerHeads);
-        }
-
-        setHeads(heads);
-    }
-
-    private void setHeads(Map<Integer, ItemStack> heads) {
-        for (int i = 0; i < SPAWN_ORDER.length; ++i) {
-            LivingEntity f = standBones.get(i).getEntity();
-            f.setItemInMainHand(heads.get(i + 1));
-        }
     }
 
     @Override
     public Point getDiff(String boneName) {
-        return BONE_DIFFS.get(boneName);
+        return BONE_DIFFS.getOrDefault(boneName, null);
     }
 
     @Override
@@ -132,6 +142,6 @@ public class EmoteModel extends GenericModelImpl {
 
     @Override
     public Point getOffset(String boneName) {
-        return BONE_OFFSETS.get(boneName);
+        return BONE_OFFSETS.getOrDefault(boneName, Vec.ZERO);
     }
 }
