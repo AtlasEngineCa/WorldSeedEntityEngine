@@ -347,8 +347,8 @@ public class ModelParser {
         double ey = uv.y2 * (16.0 / height);
 
         if (inverse)
-            return new UV(ex + sx, ey + sy, sx, sy, uv.texture);
-        return new UV(sx, sy, ex + sx, ey + sy, uv.texture);
+            return new UV(ex + sx, ey + sy, sx, sy, uv.texture, uv.rotation);
+        return new UV(sx, sy, ex + sx, ey + sy, uv.texture, uv.rotation);
     }
 
     private static JsonObject mappingsToJson() {
@@ -420,7 +420,9 @@ public class ModelParser {
             JsonArray north_uv = north.getJsonArray("uv");
             JsonArray north_size = north.getJsonArray("uv_size");
             String texture = north.getString("texture");
-            UV uvNorth = new UV(north_uv.getJsonNumber(0).doubleValue(), north_uv.getJsonNumber(1).doubleValue(), north_size.getJsonNumber(0).doubleValue(), north_size.getJsonNumber(1).doubleValue(), texture);
+            int rotation = north.get("rotation") == null ? 0 : north.getInt("rotation");
+
+            UV uvNorth = new UV(north_uv.getJsonNumber(0).doubleValue(), north_uv.getJsonNumber(1).doubleValue(), north_size.getJsonNumber(0).doubleValue(), north_size.getJsonNumber(1).doubleValue(), texture, rotation);
             res.put(face, uvNorth);
         }
 
@@ -507,7 +509,7 @@ public class ModelParser {
         }
     }
 
-    record UV(double x1, double y1, double x2, double y2, String texture) {
+    record UV(double x1, double y1, double x2, double y2, String texture, int rotation) {
         public JsonObject asJson() {
             JsonArrayBuilder els = Json.createArrayBuilder();
             els.add(x1);
@@ -519,6 +521,7 @@ public class ModelParser {
 
             res.add("uv", els);
             res.add("texture", texture);
+            if (rotation != 0) res.add("rotation", rotation);
             return res.build();
         }
     }
