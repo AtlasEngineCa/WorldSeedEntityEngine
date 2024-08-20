@@ -185,6 +185,7 @@ public class GeoGenerator {
 
             String face = entry.getKey();
             JsonValue uv = entry.getValue().asJsonObject().get("uv");
+            JsonValue rotation = entry.getValue().asJsonObject().get("rotation");
 
             JsonArray shape = uv.asJsonArray();
 
@@ -220,13 +221,16 @@ public class GeoGenerator {
                 else texture = textures.values().toArray(new TextureGenerator.TextureData[0])[nInt].id();
             }
 
-            JsonObject faceParsed = Json.createObjectBuilder()
+            JsonObjectBuilder faceParsed = Json.createObjectBuilder()
                     .add("uv", from)
                     .add("uv_size", size)
-                    .add("texture", texture)
-                    .build();
+                    .add("texture", texture);
 
-            res.add(face, faceParsed);
+            if (rotation instanceof JsonNumber r) {
+                faceParsed.add("rotation", r);
+            }
+
+            res.add(face, faceParsed.build());
         }
 
         return res.build();
