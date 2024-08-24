@@ -103,7 +103,6 @@ public class EmoteModel extends GenericModelImpl {
     }
 
     private void init_(@Nullable Instance instance, @NotNull Pos position) {
-        System.out.println("Initing " + position);
         this.instance = instance;
         this.setPosition(position);
 
@@ -115,12 +114,10 @@ public class EmoteModel extends GenericModelImpl {
             e.printStackTrace();
         }
 
-        System.out.println(this.parts);
         for (ModelBone modelBonePart : this.parts.values()) {
             if (modelBonePart instanceof ModelBoneViewable)
                 viewableBones.add((ModelBoneImpl) modelBonePart);
 
-            System.out.println("Spawning " + modelBonePart);
             modelBonePart.spawn(instance, modelBonePart.calculatePosition()).join();
         }
 
