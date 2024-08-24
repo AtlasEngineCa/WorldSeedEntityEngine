@@ -136,7 +136,7 @@ public class BoneAnimationImpl implements BoneAnimation {
                 double time = Double.parseDouble(entry.getKey());
 
                 if (entry.getValue() instanceof JsonObject obj) {
-                    MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray().get(0).getAsJsonObject()).orElse(MQLPoint.ZERO);
+                    MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray().get(0)).orElse(MQLPoint.ZERO);
                     String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
                     transform.put(time, new PointInterpolation(point, lerp));
                 } else if (entry.getValue() instanceof JsonArray arr) {

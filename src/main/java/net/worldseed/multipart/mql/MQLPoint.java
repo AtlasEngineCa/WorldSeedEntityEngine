@@ -25,6 +25,13 @@ public class MQLPoint {
         z = 0;
     }
 
+
+    public MQLPoint(double x_, double y_, double z_) {
+        x = x_;
+        y = y_;
+        z = z_;
+    }
+
     public MQLPoint(JsonObject json) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         JsonElement fx = json.get("x");
         if (fx != null) {

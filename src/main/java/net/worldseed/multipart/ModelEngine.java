@@ -22,6 +22,7 @@ import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.mql.MQLPoint;
 
+import javax.json.JsonNumber;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
@@ -130,10 +131,14 @@ public class ModelEngine {
         }
     }
 
-    public static Optional<MQLPoint> getMQLPos(JsonObject pivot) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public static Optional<MQLPoint> getMQLPos(JsonElement pivot) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (pivot == null) return Optional.empty();
-        else {
-            return Optional.of(new MQLPoint(pivot));
+        else if (pivot instanceof JsonObject obj) {
+            return Optional.of(new MQLPoint(obj));
+        } else if (pivot instanceof JsonNumber num) {
+            return Optional.of(new MQLPoint(num.doubleValue(), num.doubleValue(), num.doubleValue()));
+        } else {
+            return Optional.empty();
         }
     }
 
