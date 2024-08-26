@@ -136,12 +136,22 @@ public class BoneAnimationImpl implements BoneAnimation {
                 double time = Double.parseDouble(entry.getKey());
 
                 if (entry.getValue() instanceof JsonObject obj) {
-                    MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray().get(0)).orElse(MQLPoint.ZERO);
-                    String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
-                    transform.put(time, new PointInterpolation(point, lerp));
+                    if (obj.get("post") instanceof JsonArray arr) {
+                        if (arr.get(0) instanceof JsonObject) {
+                            MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray().get(0)).orElse(MQLPoint.ZERO);
+                            String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
+                            if (lerp == null) lerp = "linear";
+                            transform.put(time, new PointInterpolation(point, lerp));
+                        } else {
+                            MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray()).orElse(MQLPoint.ZERO);
+                            String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
+                            if (lerp == null) lerp = "linear";
+                            transform.put(time, new PointInterpolation(point, lerp));
+                        }
+                    }
                 } else if (entry.getValue() instanceof JsonArray arr) {
                     MQLPoint point = ModelEngine.getMQLPos(arr).orElse(MQLPoint.ZERO);
-                    transform.put(time, new PointInterpolation(point, "undefined"));
+                    transform.put(time, new PointInterpolation(point, "linear"));
                 }
             }
         } catch (IllegalStateException | InvocationTargetException | NoSuchMethodException |

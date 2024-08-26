@@ -66,6 +66,9 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
             case "LeftLeg" -> {
                 this.diff = this.pivot.add(0.4446, 0, 0);
             }
+            case "Body" -> {
+                this.diff = this.pivot.add(0, 0, 0);
+            }
         }
     }
 
