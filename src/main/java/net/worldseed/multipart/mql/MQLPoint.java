@@ -25,7 +25,6 @@ public class MQLPoint {
         z = 0;
     }
 
-
     public MQLPoint(double x_, double y_, double z_) {
         x = x_;
         y = y_;
@@ -132,5 +131,22 @@ public class MQLPoint {
         }
 
         return new Vec(evaluatedX, evaluatedY, evaluatedZ);
+    }
+
+    @Override
+    public String toString() {
+        if (molangX != null || molangY != null || molangZ != null) {
+            return "MQLPoint{" +
+                    "x=" + molangX +
+                    ", y=" + molangY +
+                    ", z=" + molangZ +
+                    '}';
+        }
+
+        return "MQLPoint{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 }
