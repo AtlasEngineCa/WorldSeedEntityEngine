@@ -84,6 +84,18 @@ public abstract class EmotePlayer extends EntityCreature {
     }
 
     @Override
+    public void tick(long time) {
+        var position = this.getPosition();
+        super.tick(time);
+        if (position.equals(this.getPosition())) return;
+        this.model.setPosition(this.getPosition());
+    }
+
+    public void setRotation(float yaw) {
+        this.model.setGlobalRotation(yaw);
+    }
+
+    @Override
     public void updateNewViewer(@NotNull Player player) {
         super.updateNewViewer(player);
         this.model.addViewer(player);

@@ -7,6 +7,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.metadata.other.ArmorStandMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
@@ -16,7 +17,6 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.bone_types.RideableBone;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +27,11 @@ public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
         super(pivot, name, rotation, model, scale);
 
         if (this.offset != null) {
-            this.stand = new BoneEntity(EntityType.ZOMBIE, model);
+            this.stand = new BoneEntity(EntityType.ARMOR_STAND, model);
+            this.stand.editEntityMeta(ArmorStandMeta.class, meta -> {
+                meta.setMarker(true);
+            });
+
             this.stand.setTag(Tag.String("WSEE"), "seat");
             stand.setInvisible(true);
         }
