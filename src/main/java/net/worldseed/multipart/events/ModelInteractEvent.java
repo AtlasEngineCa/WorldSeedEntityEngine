@@ -1,23 +1,31 @@
 package net.worldseed.multipart.events;
 
-import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.Player;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.worldseed.gestures.EmoteModel;
 import net.worldseed.multipart.GenericModel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ModelInteractEvent implements ModelEvent {
     private final GenericModel model;
-    private final Entity interactor;
+    private final Player interactor;
+    private final BoneEntity interactedBone;
+    private final Player.Hand hand;
 
-    public ModelInteractEvent(@NotNull GenericModel model, Entity interactor) {
+    public ModelInteractEvent(@NotNull GenericModel model, PlayerEntityInteractEvent event, BoneEntity interactedBone) {
         this.model = model;
-        this.interactor = interactor;
+        this.hand = event.getHand();
+        this.interactor = event.getPlayer();
+        this.interactedBone = interactedBone;
     }
 
-    public ModelInteractEvent(EmoteModel model, PlayerEntityInteractEvent event) {
+    public ModelInteractEvent(@NotNull EmoteModel model, PlayerEntityInteractEvent event) {
         this.model = model;
+        this.hand = event.getHand();
         this.interactor = event.getPlayer();
+        this.interactedBone = null;
     }
 
     @Override
@@ -25,8 +33,16 @@ public class ModelInteractEvent implements ModelEvent {
         return model;
     }
 
-    public @NotNull Entity getInteracted() {
+    public @NotNull Player.Hand getHand() {
+        return hand;
+    }
+
+    public @NotNull Player getInteracted() { // This should probably be getInteractor() or getPlayer() but I left this untouched so code doesn't break
         return interactor;
+    }
+    
+    public @Nullable BoneEntity getBone() {
+        return interactedBone;
     }
 }
 
