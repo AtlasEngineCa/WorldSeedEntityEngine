@@ -14,18 +14,15 @@ public class ModelInteractEvent implements ModelEvent {
     private final BoneEntity interactedBone;
     private final Player.Hand hand;
 
-    public ModelInteractEvent(@NotNull GenericModel model, PlayerEntityInteractEvent event, BoneEntity interactedBone) {
+    public ModelInteractEvent(@NotNull EmoteModel model, PlayerEntityInteractEvent event) {
+        this(model, event, null);
+    }
+    
+    public ModelInteractEvent(@NotNull GenericModel model, PlayerEntityInteractEvent event, @Nullable BoneEntity interactedBone) {
         this.model = model;
         this.hand = event.getHand();
         this.interactor = event.getPlayer();
         this.interactedBone = interactedBone;
-    }
-
-    public ModelInteractEvent(@NotNull EmoteModel model, PlayerEntityInteractEvent event) {
-        this.model = model;
-        this.hand = event.getHand();
-        this.interactor = event.getPlayer();
-        this.interactedBone = null;
     }
 
     @Override
