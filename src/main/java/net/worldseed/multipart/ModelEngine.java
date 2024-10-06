@@ -56,14 +56,14 @@ public class ModelEngine {
     });
     private static final EventListener<PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
         if (event.getTarget() instanceof BoneEntity bone) {
-            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event.getPlayer());
+            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event.getPlayer(), bone);
             EventDispatcher.call(modelInteractEvent);
         }
     });
     private static final EventListener<EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
         if (event.getEntity() instanceof BoneEntity bone) {
             event.setCancelled(true);
-            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(bone.getModel(), event);
+            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(bone.getModel(), event, bone);
             MinecraftServer.getGlobalEventHandler().call(modelDamageEvent);
         }
     });
