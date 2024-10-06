@@ -15,7 +15,7 @@ import java.util.Set;
 public class BoneEntity extends LivingEntity {
     private final GenericModel model;
 
-    public BoneEntity(@NotNull EntityType entityType, GenericModel model) {
+    public BoneEntity(@NotNull EntityType entityType, GenericModel model, String name) {
         super(entityType);
         this.setAutoViewable(false);
         setTag(Tag.String("WSEE"), "part");

@@ -33,7 +33,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         super(pivot, name, rotation, model, scale);
 
         if (this.offset != null) {
-            this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model);
+            this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model, name);
 
             var itemMeta = (ItemDisplayMeta) this.stand.getEntityMeta();
 

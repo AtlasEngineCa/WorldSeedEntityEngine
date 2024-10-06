@@ -47,7 +47,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
             this.offset = null;
         } else {
             if (this.offset != null) {
-                this.stand = new BoneEntity(EntityType.INTERACTION, model) {
+                this.stand = new BoneEntity(EntityType.INTERACTION, model, name) {
                     @Override
                     public void updateNewViewer(@NotNull Player player) {
                         super.updateNewViewer(player);

@@ -27,7 +27,7 @@ public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
         super(pivot, name, rotation, model, scale);
 
         if (this.offset != null) {
-            this.stand = new BoneEntity(EntityType.ARMOR_STAND, model);
+            this.stand = new BoneEntity(EntityType.ARMOR_STAND, model, name);
             this.stand.editEntityMeta(ArmorStandMeta.class, meta -> {
                 meta.setMarker(true);
             });
