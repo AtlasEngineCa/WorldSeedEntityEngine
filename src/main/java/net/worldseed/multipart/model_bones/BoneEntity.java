@@ -14,12 +14,14 @@ import java.util.Set;
 
 public class BoneEntity extends LivingEntity {
     private final GenericModel model;
+    private final String name;
 
     public BoneEntity(@NotNull EntityType entityType, GenericModel model, String name) {
         super(entityType);
         this.setAutoViewable(false);
         setTag(Tag.String("WSEE"), "part");
         this.model = model;
+        this.name = name;
 
         this.setNoGravity(true);
         this.setSynchronizationTicks(Integer.MAX_VALUE);
@@ -32,6 +34,10 @@ public class BoneEntity extends LivingEntity {
 
     public GenericModel getModel() {
         return model;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
