@@ -62,7 +62,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
                     }
                 };
 
-                this.stand.setTag(WSEE, name);
+                this.stand.setTag(WSEE, "hitbox");
                 this.offset = newOffset;
 
                 InteractionMeta meta = (InteractionMeta) this.stand.getEntityMeta();
