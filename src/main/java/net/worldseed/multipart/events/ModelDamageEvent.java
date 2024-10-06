@@ -5,11 +5,13 @@ import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.trait.CancellableEvent;
 import net.minestom.server.sound.SoundEvent;
 import net.worldseed.multipart.GenericModel;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ModelDamageEvent implements ModelEvent, CancellableEvent {
     private final GenericModel model;
+    private final BoneEntity hitBone;
     private final Damage damage;
     private SoundEvent sound;
 
@@ -17,15 +19,15 @@ public class ModelDamageEvent implements ModelEvent, CancellableEvent {
 
     private boolean cancelled;
 
-    public ModelDamageEvent(GenericModel model, @NotNull Damage damage,
-                            @Nullable SoundEvent sound) {
-        this.model = model;
-        this.damage = damage;
-        this.sound = sound;
-    }
-
     public ModelDamageEvent(GenericModel model, EntityDamageEvent event) {
-        this(model, event.getDamage(), event.getSound());
+        this(model, event, null);
+    }
+    
+    public ModelDamageEvent(GenericModel model, EntityDamageEvent event, @Nullable BoneEntity hitBone) {
+        this.model = model;
+        this.hitBone = hitbone;
+        this.damage = event.getDamage();
+        this.sound = event.getSound();
         this.animation = event.shouldAnimate();
     }
 
@@ -74,6 +76,15 @@ public class ModelDamageEvent implements ModelEvent, CancellableEvent {
      */
     public void setAnimation(boolean animation) {
         this.animation = animation;
+    }
+
+    /**
+     * Gets the hitbox bone that has been hit.
+     *
+     * @return the hitbox bone that has been hit, or null if it was an EmotePlayer
+     */
+    public @Nullable BoneEntity getBone() {
+        return hitBone;
     }
 
     @Override
