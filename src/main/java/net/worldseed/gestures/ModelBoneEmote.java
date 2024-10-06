@@ -34,7 +34,7 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
         this.verticalOffset = verticalOffset;
 
         if (this.offset != null) {
-            this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model);
+            this.stand = new BoneEntity(EntityType.ITEM_DISPLAY, model, name);
             this.stand.editEntityMeta(ItemDisplayMeta.class, meta -> {
                 meta.setViewRange(10000);
                 meta.setTransformationInterpolationDuration(2);
