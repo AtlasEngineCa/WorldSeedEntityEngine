@@ -56,7 +56,7 @@ public class ModelEngine {
     });
     private static final EventListener<PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
         if (event.getTarget() instanceof BoneEntity bone) {
-            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event.getPlayer(), bone);
+            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event, bone);
             EventDispatcher.call(modelInteractEvent);
         }
     });

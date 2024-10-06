@@ -25,7 +25,7 @@ public class ModelDamageEvent implements ModelEvent, CancellableEvent {
     
     public ModelDamageEvent(GenericModel model, EntityDamageEvent event, @Nullable BoneEntity hitBone) {
         this.model = model;
-        this.hitBone = hitbone;
+        this.hitBone = hitBone;
         this.damage = event.getDamage();
         this.sound = event.getSound();
         this.animation = event.shouldAnimate();
