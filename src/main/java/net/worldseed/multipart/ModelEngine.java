@@ -115,12 +115,12 @@ public class ModelEngine {
         return blockMappings.get(model + "/" + name);
     }
 
-    public static String getGeoPath(String id) {
-        return modelPath + "/" + id + "/model.geo.json";
+    public static Path getGeoPath(String id) {
+        return modelPath.resolve(id).resolve("model.geo.json");
     }
 
-    public static String getAnimationPath(String id) {
-        return modelPath + "/" + id + "/model.animation.json";
+    public static Path getAnimationPath(String id) {
+        return modelPath.resolve(id).resolve("model.animation.json");
     }
 
     public static Optional<Point> getPos(JsonElement pivot) {

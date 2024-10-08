@@ -6,10 +6,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.worldseed.multipart.animations.FrameProvider;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,10 +39,10 @@ public class ModelLoader {
         try {
             loadedAnimations1 = GSON
                     .fromJson(
-                            new InputStreamReader(new FileInputStream(ModelEngine.getAnimationPath(toLoad))),
+                            new InputStreamReader(Files.newInputStream(ModelEngine.getAnimationPath(toLoad))),
                             JsonObject.class
                     );
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             loadedAnimations1 = null;
         }
@@ -59,8 +57,8 @@ public class ModelLoader {
 
         JsonObject loadedModel1;
         try {
-            loadedModel1 = GSON.fromJson(new InputStreamReader(new FileInputStream(ModelEngine.getGeoPath(id))), JsonObject.class);
-        } catch (FileNotFoundException e) {
+            loadedModel1 = GSON.fromJson(new InputStreamReader(Files.newInputStream(ModelEngine.getGeoPath(id))), JsonObject.class);
+        } catch (IOException e) {
             e.printStackTrace();
             loadedModel1 = null;
         }
