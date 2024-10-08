@@ -127,16 +127,16 @@ public class PackBuilder {
                 }
             }
 
-            var modelPartPath = modelPathMobs.resolve(model.id()).resolve(model.state().name());
+            var modelStatePath = modelPathMobs.resolve(model.id()).resolve(model.state().name());
             try {
-                Files.createDirectories(modelPartPath);
+                Files.createDirectories(modelStatePath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             for (var entry : model.bones().entrySet()) {
                 try {
-                    Files.writeString(modelPartPath.resolve(entry.getKey()), entry.getValue().toString(), Charset.defaultCharset());
+                    Files.writeString(modelStatePath.resolve(entry.getKey()), entry.getValue().toString(), Charset.defaultCharset());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
