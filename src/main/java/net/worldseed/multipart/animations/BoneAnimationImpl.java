@@ -20,6 +20,7 @@ public class BoneAnimationImpl implements BoneAnimation {
     private final FrameProvider frameProvider;
     private final int length;
     private final String name;
+    private final String boneName;
     private boolean playing = false;
     private short tick = 0;
     private AnimationHandlerImpl.AnimationDirection direction = AnimationHandlerImpl.AnimationDirection.FORWARD;
@@ -28,6 +29,7 @@ public class BoneAnimationImpl implements BoneAnimation {
         this.type = animationType;
         this.length = (int) (length * 20);
         this.name = animationName;
+        this.boneName = boneName;
 
         FrameProvider found;
         if (this.type == ModelLoader.AnimationType.ROTATION) {
@@ -180,8 +182,21 @@ public class BoneAnimationImpl implements BoneAnimation {
         this.playing = true;
     }
 
+    public void resume(short tick) {
+        this.tick = tick;
+        this.playing = true;
+    }
+
     public String name() {
         return name;
+    }
+
+    public String boneName() {
+        return boneName;
+    }
+
+    public short getTick() {
+        return tick;
     }
 
     record PointInterpolation(MQLPoint p, String lerp) {

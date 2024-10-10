@@ -9,12 +9,8 @@ import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelLoader;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 public class AnimationHandlerImpl implements AnimationHandler {
     private final GenericModel model;
@@ -49,6 +45,8 @@ public class AnimationHandlerImpl implements AnimationHandler {
         final double length = animationLength == null ? 0 : animationLength.getAsDouble();
 
         HashSet<BoneAnimation> animationSet = new HashSet<>();
+        HashSet<String> animatedBones = new HashSet<>();
+
         for (Map.Entry<String, JsonElement> boneEntry : animation.getAsJsonObject().get("bones").getAsJsonObject().entrySet()) {
             String boneName = boneEntry.getKey();
             var bone = model.getPart(boneName);
@@ -58,21 +56,30 @@ public class AnimationHandlerImpl implements AnimationHandler {
             JsonElement animationPosition = boneEntry.getValue().getAsJsonObject().get("position");
             JsonElement animationScale = boneEntry.getValue().getAsJsonObject().get("scale");
 
+            boolean animated = false;
+
             if (animationRotation != null) {
+                animated = true;
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationRotation, ModelLoader.AnimationType.ROTATION, length);
                 animationSet.add(boneAnimation);
             }
             if (animationPosition != null) {
+                animated = true;
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationPosition, ModelLoader.AnimationType.TRANSLATION, length);
                 animationSet.add(boneAnimation);
             }
             if (animationScale != null) {
+                animated = true;
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationScale, ModelLoader.AnimationType.SCALE, length);
                 animationSet.add(boneAnimation);
             }
+
+            if (animated) {
+                animatedBones.add(boneName);
+            }
         }
 
-        animations.put(name, new ModelAnimationClassic(name, (int) (length * 20), priority, animationSet));
+        animations.put(name, new ModelAnimationClassic(name, (int) (length * 20), priority, animationSet, animatedBones));
     }
 
     @Override
@@ -98,14 +105,14 @@ public class AnimationHandlerImpl implements AnimationHandler {
         this.repeating.put(this.animationPriorities().get(animation), modelAnimation);
         var top = this.repeating.firstEntry();
 
-        if (top != null && animation.equals(top.getValue().name())) {
+        if (top != null && animation.equals(top.getValue().name())) { //The animation you want to play is the highest priority
             this.repeating.values().forEach(v -> {
-                if (!v.name().equals(animation)) {
-                    this.repeating.forEach((k, a) -> a.stop());
+                if (!v.name().equals(animation)) { //Stop all lower priority animations to ensure the correct one is playing
+                    v.stop(); //The extra loop seemed redundant, please let me know if this breaks something
                 }
             });
             if (playingOnce == null) {
-                modelAnimation.play();
+                modelAnimation.play(false); //Start the repeating animation if no playOnce animation is currently playing
             }
         }
     }
@@ -116,7 +123,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
         var modelAnimation = this.animations.get(animation);
 
-        modelAnimation.stop();
+        modelAnimation.stop(); //Stop the highest priority repeating animation
         int priority = this.animationPriorities().get(animation);
 
         Map.Entry<Integer, ModelAnimation> currentTop = this.repeating.firstEntry();
@@ -126,16 +133,21 @@ public class AnimationHandlerImpl implements AnimationHandler {
         Map.Entry<Integer, ModelAnimation> firstEntry = this.repeating.firstEntry();
 
         if (this.playingOnce == null && firstEntry != null && currentTop != null && !firstEntry.getKey().equals(currentTop.getKey())) {
-            firstEntry.getValue().play();
+            firstEntry.getValue().play(false); //Restart the new highest priority repeating animation
         }
     }
 
+
     public void playOnce(String animation, Runnable cb) throws IllegalArgumentException {
-        this.playOnce(animation, AnimationDirection.FORWARD, cb);
+        this.playOnce(animation, true, cb);
+    }
+
+    public void playOnce(String animation, boolean override, Runnable cb) throws IllegalArgumentException {
+        this.playOnce(animation, AnimationDirection.FORWARD, override, cb);
     }
 
     @Override
-    public void playOnce(String animation, AnimationDirection direction, Runnable cb) throws IllegalArgumentException {
+    public void playOnce(String animation, AnimationDirection direction, boolean override, Runnable cb) throws IllegalArgumentException {
         if (this.animationPriorities().get(animation) == null)
             throw new IllegalArgumentException("Animation " + animation + " does not exist");
 
@@ -144,23 +156,23 @@ public class AnimationHandlerImpl implements AnimationHandler {
         AnimationDirection currentDirection = modelAnimation.direction();
         modelAnimation.setDirection(direction);
 
-        if (this.callbacks.containsKey(animation)) {
-            this.callbacks.get(animation).run();
+        if (this.callbacks.containsKey(animation)) { //This animation had a pending runnable
+            this.callbacks.get(animation).run(); //Run callback runnable
         }
 
         int callbackTimer = this.callbackTimers.getOrDefault(animation, 0);
 
-        if (animation.equals(this.playingOnce) && direction == AnimationDirection.PAUSE && callbackTimer > 0) {
+        if (animation.equals(this.playingOnce) && direction == AnimationDirection.PAUSE && callbackTimer > 0) { //This animation was already playing, paused and not finished
             // Pause. Only call if we're not stopped
             playingOnce = animation;
             this.callbacks.put(animation, cb);
-        } else if (animation.equals(this.playingOnce) && currentDirection != direction) {
+        } else if (animation.equals(this.playingOnce) && currentDirection != direction) { //This animation was already playing, but in a different direction
             playingOnce = animation;
             this.callbacks.put(animation, cb);
             if (currentDirection != AnimationDirection.PAUSE)
                 this.callbackTimers.put(animation, modelAnimation.animationTime() - callbackTimer + 1);
-        } else if (direction != AnimationDirection.PAUSE) {
-            if (playingOnce != null) {
+        } else if (direction != AnimationDirection.PAUSE) { //This animation was not playing, or it was in the same direction
+            if (playingOnce != null) { //Stop current animation
                 this.animations.get(playingOnce).stop();
                 modelAnimation.stop();
             }
@@ -168,11 +180,16 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
             this.callbacks.put(animation, cb);
             this.callbackTimers.put(animation, modelAnimation.animationTime());
-            modelAnimation.play();
+            modelAnimation.play(false);
 
+            Set<String> animatedBones = modelAnimation.getAnimatedBones();
             this.repeating.values().forEach(v -> {
                 if (!v.name().equals(animation)) {
-                    v.stop();
+                    if (override) {
+                        v.stop(); //Stop all repeating animations
+                    } else {
+                        v.stop(animatedBones); //Stop all 'animatedBones' for all repeating animations
+                    }
                 }
             });
         }
@@ -181,37 +198,36 @@ public class AnimationHandlerImpl implements AnimationHandler {
     private void tick() {
         try {
             for (Map.Entry<String, Integer> entry : callbackTimers.entrySet()) {
-                var modelAnimation = animations.get(entry.getKey());
+                var modelAnimation = animations.get(entry.getKey()); //Get playOnce animation from string
 
-                if (entry.getValue() <= 0) {
+                if (entry.getValue() <= 0) { //All ticks were removed so playOnce should end
                     if (this.playingOnce != null && this.playingOnce.equals(entry.getKey())) {
                         Map.Entry<Integer, ModelAnimation> firstEntry = this.repeating.firstEntry();
                         if (firstEntry != null) {
-                            firstEntry.getValue().play();
+                            firstEntry.getValue().play(true); //Restart or resume the highest priority repeating animation
                         }
-
                         this.playingOnce = null;
                     }
 
-                    this.model.triggerAnimationEnd(entry.getKey(), modelAnimation.direction());
+                    this.model.triggerAnimationEnd(entry.getKey(), modelAnimation.direction()); //Call AnimationCompleteEvent
 
                     modelAnimation.stop();
-                    callbackTimers.remove(entry.getKey());
+                    callbackTimers.remove(entry.getKey()); //Remove playOnce animation from map
 
                     var cb = callbacks.remove(entry.getKey());
-                    if (cb != null) cb.run();
+                    if (cb != null) cb.run(); //Run 'callback' runnable
                 } else {
                     if (modelAnimation.direction() != AnimationDirection.PAUSE) {
-                        callbackTimers.put(entry.getKey(), entry.getValue() - 1);
+                        callbackTimers.put(entry.getKey(), entry.getValue() - 1); //Countdown 1 tick until it reaches 0 during playOnce animation
                     }
                 }
             }
 
-            if (callbacks.size() + repeating.size() == 0) return;
-            this.model.draw();
+            if (callbacks.size() + repeating.size() == 0) return; //Return if no playOnce or repeating animation is playing
+            this.model.draw(); 
 
             this.animations.forEach((animation, animations) -> {
-                animations.tick();
+                animations.tick(); //Play every tick (besides the first one) of the animation
             });
         } catch (Exception e) {
             e.printStackTrace();

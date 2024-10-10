@@ -6,6 +6,8 @@ import net.worldseed.multipart.ModelLoader;
 public interface BoneAnimation {
     String name();
 
+    String boneName();
+
     ModelLoader.AnimationType getType();
 
     Point getTransformAtTime(int time);
@@ -21,4 +23,6 @@ public interface BoneAnimation {
     void play();
 
     void tick();
+    void resume(short tick);
+    short getTick();
 }
