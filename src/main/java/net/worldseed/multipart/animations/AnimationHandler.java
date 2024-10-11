@@ -1,6 +1,7 @@
 package net.worldseed.multipart.animations;
 
 import com.google.gson.JsonElement;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -26,13 +27,12 @@ public interface AnimationHandler {
     void stopRepeat(String animation) throws IllegalArgumentException;
 
 
-
     /**
      * Play an animation once
      *
      * @param animation name of animation to play
-     * @param override If true (default), fully overrides repeating background animations. If false, overrides only bones used in new animation.
-     * @param cb       callback to call when animation is finished
+     * @param override  If true (default), fully overrides repeating background animations. If false, overrides only bones used in new animation.
+     * @param cb        callback to call when animation is finished
      */
     void playOnce(String animation, boolean override, Runnable cb) throws IllegalArgumentException;
 
@@ -56,7 +56,15 @@ public interface AnimationHandler {
      *
      * @return current animation
      */
-    String getPlaying();
+    @Nullable String getPlaying();
+
+
+    /**
+     * Get the current repeating animation
+     *
+     * @return current repeating animation
+     */
+    @Nullable String getRepeating();
 
     Map<String, Integer> animationPriorities();
 
