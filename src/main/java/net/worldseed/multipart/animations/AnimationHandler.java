@@ -31,8 +31,8 @@ public interface AnimationHandler {
      * Play an animation once
      *
      * @param animation name of animation to play
-     * @param override  If true (default), fully overrides repeating background animations. If false, overrides only bones used in new animation.
-     * @param cb        callback to call when animation is finished
+     * @param override If true (default), fully overrides repeating background animations. If false, overrides only bones used in new animation.
+     * @param cb       callback to call when animation is finished
      */
     void playOnce(String animation, boolean override, Runnable cb) throws IllegalArgumentException;
 
