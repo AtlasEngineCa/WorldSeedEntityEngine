@@ -1,6 +1,7 @@
 package net.worldseed.multipart.animations;
 
 import com.google.gson.JsonElement;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -24,7 +25,6 @@ public interface AnimationHandler {
      * @param animation name of animation to stop
      */
     void stopRepeat(String animation) throws IllegalArgumentException;
-
 
 
     /**
@@ -56,7 +56,15 @@ public interface AnimationHandler {
      *
      * @return current animation
      */
-    String getPlaying();
+    @Nullable String getPlaying();
+
+
+    /**
+     * Get the current repeating animation
+     *
+     * @return current repeating animation
+     */
+    @Nullable String getRepeating();
 
     Map<String, Integer> animationPriorities();
 

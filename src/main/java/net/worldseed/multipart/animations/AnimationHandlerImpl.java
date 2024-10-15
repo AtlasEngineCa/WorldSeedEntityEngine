@@ -8,6 +8,7 @@ import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.ModelLoader;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -238,8 +239,14 @@ public class AnimationHandlerImpl implements AnimationHandler {
         this.task.cancel();
     }
 
-    public String getPlaying() {
+    @Override
+    public @Nullable String getPlaying() {
         if (this.playingOnce != null) return this.playingOnce;
+        return getRepeating();
+    }
+
+    @Override
+    public @Nullable String getRepeating() {
         var playing = this.repeating.firstEntry();
         return playing != null ? playing.getValue().name() : null;
     }
