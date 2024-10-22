@@ -37,6 +37,13 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     Point getPivot();
 
     /**
+     * Get the rotation of the model on the X axis
+     *
+     * @return the pitch
+     */
+    double getPitch();
+
+    /**
      * Get the rotation of the model on the Y axis
      *
      * @return the global rotation
@@ -49,6 +56,14 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
      * @param rotation new global rotation
      */
     void setGlobalRotation(double rotation);
+
+    /**
+     * Set the rotation of the model on the Y and X axis
+     *
+     * @param yaw   new global rotation
+     * @param pitch new pitch
+     */
+    void setGlobalRotation(double yaw, double pitch);
 
     /**
      * Get the postion offset for drawing the model
@@ -140,6 +155,8 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     @Nullable BoneEntity generateRoot();
 
     void bindNametag(String name, Entity nametag);
+
     void unbindNametag(String name);
+
     @Nullable Entity getNametag(String name);
 }
