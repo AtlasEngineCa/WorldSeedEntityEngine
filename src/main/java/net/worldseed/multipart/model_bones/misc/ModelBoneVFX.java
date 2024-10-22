@@ -40,7 +40,7 @@ public class ModelBoneVFX extends ModelBoneImpl implements VFXBone {
     }
 
     @Override
-    public void setGlobalRotation(double rotation) {
+    public void setGlobalRotation(double yaw, double pitch) {
 
     }
 
