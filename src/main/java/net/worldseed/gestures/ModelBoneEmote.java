@@ -50,7 +50,7 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
             });
         }
 
-        switch(this.name) {
+        switch (this.name) {
             case "Head" -> {
                 this.diff = this.pivot.add(0, 0, 0);
             }
@@ -207,6 +207,6 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
     }
 
     @Override
-    public void setGlobalRotation(double rotation) {
+    public void setGlobalRotation(double yaw, double pitch) {
     }
 }
