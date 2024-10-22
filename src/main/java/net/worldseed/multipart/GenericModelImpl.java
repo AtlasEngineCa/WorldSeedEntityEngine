@@ -53,8 +53,12 @@ public abstract class GenericModelImpl implements GenericModel {
     protected Instance instance;
     private Pos position;
     private double globalRotation;
+    private double pitch;
 
-    protected record ModelBoneInfo(String name, Point pivot, Point rotation, JsonArray cubes, GenericModel model, float scale) {}
+    protected record ModelBoneInfo(String name, Point pivot, Point rotation, JsonArray cubes, GenericModel model,
+                                   float scale) {
+    }
+
     protected final Map<Predicate<String>, Function<ModelBoneInfo, @Nullable ModelBone>> boneSuppliers = new LinkedHashMap<>();
     Function<ModelBoneInfo, ModelBone> defaultBoneSupplier = (info) -> new ModelBonePartDisplay(info.pivot, info.name, info.rotation, info.model, info.scale);
 
@@ -80,11 +84,21 @@ public abstract class GenericModelImpl implements GenericModel {
         return globalRotation;
     }
 
-    public void setGlobalRotation(double rotation) {
-        this.globalRotation = rotation;
+    @Override
+    public double getPitch(){
+        return pitch;
+    }
+
+    public void setGlobalRotation(double yaw) {
+        setGlobalRotation(yaw, 0.0f);
+    }
+
+    public void setGlobalRotation(double yaw, double pitch) {
+        this.globalRotation = yaw;
+        this.pitch = pitch;
 
         this.viewableBones.forEach(part -> {
-            part.setGlobalRotation(rotation);
+            part.setGlobalRotation(yaw, pitch);
         });
     }
 
