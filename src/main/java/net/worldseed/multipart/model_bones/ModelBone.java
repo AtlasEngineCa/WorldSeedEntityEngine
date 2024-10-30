@@ -81,7 +81,7 @@ public interface ModelBone {
 
     void detachModel(GenericModel model);
 
-    void setGlobalRotation(double rotation);
+    void setGlobalRotation(double yaw, double pitch);
 
     default void teleport(Point position) {}
 
