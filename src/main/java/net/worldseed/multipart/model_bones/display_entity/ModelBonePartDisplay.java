@@ -137,10 +137,11 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     }
 
     @Override
-    public void setGlobalRotation(double rotation) {
+    public void setGlobalRotation(double yaw, double pitch) {
         if (this.stand != null) {
-            var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
-            this.stand.setView((float) correctLocation, 0);
+            var correctYaw = (180 + yaw + 360) % 360;
+            var correctPitch = (pitch + 360) % 360;
+            this.stand.setView((float) correctYaw, (float) correctPitch);
         }
     }
 

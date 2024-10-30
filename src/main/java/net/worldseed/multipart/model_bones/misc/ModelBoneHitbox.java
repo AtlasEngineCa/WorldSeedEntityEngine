@@ -131,7 +131,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
     }
 
     @Override
-    public void setGlobalRotation(double rotation) {
+    public void setGlobalRotation(double yaw, double pitch) {
     }
 
     public void generateStands(JsonArray cubes, Point pivotPos, String name, Point boneRotation, GenericModel genericModel) {

@@ -61,7 +61,7 @@ public class ModelBoneNametag extends ModelBoneImpl implements NametagBone {
     }
 
     @Override
-    public void setGlobalRotation(double rotation) {
+    public void setGlobalRotation(double yaw, double pitch) {
     }
 
     @Override
