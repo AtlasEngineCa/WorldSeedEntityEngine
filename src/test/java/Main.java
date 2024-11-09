@@ -123,9 +123,9 @@ public class Main {
 
             // Chat
             handler.addListener(PlayerChatEvent.class, chatEvent -> {
-                chatEvent.setChatFormat((event) -> Component.text(event.getEntity().getUsername())
+                chatEvent.setFormattedMessage(chatEvent.getPlayer().getDisplayName()
                         .append(Component.text(" | ", NamedTextColor.DARK_GRAY)
-                                .append(Component.text(event.getMessage(), NamedTextColor.WHITE))));
+                                .append(chatEvent.getFormattedMessage().color(NamedTextColor.WHITE))));
             });
 
             // Monitoring

@@ -38,7 +38,7 @@ public abstract class EmotePlayer extends EntityCreature {
 
         setBoundingBox(0.8, 1.8, 0.8);
         this.setInvisible(true);
-        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.001f);
+        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.001f);
         this.setInstance(instance, pos).join();
 
         this.animationHandler = new AnimationHandlerImpl(model) {

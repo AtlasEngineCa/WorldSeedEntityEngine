@@ -1,8 +1,9 @@
 package net.worldseed.multipart.events;
 
 import net.minestom.server.entity.Player;
-import net.worldseed.multipart.model_bones.BoneEntity;
+import net.minestom.server.entity.PlayerHand;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.gestures.EmoteModel;
 import net.worldseed.multipart.GenericModel;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,7 @@ public class ModelInteractEvent implements ModelEvent {
     private final GenericModel model;
     private final Player interactor;
     private final BoneEntity interactedBone;
-    private final Player.Hand hand;
+    private final PlayerHand hand;
 
     public ModelInteractEvent(@NotNull EmoteModel model, PlayerEntityInteractEvent event) {
         this(model, event, null);
@@ -30,7 +31,7 @@ public class ModelInteractEvent implements ModelEvent {
         return model;
     }
 
-    public @NotNull Player.Hand getHand() {
+    public @NotNull PlayerHand getHand() {
         return hand;
     }
 

@@ -52,7 +52,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
                     public void updateNewViewer(@NotNull Player player) {
                         super.updateNewViewer(player);
 
-                        EntityTeleportPacket packet = new EntityTeleportPacket(this.getEntityId(), this.position, true);
+                        EntityTeleportPacket packet = new EntityTeleportPacket(this.getEntityId(), this.position, Vec.ZERO, 0, false);
                         player.getPlayerConnection().sendPacket(packet);
                     }
 

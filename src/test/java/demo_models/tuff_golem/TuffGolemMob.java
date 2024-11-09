@@ -49,7 +49,7 @@ public class TuffGolemMob extends EntityCreature {
 
         setBoundingBox(1, 4, 1);
         this.setInstance(instance, pos);
-        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.12f);
+        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.12f);
     }
 
     @Override
