@@ -39,18 +39,7 @@ public class ModelEngine {
             Entity ridingEntity = event.getPlayer().getVehicle();
 
             if (ridingEntity instanceof BoneEntity bone) {
-                if (packet.flags() == 2) {
-                    ModelDismountEvent entityRideEvent = new ModelDismountEvent(bone.getModel(), event.getPlayer());
-                    EventDispatcher.call(entityRideEvent);
-                }
-
-                if (packet.flags() == 1) {
-                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), true));
-                }
-
-                if (packet.flags() == 0) {
-                    EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet.forward(), packet.sideways(), false));
-                }
+                EventDispatcher.call(new ModelControlEvent(bone.getModel(), packet));
             }
         }
     });

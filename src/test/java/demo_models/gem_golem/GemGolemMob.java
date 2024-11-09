@@ -43,7 +43,7 @@ public class GemGolemMob extends EntityCreature {
 
         this.model = new GemGolemModel();
 
-        BoneEntity nametag = new BoneEntity(EntityType.ARMOR_STAND, model);
+        BoneEntity nametag = new BoneEntity(EntityType.ARMOR_STAND, model, "nametag");
         nametag.setCustomNameVisible(true);
         nametag.setCustomName(Component.text("Gem Golem"));
         nametag.setNoGravity(true);
@@ -71,9 +71,13 @@ public class GemGolemMob extends EntityCreature {
                 .addListener(ModelInteractEvent.class, event -> model.mountEntity(SEAT, event.getInteracted()))
                 .addListener(ModelDismountEvent.class, event -> model.dismountEntity(SEAT, event.rider()))
                 .addListener(ModelControlEvent.class, event -> {
-                    controlGoal.setForward(event.forward());
-                    controlGoal.setSideways(event.sideways());
-                    controlGoal.setJump(event.jump());
+                    var forward = 0;
+
+                    if (event.packet().forward()) forward = 1;
+                    else if (event.packet().backward()) forward = -1;
+
+                    controlGoal.setForward(forward);
+                    controlGoal.setJump(event.packet().jump());
                 });
 
         addAIGroup(
@@ -89,7 +93,7 @@ public class GemGolemMob extends EntityCreature {
         );
 
         setBoundingBox(3, 3, 3);
-        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3f);
+        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3f);
 
         // Add the shadow for the entity
         int size = 15;

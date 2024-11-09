@@ -34,7 +34,7 @@ public class BulbasaurMob extends EntityCreature {
     public BulbasaurMob(Instance instance, Pos pos) {
         super(EntityType.ZOMBIE);
         this.setInvisible(true);
-        this.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.1f);
+        this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.1f);
 
         this.model = new BulbasaurModel();
         model.init(instance, pos, 1f);
