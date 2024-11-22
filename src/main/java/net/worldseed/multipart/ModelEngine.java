@@ -10,14 +10,14 @@ import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
+import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.network.packet.client.play.ClientSteerVehiclePacket;
+import net.minestom.server.network.packet.client.play.ClientInputPacket;
 import net.worldseed.multipart.events.ModelControlEvent;
 import net.worldseed.multipart.events.ModelDamageEvent;
-import net.worldseed.multipart.events.ModelDismountEvent;
 import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.mql.MQLPoint;
@@ -35,7 +35,7 @@ public class ModelEngine {
     static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final static HashMap<String, HashMap<String, ItemStack>> blockMappings = new HashMap<>();
     private static final EventListener<PlayerPacketEvent> playerListener = EventListener.of(PlayerPacketEvent.class, event -> {
-        if (event.getPacket() instanceof ClientSteerVehiclePacket packet) {
+        if (event.getPacket() instanceof ClientInputPacket packet) {
             Entity ridingEntity = event.getPlayer().getVehicle();
 
             if (ridingEntity instanceof BoneEntity bone) {
