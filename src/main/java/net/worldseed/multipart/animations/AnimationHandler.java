@@ -66,6 +66,13 @@ public interface AnimationHandler {
      */
     @Nullable String getRepeating();
 
+    /**
+     * Get an animation by key
+     *
+     * @return animation object
+     */
+    @Nullable ModelAnimation getAnimation(String animation);
+
     Map<String, Integer> animationPriorities();
 
     enum AnimationDirection {
