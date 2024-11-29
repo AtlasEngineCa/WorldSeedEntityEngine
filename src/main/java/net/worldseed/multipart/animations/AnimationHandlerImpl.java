@@ -252,6 +252,11 @@ public class AnimationHandlerImpl implements AnimationHandler {
     }
 
     @Override
+    public @Nullable ModelAnimation getAnimation(String animation) {
+        return this.animations.get(animation);
+    }
+
+    @Override
     public Map<String, Integer> animationPriorities() {
         return new HashMap<>() {{
             for (Map.Entry<String, ModelAnimation> entry : animations.entrySet()) {
