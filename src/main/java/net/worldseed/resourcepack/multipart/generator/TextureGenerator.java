@@ -34,7 +34,8 @@ public class TextureGenerator {
     public static Map.Entry<String, TextureData> parseLayer(String id, JsonValue texture, Map<String, JsonObject> mcmetas, int height, int width) {
         JsonObject textureObj = texture.asJsonObject();
 
-        byte[] data = Base64.getDecoder().decode(textureObj.getString("source").substring("data:image/png;base64,".length()));
+        String source = textureObj.getString("source", textureObj.getString("data_url", "data:image/png;base64,"));
+        byte[] data = Base64.getDecoder().decode(source.substring("data:image/png;base64,".length()));
         String name = textureObj.getString("name");
 
         JsonValue uuid = textureObj.get("uuid");
