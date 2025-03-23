@@ -10,11 +10,11 @@ import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
-import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.CustomModelData;
 import net.minestom.server.network.packet.client.play.ClientInputPacket;
 import net.worldseed.multipart.events.ModelControlEvent;
 import net.worldseed.multipart.events.ModelDamageEvent;
@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 public class ModelEngine {
@@ -88,7 +89,7 @@ public class ModelEngine {
                     .get("id")
                     .getAsJsonObject()
                     .entrySet()
-                    .forEach(id -> keys.put(id.getKey(), generateBoneItem(id.getValue().getAsInt())));
+                    .forEach(id -> keys.put(id.getKey(), generateBoneItem(id.getValue().getAsFloat())));
 
             blockMappings.put(entry.getKey(), keys);
             offsetMappings.put(entry.getKey(), getPos(entry.getValue().getAsJsonObject().get("offset").getAsJsonArray()).orElse(Pos.ZERO));
@@ -96,8 +97,13 @@ public class ModelEngine {
         });
     }
 
-    private static ItemStack generateBoneItem(int model_id) {
-        return ItemStack.builder(modelMaterial).set(ItemComponent.CUSTOM_MODEL_DATA, model_id).build();
+    private static ItemStack generateBoneItem(float model_id) {
+        return ItemStack.builder(modelMaterial).set(ItemComponent.CUSTOM_MODEL_DATA, new CustomModelData(
+                List.of(model_id),
+                List.of(),
+                List.of(),
+                List.of()
+        )).build();
     }
 
     public static HashMap<String, ItemStack> getItems(String model, String name) {

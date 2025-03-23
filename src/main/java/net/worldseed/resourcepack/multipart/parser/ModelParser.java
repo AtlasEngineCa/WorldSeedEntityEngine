@@ -2,6 +2,7 @@ package net.worldseed.resourcepack.multipart.parser;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
+import net.worldseed.multipart.ModelEngine;
 import net.worldseed.resourcepack.multipart.generator.ModelGenerator;
 import net.worldseed.resourcepack.multipart.generator.TextureGenerator;
 import org.apache.commons.io.FileUtils;
@@ -20,8 +21,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class ModelParser {
+
     private static final Map<String, MappingEntry> mappings = new HashMap<>();
-    private static final List<JsonObject> predicates = new ArrayList<>();
+    private static final List<JsonObject> entries = new ArrayList<>();
     private static int index = 0;
 
     private static JsonObject display(Point offset) {
@@ -98,24 +100,29 @@ public class ModelParser {
         List<ModelFile> models = new ArrayList<>();
 
         index = 0;
-        predicates.clear();
+        entries.clear();
         mappings.clear();
 
         for (var folder : data) {
             models.addAll(createFiles(folder, modelPathMobs));
         }
 
-        var textures = Json.createObjectBuilder();
-        textures.add("layer0", "minecraft:item/leather_horse_armor");
+        final JsonObjectBuilder model = Json.createObjectBuilder();
+        model.add("type", "range_dispatch");
+        model.add("property", "custom_model_data");
 
-        var leather_armour_file = Json.createObjectBuilder();
-        leather_armour_file.add("parent", "item/generated");
-        leather_armour_file.add("textures", textures);
-        leather_armour_file.add("overrides", predicatesToJson());
+        // model entries
+        model.add("entries", entriesToJson());
 
-        JsonObject armourFile = leather_armour_file.build();
+        // fallback model
+        final JsonObjectBuilder modelFallback = Json.createObjectBuilder();
+        modelFallback.add("type", "model");
+        modelFallback.add("model", "item/" + ModelEngine.getModelMaterial().name().toLowerCase());
+        model.add("fallback", modelFallback);
 
-        return new ModelEngineFiles(mappingsToJson(), armourFile, models);
+        JsonObject itemFile = model.build();
+
+        return new ModelEngineFiles(mappingsToJson(), itemFile, models);
     }
 
     private static Map<String, JsonObject> createIndividualModels(List<Bone> bones, int textureWidth, int textureHeight, ModelGenerator.BBEntityModel bbModel, JsonObject builtTextures, JsonArray textureSize, TextureState state) {
@@ -222,7 +229,7 @@ public class ModelParser {
                         mappings.put(item.name + "/" + item.bone, new MappingEntry(new HashMap<>(), item.offset, item.diff));
 
                     mappings.get(item.name + "/" + item.bone).map.put(state.name(), item.id);
-                    predicates.add(createPredicate(item.id, bbModel.id(), state.name(), item.bone));
+                    entries.add(createEntry(item.id, bbModel.id(), state.name(), item.bone));
                 }
 
                 JsonObjectBuilder boneInfo = Json.createObjectBuilder();
@@ -374,13 +381,13 @@ public class ModelParser {
         return res.build();
     }
 
-    private static JsonArray predicatesToJson() {
-        var array = Json.createArrayBuilder();
-        for (var predicate : ModelParser.predicates) {
-            array.add(predicate);
+    private static JsonArray entriesToJson() {
+        final JsonArrayBuilder entries = Json.createArrayBuilder();
+        for (JsonObject entry : ModelParser.entries) {
+            entries.add(entry);
         }
 
-        return array.build();
+        return entries.build();
     }
 
     private static JsonArray elementsToJson(List<Element> elements) {
@@ -429,16 +436,17 @@ public class ModelParser {
         return res;
     }
 
-    private static JsonObject createPredicate(int id, String name, String state, String bone) {
-        JsonObjectBuilder res = Json.createObjectBuilder();
+    private static JsonObject createEntry(int threshold, String name, String state, String bone) {
+        final JsonObjectBuilder entry = Json.createObjectBuilder();
 
-        JsonObjectBuilder customModelData = Json.createObjectBuilder();
-        customModelData.add("custom_model_data", id);
+        final JsonObjectBuilder model = Json.createObjectBuilder();
+        model.add("type", "model");
+        model.add("model", "worldseed:mobs/" + name + "/" + state + "/" + bone);
 
-        res.add("predicate", customModelData);
-        res.add("model", "worldseed:mobs/" + name + "/" + state + "/" + bone);
+        entry.add("threshold", threshold);
+        entry.add("model", model);
 
-        return res.build();
+        return entry.build();
     }
 
     private enum TextureFace {
