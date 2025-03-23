@@ -12,6 +12,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.CustomModelData;
 import net.minestom.server.item.component.HeadProfile;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.Quaternion;
@@ -44,7 +45,7 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
 
                 meta.setItemStack(ItemStack.builder(Material.PLAYER_HEAD)
                         .set(ItemComponent.PROFILE, new HeadProfile(skin))
-                        .set(ItemComponent.CUSTOM_MODEL_DATA, customModelDataFromName(name))
+                        .set(ItemComponent.CUSTOM_MODEL_DATA, new CustomModelData(List.of(customModelDataFromName(name)), List.of(), List.of(), List.of()))
                         .build()
                 );
             });
@@ -132,7 +133,7 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
         return Vec.ONE;
     }
 
-    private int customModelDataFromName(String name) {
+    private float customModelDataFromName(String name) {
         return switch (name) {
             case "Head" -> 1;
             case "RightArm" -> 2;

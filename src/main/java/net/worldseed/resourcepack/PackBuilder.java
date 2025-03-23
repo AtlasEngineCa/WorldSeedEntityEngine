@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class PackBuilder {
+
     public static JsonArray applyInflate(JsonArray from, double inflate) {
         JsonArrayBuilder inflated = Json.createArrayBuilder();
         for (int i = 0; i < from.size(); ++i) {
@@ -36,7 +37,7 @@ public class PackBuilder {
 
         Path texturePathMobs = resourcepack.resolve("assets/worldseed/textures/mobs/");
         Path modelPathMobs = resourcepack.resolve("assets/worldseed/models/mobs/");
-        Path baseModelPath = resourcepack.resolve("assets/minecraft/models/item/");
+        Path baseModelPath = resourcepack.resolve("assets/minecraft/items/");
 
         Files.createDirectories(texturePathMobs);
         Files.createDirectories(modelPathMobs);
