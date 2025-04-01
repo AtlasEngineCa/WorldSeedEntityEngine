@@ -107,7 +107,17 @@ public class PackBuilder {
         }
 
         thumbnailMap.add("overrides", overrides.build());
-        Files.writeString(baseModelPath.resolve("ink_sac.json"), thumbnailMap.build().toString(), Charset.defaultCharset());
+
+        Files.writeString(baseModelPath.resolve("ink_sac.json"),
+                Json.createObjectBuilder()
+                        .add("model", Json.createObjectBuilder()
+                                .add("type", "minecraft:model")
+                                .add("model", "minecraft:item/ink_sac"))
+                        .build().toString(), Charset.defaultCharset());
+
+        Path inkSacTargetPath = baseModelPath.resolve("../models/item/ink_sac.json");
+        Files.createDirectories(inkSacTargetPath.getParent());
+        Files.writeString(inkSacTargetPath, thumbnailMap.build().toString(), Charset.defaultCharset());
 
         ModelParser.ModelEngineFiles modelData = ModelParser.parse(res.values(), modelPathMobs);
 
