@@ -120,7 +120,7 @@ public class ModelParser {
         modelFallback.add("model", "minecraft:item/" + ModelEngine.getModelMaterial().key().value().toLowerCase());
         model.add("fallback", modelFallback);
 
-        JsonObject itemFile = model.build();
+        JsonObject itemFile = Json.createObjectBuilder().add("model", model).build();
 
         return new ModelEngineFiles(mappingsToJson(), itemFile, models);
     }
