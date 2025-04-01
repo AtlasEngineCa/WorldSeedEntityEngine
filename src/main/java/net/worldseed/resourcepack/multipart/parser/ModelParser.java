@@ -117,7 +117,7 @@ public class ModelParser {
         // fallback model
         final JsonObjectBuilder modelFallback = Json.createObjectBuilder();
         modelFallback.add("type", "model");
-        modelFallback.add("model", "item/" + ModelEngine.getModelMaterial().name().toLowerCase());
+        modelFallback.add("model", "minecraft:item/" + ModelEngine.getModelMaterial().key().value().toLowerCase());
         model.add("fallback", modelFallback);
 
         JsonObject itemFile = model.build();

@@ -42,6 +42,7 @@ public class PackBuilder {
         Files.createDirectories(texturePathMobs);
         Files.createDirectories(modelPathMobs);
         Files.createDirectories(baseModelPath);
+        Files.createDirectories(resourcepack.resolve("assets/minecraft/models/"));
 
         JsonObject modelMappings = writeCustomModels(entityModels, modelDataPath, texturePathMobs, modelPathMobs, baseModelPath);
 
