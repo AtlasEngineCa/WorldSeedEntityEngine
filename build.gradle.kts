@@ -28,8 +28,8 @@ publishing {
 
     repositories {
         maven {
-            name = "WorldSeed"
-            url = uri("https://reposilite.worldseed.online/public")
+            name = "AtlasEngine"
+            url = uri("https://reposilite.atlasengine.ca/public")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
