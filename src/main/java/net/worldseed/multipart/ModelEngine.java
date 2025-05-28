@@ -2,6 +2,7 @@ package net.worldseed.multipart;
 
 import com.google.gson.*;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.component.DataComponents;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -11,7 +12,6 @@ import net.minestom.server.event.EventListener;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
-import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.CustomModelData;
@@ -98,7 +98,7 @@ public class ModelEngine {
     }
 
     private static ItemStack generateBoneItem(float model_id) {
-        return ItemStack.builder(modelMaterial).set(ItemComponent.CUSTOM_MODEL_DATA, new CustomModelData(
+        return ItemStack.builder(modelMaterial).set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(
                 List.of(model_id),
                 List.of(),
                 List.of(),
