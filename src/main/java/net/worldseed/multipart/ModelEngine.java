@@ -60,20 +60,18 @@ public class ModelEngine {
     private static Path modelPath;
     private static Material modelMaterial = Material.MAGMA_CREAM;
 
-    static {
-        MinecraftServer.getGlobalEventHandler()
-                .addListener(playerListener)
-                .addListener(playerInteractListener)
-                .addListener(entityDamageListener);
-    }
-
     /**
-     * Loads the model from the given path
+     * Loads the model from the given path. Assumes the server is already initialized.
      *
      * @param mappingsData mappings file created by model parser
      * @param modelPath    path of the models
      */
     public static void loadMappings(Reader mappingsData, Path modelPath) {
+        MinecraftServer.getGlobalEventHandler()
+                .addListener(playerListener)
+                .addListener(playerInteractListener)
+                .addListener(entityDamageListener);
+
         JsonObject map = GSON.fromJson(mappingsData, JsonObject.class);
         ModelEngine.modelPath = modelPath;
 
