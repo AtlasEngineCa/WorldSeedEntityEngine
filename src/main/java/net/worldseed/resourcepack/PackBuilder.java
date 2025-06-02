@@ -27,7 +27,7 @@ public class PackBuilder {
         return inflated.build();
     }
 
-    public static ConfigJson Generate(Path bbmodel, Path resourcepack, Path modelDataPath) throws Exception {
+    public static ConfigJson generate(Path bbmodel, Path resourcepack, Path modelDataPath) throws Exception {
         Files.createDirectories(resourcepack);
         Files.createDirectories(modelDataPath);
 
