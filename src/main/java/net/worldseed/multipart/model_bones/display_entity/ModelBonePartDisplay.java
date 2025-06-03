@@ -38,7 +38,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             var itemMeta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
             itemMeta.setScale(new Vec(scale, scale, scale));
-            itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_LEFT_HAND);
+            itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRDPERSON_LEFT_HAND);
             itemMeta.setTransformationInterpolationDuration(2);
             itemMeta.setPosRotInterpolationDuration(2);
             itemMeta.setViewRange(1000);
