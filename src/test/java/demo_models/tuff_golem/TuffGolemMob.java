@@ -94,7 +94,6 @@ public class TuffGolemMob extends EntityCreature {
         this.animationHandler.destroy();
         ParticlePacket packet = new ParticlePacket(
                 Particle.POOF,
-                false,
                 this.position.x(),
                 this.position.y() + 1,
                 this.position.z(),
