@@ -1,6 +1,7 @@
 package net.worldseed.gestures;
 
 import net.kyori.adventure.util.RGBLike;
+import net.minestom.server.component.DataComponents;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -9,7 +10,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.CustomModelData;
@@ -41,11 +41,11 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
                 meta.setTransformationInterpolationDuration(2);
                 meta.setPosRotInterpolationDuration(2);
                 meta.setTranslation(new Vec(0, translation, 0));
-                meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRD_PERSON_RIGHT_HAND);
+                meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRDPERSON_RIGHT_HAND);
 
                 meta.setItemStack(ItemStack.builder(Material.PLAYER_HEAD)
-                        .set(ItemComponent.PROFILE, new HeadProfile(skin))
-                        .set(ItemComponent.CUSTOM_MODEL_DATA, new CustomModelData(List.of(customModelDataFromName(name)), List.of(), List.of(), List.of()))
+                        .set(DataComponents.PROFILE, new HeadProfile(skin))
+                        .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(customModelDataFromName(name)), List.of(), List.of(), List.of()))
                         .build()
                 );
             });

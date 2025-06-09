@@ -4,7 +4,10 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.*;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityCreature;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.damage.EntityDamage;
@@ -96,14 +99,9 @@ public class GemGolemMob extends EntityCreature {
         this.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3f);
 
         // Add the shadow for the entity
-        int size = 15;
-        var pfMeta = new PufferfishMeta(this, metadata) {
-            @Override
-            public void setState(State state) {
-                super.metadata.setIndex(OFFSET, Metadata.VarInt(size));
-            }
-        };
+        var pfMeta = new PufferfishMeta(this, metadata);
 
+        // TODO: Update to 1.21.5(Add shadow)
         pfMeta.setState(PufferfishMeta.State.UNPUFFED);
         this.entityMeta = pfMeta;
 
@@ -151,7 +149,6 @@ public class GemGolemMob extends EntityCreature {
             this.animationHandler.destroy();
             ParticlePacket packet = new ParticlePacket(
                     Particle.POOF,
-                    false,
                     this.position.x(),
                     this.position.y() + 1,
                     this.position.z(),
@@ -162,7 +159,6 @@ public class GemGolemMob extends EntityCreature {
                     50
             );
             viewers.forEach(v -> v.sendPacket(packet));
-
             super.remove();
         });
     }

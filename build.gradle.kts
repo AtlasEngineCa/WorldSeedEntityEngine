@@ -42,8 +42,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 
-    compileOnly("net.minestom:minestom-snapshots:1_21_4-44b34717ed")
-    testImplementation("net.minestom:minestom-snapshots:1_21_4-44b34717ed")
+    compileOnly("net.minestom:minestom-snapshots:1_21_5-6d70a6ca77")
+    testImplementation("net.minestom:minestom-snapshots:1_21_5-6d70a6ca77")
 
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.zeroturnaround:zt-zip:1.8")
