@@ -18,7 +18,6 @@ import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.server.ServerTickMonitorEvent;
-import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
@@ -153,8 +152,6 @@ public class Main {
                 Audiences.players().sendPlayerListHeaderAndFooter(header, footer);
             }, TaskSchedule.tick(10), TaskSchedule.tick(10));
         }
-
-        OpenToLAN.open();
 
         minecraftServer.start("0.0.0.0", 25565);
         System.out.println("Server startup done!");

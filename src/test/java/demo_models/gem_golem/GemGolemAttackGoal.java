@@ -80,7 +80,6 @@ public class GemGolemAttackGoal extends GoalSelector {
                     if (p != null) {
                         ParticlePacket packet = new ParticlePacket(
                                 Particle.FLAME,
-                                false,
                                 p.x(),
                                 p.y() + 1,
                                 p.z(),
@@ -97,7 +96,6 @@ public class GemGolemAttackGoal extends GoalSelector {
                         if (p != null) {
                             ParticlePacket packet = new ParticlePacket(
                                     Particle.EXPLOSION,
-                                    false,
                                     p.x(),
                                     p.y() + 1,
                                     p.z(),
