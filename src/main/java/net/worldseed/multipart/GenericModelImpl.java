@@ -62,10 +62,12 @@ public abstract class GenericModelImpl implements GenericModel {
     protected final Map<Predicate<String>, Function<ModelBoneInfo, @Nullable ModelBone>> boneSuppliers = new LinkedHashMap<>();
     Function<ModelBoneInfo, ModelBone> defaultBoneSupplier = (info) -> new ModelBonePartDisplay(info.pivot, info.name, info.rotation, info.model, info.scale);
 
+    private static final EventFilter<ModelEvent, GenericModel> MODEL_FILTER = EventFilter.from(ModelEvent.class, GenericModel.class, ModelEvent::model);
+
     public GenericModelImpl() {
         final ServerProcess process = MinecraftServer.process();
         if (process != null) {
-            this.eventNode = process.eventHandler().map(this, EventFilter.from(ModelEvent.class, GenericModel.class, ModelEvent::model));
+            this.eventNode = process.eventHandler().map(this, MODEL_FILTER);
         } else {
             // Local nodes require a server process
             this.eventNode = null;
