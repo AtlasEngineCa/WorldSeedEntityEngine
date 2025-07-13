@@ -12,6 +12,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.registry.RegistryKey;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
@@ -64,7 +65,7 @@ public class TuffGolemMob extends EntityCreature {
     }
 
     @Override
-    public boolean damage(@NotNull DynamicRegistry.Key<DamageType> type, float value) {
+    public boolean damage(@NotNull RegistryKey<DamageType> type, float value) {
         this.model.setState("animated_head");
 
         if (stateTask != null && stateTask.isAlive()) stateTask.cancel();
