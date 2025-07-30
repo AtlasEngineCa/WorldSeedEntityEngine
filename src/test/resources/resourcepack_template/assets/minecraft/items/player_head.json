@@ -1,0 +1,88 @@
+{
+  "model" : {
+    "type" : "range_dispatch",
+    "property" : "custom_model_data",
+    "entries" : [
+      {
+        "threshold" : 1,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/head",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      },
+      {
+        "threshold" : 2,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/right_arm",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      },
+      {
+        "threshold" : 3,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/left_arm",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      },
+      {
+        "threshold" : 4,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/torso",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      },
+      {
+        "threshold" : 5,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/right_leg",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      },
+      {
+        "threshold" : 6,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/left_leg",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      },
+      {
+        "threshold" : 7,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/slim_right",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      },
+      {
+        "threshold" : 8,
+        "model" : {
+          "type": "minecraft:special",
+          "base": "minecraft:custom/entities/player/slim_left",
+          "model": {
+            "type": "minecraft:player_head"
+          }
+        }
+      }
+    ]
+  }
+}
