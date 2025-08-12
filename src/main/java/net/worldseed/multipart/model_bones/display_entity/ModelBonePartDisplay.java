@@ -38,7 +38,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             var itemMeta = (ItemDisplayMeta) this.stand.getEntityMeta();
 
             itemMeta.setScale(new Vec(scale, scale, scale));
-            itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.HEAD);
+            itemMeta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRDPERSON_LEFT_HAND); // HEAD break display position
             itemMeta.setTransformationInterpolationDuration(2);
             itemMeta.setPosRotInterpolationDuration(2);
             itemMeta.setViewRange(1000);
@@ -162,14 +162,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public Pos calculatePosition() {
-        return Pos.fromPoint(model.getPosition()).withView(0, 0);
+        return new Pos(model.getPosition()).withView(0, 0);
     }
 
     private Pos calculatePositionInternal() {
         if (this.offset == null) return Pos.ZERO;
         Point p = this.offset;
         p = applyTransform(p);
-        return Pos.fromPoint(p).div(4).mul(scale).withView(0, 0);
+        return new Pos(p).div(4).mul(scale).withView(0, 0);
     }
 
     @Override
@@ -185,7 +185,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public void teleport(Point position) {
-        if (this.baseStand != null) this.baseStand.teleport(Pos.fromPoint(position));
+        if (this.baseStand != null) this.baseStand.teleport(new Pos(position));
     }
 
     public void draw() {
@@ -218,7 +218,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     @Override
     public CompletableFuture<Void> spawn(Instance instance, Pos position) {
         var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
-        return super.spawn(instance, Pos.fromPoint(position).withYaw((float) correctLocation)).whenCompleteAsync((v, e) -> {
+        return super.spawn(instance, new Pos(position).withYaw((float) correctLocation)).whenCompleteAsync((v, e) -> {
             if (e != null) {
                 e.printStackTrace();
                 return;
@@ -226,6 +226,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
             if (!(this.getParent() instanceof ModelBonePartDisplay)) {
                 this.baseStand = model.generateRoot();
+                assert this.baseStand != null;
                 this.baseStand.setInstance(instance, position).join();
             }
         });
