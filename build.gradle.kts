@@ -21,7 +21,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "11.3.2"
+        version = "11.3.3"
 
         from(components["java"])
     }
@@ -39,14 +39,14 @@ publishing {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.0-M2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.0-M2")
 
-    compileOnly("net.minestom:minestom:2025.07.11-1.21.7")
-    testImplementation("net.minestom:minestom:2025.07.11-1.21.7")
+    compileOnly("net.minestom:minestom:2025.08.12-1.21.8")
+    testImplementation("net.minestom:minestom:2025.08.12-1.21.8")
 
-    implementation("commons-io:commons-io:2.11.0")
-    implementation("org.zeroturnaround:zt-zip:1.8")
+    implementation("commons-io:commons-io:2.20.0")
+    implementation("org.zeroturnaround:zt-zip:1.17")
 
     implementation("javax.json:javax.json-api:1.1.4")
     implementation("org.glassfish:javax.json:1.1.4")
