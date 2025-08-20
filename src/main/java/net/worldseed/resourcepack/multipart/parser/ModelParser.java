@@ -84,7 +84,7 @@ public class ModelParser {
         return Json.createObjectBuilder()
                 .add("head", builtHead)
                 .add("thirdperson_righthand", builtArm)
-                .add("thirdperson_lefthand", builtDisplay)
+                .add("fixed", builtDisplay)
                 .build();
     }
 
