@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
     private static final int INTERPOLATE_TICKS = 2;
-    private static final Tag<String> WSEE = Tag.String("WSEE");
+    private static final Tag<@NotNull String> WSEE = Tag.String("WSEE");
     private final JsonArray cubes;
     private final Collection<ModelBone> illegitimateChildren = new ConcurrentLinkedDeque<>();
     private final Point orgPivot;
@@ -56,6 +56,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
                         player.getPlayerConnection().sendPacket(packet);
                     }
 
+                    @SuppressWarnings("UnstableApiUsage")
                     @Override
                     public void updateOldViewer(@NotNull Player player) {
                         super.updateOldViewer(player);
@@ -142,38 +143,21 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
             Point sizePoint = new Vec(sizeArray.get(0).getAsFloat(), sizeArray.get(1).getAsFloat(), sizeArray.get(2).getAsFloat());
             Point originPoint = new Vec(origin.get(0).getAsFloat(), origin.get(1).getAsFloat(), origin.get(2).getAsFloat());
 
-            double maxSize = Math.max(Math.min(Math.min(sizePoint.x(), sizePoint.y()), sizePoint.z()), 0.5);
-            while (maxSize > (16 / scale)) {
-                maxSize /= 2;
-            }
+            var newPoint = originPoint.add(sizePoint.x() / 2, 0, sizePoint.z() / 2).mul(-1, 1, 1);
 
-            var newPoint = originPoint
-                    .add(sizePoint.x() / 2, 0, sizePoint.z() / 2)
-                    .mul(-1, 1, 1);
-
-            for (int x = 0; x < sizePoint.x() / maxSize; ++x) {
-                for (int y = 0; y < sizePoint.y() / maxSize; ++y) {
-                    for (int z = 0; z < sizePoint.z() / maxSize; ++z) {
-                        var currentPos = new Vec(x * maxSize, y * maxSize, z * maxSize);
-
-                        currentPos = currentPos.sub(sizePoint.x() / 2, 0, sizePoint.z() / 2);
-                        currentPos = currentPos.add(maxSize / 2, 0, maxSize / 2);
-
-                        if ((currentPos.x() + maxSize) > sizePoint.x()) {
-                            currentPos = currentPos.withX(sizePoint.x() - maxSize);
-                        }
-
-                        if ((currentPos.z() + maxSize) > sizePoint.z())
-                            currentPos = currentPos.withZ(sizePoint.z() - maxSize);
-
-                        if ((currentPos.y() + maxSize) > sizePoint.y())
-                            currentPos = currentPos.withY(sizePoint.y() - maxSize);
-
-                        var created = new ModelBoneHitbox(pivotPos, name, boneRotation, genericModel, currentPos.add(newPoint), maxSize, maxSize, cubes, false, scale);
-                        illegitimateChildren.add(created);
-                    }
-                }
-            }
+            var created = new ModelBoneHitbox(
+                    pivotPos,
+                    name,
+                    boneRotation,
+                    genericModel,
+                    newPoint,
+                    sizePoint.x(),
+                    sizePoint.y(),
+                    cubes,
+                    false,
+                    scale
+            );
+            illegitimateChildren.add(created);
         }
     }
 
@@ -195,7 +179,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
     }
 
     @Override
-    public CompletableFuture<Void> spawn(Instance instance, Pos position) {
+    public CompletableFuture<Void> spawn(Instance instance, Point position) {
         this.illegitimateChildren.forEach(modelBone -> {
             modelBone.spawn(instance, modelBone.calculatePosition().add(model.getPosition()));
             MinecraftServer.getSchedulerManager().scheduleNextTick(modelBone::draw);
@@ -221,7 +205,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
 
-        return Pos.fromPoint(p).div(4).mul(scale);
+        return new Pos(p).div(4).mul(scale);
     }
 
     @Override

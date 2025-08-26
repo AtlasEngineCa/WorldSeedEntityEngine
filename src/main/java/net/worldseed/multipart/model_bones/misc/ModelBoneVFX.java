@@ -52,6 +52,7 @@ public class ModelBoneVFX extends ModelBoneImpl implements VFXBone {
     public void setState(String state) {
     }
 
+    @Override
     public CompletableFuture<Void> spawn(Instance instance, Point position) {
         return CompletableFuture.completedFuture(null);
     }
@@ -64,7 +65,7 @@ public class ModelBoneVFX extends ModelBoneImpl implements VFXBone {
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
 
-        Pos endPos = Pos.fromPoint(p);
+        Pos endPos = new Pos(p);
 
         return endPos
                 .div(4, 4, 4).mul(scale)

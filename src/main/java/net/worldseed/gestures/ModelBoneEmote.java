@@ -20,9 +20,7 @@ import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.ModelBoneViewable;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -52,31 +50,18 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
         }
 
         switch (this.name) {
-            case "Head" -> {
-                this.diff = this.pivot.add(0, 0, 0);
-            }
-            case "RightArm" -> {
-                this.diff = this.pivot.add(-1.17, 0, 0);
-            }
-            case "LeftArm" -> {
-                this.diff = this.pivot.add(1.17, 0, 0);
-            }
-            case "RightLeg" -> {
-                this.diff = this.pivot.add(-0.4446, 0, 0);
-            }
-            case "LeftLeg" -> {
-                this.diff = this.pivot.add(0.4446, 0, 0);
-            }
-            case "Body" -> {
-                this.diff = this.pivot.add(0, 0, 0);
-            }
+            case "Head", "Body" -> this.diff = this.pivot.add(0, 0, 0);
+            case "RightArm" -> this.diff = this.pivot.add(-1.17, 0, 0);
+            case "LeftArm" -> this.diff = this.pivot.add(1.17, 0, 0);
+            case "RightLeg" -> this.diff = this.pivot.add(-0.4446, 0, 0);
+            case "LeftLeg" -> this.diff = this.pivot.add(0.4446, 0, 0);
         }
     }
 
     @Override
-    public CompletableFuture<Void> spawn(Instance instance, Pos position) {
+    public CompletableFuture<Void> spawn(Instance instance, Point position) {
         var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
-        return super.spawn(instance, Pos.fromPoint(position).withYaw((float) correctLocation)).whenCompleteAsync((v, e) -> {
+        return super.spawn(instance, new Pos(position).withYaw((float) correctLocation)).whenCompleteAsync((v, e) -> {
             if (e != null) {
                 e.printStackTrace();
             }
@@ -112,7 +97,7 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
 
-        return Pos.fromPoint(p)
+        return new Pos(p)
                 .div(4, 4, 4).mul(scale)
                 .add(model.getPosition())
                 .add(0, verticalOffset, 0)
@@ -202,10 +187,6 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
         throw new UnsupportedOperationException("Cannot detach a model from this bone type");
     }
 
-    @Override
-    public @NotNull Collection<ModelBone> getChildren() {
-        return List.of();
-    }
 
     @Override
     public void setGlobalRotation(double yaw, double pitch) {

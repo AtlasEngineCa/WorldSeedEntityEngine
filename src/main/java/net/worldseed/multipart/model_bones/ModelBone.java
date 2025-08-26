@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 @ApiStatus.Internal
 public interface ModelBone {
-    CompletableFuture<Void> spawn(Instance instance, Pos position);
+    CompletableFuture<Void> spawn(Instance instance, Point position);
 
     Point applyTransform(Point p);
 
@@ -87,5 +87,5 @@ public interface ModelBone {
 
     default @NotNull Collection<ModelBone> getChildren() {
         return List.of();
-    };
+    }
 }
