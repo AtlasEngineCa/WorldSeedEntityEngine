@@ -5,8 +5,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 
     withSourcesJar()
     withJavadocJar()
@@ -42,8 +42,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.0-M2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.0-M2")
 
-    compileOnly("net.minestom:minestom:2025.08.12-1.21.8")
-    testImplementation("net.minestom:minestom:2025.08.12-1.21.8")
+    compileOnly("net.minestom:minestom:2025.10.11-1.21.10")
+    testImplementation("net.minestom:minestom:2025.10.11-1.21.10")
 
     implementation("commons-io:commons-io:2.20.0")
     implementation("org.zeroturnaround:zt-zip:1.17")
