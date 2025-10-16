@@ -1,6 +1,6 @@
 package commands;
 
-import demo_models.weapon.WeaponMob;
+import demo_models.bulbasaur.BulbasaurMob;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 
@@ -8,16 +8,10 @@ public class SpawnCommand extends Command {
     public SpawnCommand() {
         super("spawn");
 
-        setDefaultExecutor((sender, _) -> {
+        setDefaultExecutor((sender, context) -> {
             final Player player = (Player) sender;
             try {
-                new WeaponMob(player);
-//                MinecraftServer.getSchedulerManager().buildTask(() -> {
-//                            System.out.println("123");
-//                            entity.
-//                        })
-//                        .repeat(TaskSchedule.tick(1))
-//                        .schedule();
+                new BulbasaurMob(player.getInstance(), player.getPosition());
             } catch (Exception e) {
                 e.printStackTrace();
             }
