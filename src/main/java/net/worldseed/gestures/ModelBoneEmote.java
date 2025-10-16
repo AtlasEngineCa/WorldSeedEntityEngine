@@ -13,7 +13,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.CustomModelData;
-import net.minestom.server.item.component.HeadProfile;
+import net.minestom.server.network.player.ResolvableProfile;
 import net.worldseed.multipart.GenericModel;
 import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.model_bones.BoneEntity;
@@ -44,7 +44,7 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
                 meta.setDisplayContext(ItemDisplayMeta.DisplayContext.THIRDPERSON_RIGHT_HAND);
 
                 meta.setItemStack(ItemStack.builder(Material.PLAYER_HEAD)
-                        .set(DataComponents.PROFILE, new HeadProfile(skin))
+                        .set(DataComponents.PROFILE, new ResolvableProfile(skin))
                         .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(customModelDataFromName(name)), List.of(), List.of(), List.of()))
                         .build()
                 );

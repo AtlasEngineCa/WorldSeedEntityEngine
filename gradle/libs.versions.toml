@@ -1,0 +1,18 @@
+[versions]
+minestom = "2025.10.11-1.21.10"
+junit = "6.0.0-M2"
+commons-io = "2.20.0"
+zt-zip = "1.17"
+javax-json = "1.1.4"
+mql = "1.0.1"
+
+[libraries]
+minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+zt-zip = { module = "org.zeroturnaround:zt-zip", version.ref = "zt-zip" }
+javax-json-api = { module = "javax.json:javax.json-api", version.ref = "javax-json" }
+javax-json = { module = "org.glassfish:javax.json", version.ref = "javax-json" }
+mql = { module = "dev.hollowcube:mql", version.ref = "mql" }
+

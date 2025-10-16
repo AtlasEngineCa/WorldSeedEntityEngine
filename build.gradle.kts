@@ -5,8 +5,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 
     withSourcesJar()
     withJavadocJar()
@@ -21,7 +21,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "11.3.3"
+        version = "11.3.4"
 
         from(components["java"])
     }
@@ -39,19 +39,19 @@ publishing {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.0-M2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.0-M2")
+    testImplementation(libs.junit.api)
+    testRuntimeOnly(libs.junit.engine)
 
-    compileOnly("net.minestom:minestom:2025.08.12-1.21.8")
-    testImplementation("net.minestom:minestom:2025.08.12-1.21.8")
+    compileOnly(libs.minestom)
+    testImplementation(libs.minestom)
 
-    implementation("commons-io:commons-io:2.20.0")
-    implementation("org.zeroturnaround:zt-zip:1.17")
+    implementation(libs.commons.io)
+    implementation(libs.zt.zip)
 
-    implementation("javax.json:javax.json-api:1.1.4")
-    implementation("org.glassfish:javax.json:1.1.4")
+    implementation(libs.javax.json.api)
+    implementation(libs.javax.json)
 
-    implementation("dev.hollowcube:mql:1.0.1")
+    implementation(libs.mql)
 }
 
 tasks.getByName<Test>("test") {

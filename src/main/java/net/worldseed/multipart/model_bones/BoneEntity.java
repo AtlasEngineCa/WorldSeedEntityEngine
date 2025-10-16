@@ -1,6 +1,7 @@
 package net.worldseed.multipart.model_bones;
 
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
@@ -47,7 +48,7 @@ public class BoneEntity extends LivingEntity {
     @Override
     public void updateNewViewer(@NotNull Player player) {
         Pos position = this.getPosition();
-        var spawnPacket = new SpawnEntityPacket(this.getEntityId(), this.getUuid(), this.getEntityType().id(), model.getPosition().withView(position.yaw(), 0), position.yaw(), 0, (short) 0, (short) 0, (short) 0);
+        var spawnPacket = new SpawnEntityPacket(this.getEntityId(), this.getUuid(), this.getEntityType(), model.getPosition().withView(position.yaw(), 0), position.yaw(), 0, Vec.ZERO);
 
         player.sendPacket(spawnPacket);
         player.sendPacket(new LazyPacket(this::getMetadataPacket));
