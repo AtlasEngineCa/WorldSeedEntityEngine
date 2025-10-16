@@ -46,23 +46,16 @@ public class BoneAnimationImpl implements BoneAnimation {
             if (length != 0) {
                 found = computeCachedTransforms(keyframes);
 
-                if (this.type == ModelLoader.AnimationType.ROTATION) {
-                    ModelLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
-                } else if (this.type == ModelLoader.AnimationType.TRANSLATION) {
-                    ModelLoader.addToTranslationCache(modelName, bone.getName() + "/" + animationName, found);
-                } else if (this.type == ModelLoader.AnimationType.SCALE) {
-                    ModelLoader.addToScaleCache(modelName, bone.getName() + "/" + animationName, found);
-                }
             } else {
                 found = computeMathTransforms(keyframes);
 
-                if (this.type == ModelLoader.AnimationType.ROTATION) {
-                    ModelLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
-                } else if (this.type == ModelLoader.AnimationType.TRANSLATION) {
-                    ModelLoader.addToTranslationCache(modelName, bone.getName() + "/" + animationName, found);
-                } else if (this.type == ModelLoader.AnimationType.SCALE) {
-                    ModelLoader.addToScaleCache(modelName, bone.getName() + "/" + animationName, found);
-                }
+            }
+            if (this.type == ModelLoader.AnimationType.ROTATION) {
+                ModelLoader.addToRotationCache(modelName, bone.getName() + "/" + animationName, found);
+            } else if (this.type == ModelLoader.AnimationType.TRANSLATION) {
+                ModelLoader.addToTranslationCache(modelName, bone.getName() + "/" + animationName, found);
+            } else if (this.type == ModelLoader.AnimationType.SCALE) {
+                ModelLoader.addToScaleCache(modelName, bone.getName() + "/" + animationName, found);
             }
         }
 
@@ -199,6 +192,6 @@ public class BoneAnimationImpl implements BoneAnimation {
         return tick;
     }
 
-    record PointInterpolation(MQLPoint p, String lerp) {
+    public record PointInterpolation(MQLPoint p, String lerp) {
     }
 }

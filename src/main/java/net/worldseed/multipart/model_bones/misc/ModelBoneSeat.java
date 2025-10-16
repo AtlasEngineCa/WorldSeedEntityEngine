@@ -28,9 +28,9 @@ public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
 
         if (this.offset != null) {
             this.stand = new BoneEntity(EntityType.ARMOR_STAND, model, name);
-            this.stand.editEntityMeta(ArmorStandMeta.class, meta -> {
-                meta.setMarker(true);
-            });
+            this.stand.editEntityMeta(ArmorStandMeta.class, meta ->
+                    meta.setMarker(true)
+            );
 
             this.stand.setTag(Tag.String("WSEE"), "seat");
             stand.setInvisible(true);
@@ -114,7 +114,7 @@ public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
 
         var p = applyTransform(this.offset);
         p = calculateGlobalRotation(p);
-        Pos endPos = Pos.fromPoint(p);
+        Pos endPos = new Pos(p);
 
         return endPos
                 .div(4, 4, 4).mul(scale)

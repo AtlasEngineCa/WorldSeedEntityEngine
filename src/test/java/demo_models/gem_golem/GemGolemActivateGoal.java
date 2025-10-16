@@ -37,11 +37,11 @@ public class GemGolemActivateGoal extends GoalSelector {
 
         animationHandler.stopRepeat("idle_extended");
 
-        animationHandler.playOnce("retract", () -> {
-            animationHandler.playOnce("idle_retracted", () -> {
-                playing = false;
-            });
-        });
+        animationHandler.playOnce("retract", () ->
+                animationHandler.playOnce("idle_retracted", () ->
+                    playing = false
+                )
+        );
     }
 
     @Override

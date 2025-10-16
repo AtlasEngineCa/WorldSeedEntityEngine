@@ -21,7 +21,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "11.3.4"
+        version = "11.3.5"
 
         from(components["java"])
     }
@@ -54,6 +54,6 @@ dependencies {
     implementation(libs.mql)
 }
 
-tasks.getByName<Test>("test") {
+tasks.test {
     useJUnitPlatform()
 }

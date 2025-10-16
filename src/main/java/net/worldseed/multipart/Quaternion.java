@@ -2,20 +2,9 @@ package net.worldseed.multipart;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
+import org.jspecify.annotations.NonNull;
 
-final public class Quaternion {
-    private final double x;
-    private final double y;
-    private final double z;
-
-    private final double w;
-
-    public Quaternion(double x, double y, double z, double w) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
-    }
+public record Quaternion(double x, double y, double z, double w) {
 
     public Quaternion(Point p) {
         p = ModelMath.toRadians(p);
@@ -27,26 +16,7 @@ final public class Quaternion {
         double cr = Math.cos(p.x() * 0.5);
         double sr = Math.sin(p.x() * 0.5);
 
-        w = cr * cp * cy + sr * sp * sy;
-        x = sr * cp * cy - cr * sp * sy;
-        y = cr * sp * cy + sr * cp * sy;
-        z = cr * cp * sy - sr * sp * cy;
-    }
-
-    public double x() {
-        return x;
-    }
-
-    public double y() {
-        return y;
-    }
-
-    public double z() {
-        return z;
-    }
-
-    public double w() {
-        return w;
+        this(sr * cp * cy - cr * sp * sy, cr * sp * cy + sr * cp * sy, cr * cp * sy - sr * sp * cy, cr * cp * cy + sr * sp * sy);
     }
 
     public Point toEuler() {
@@ -83,7 +53,7 @@ final public class Quaternion {
     }
 
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return "net.worldseed.multipart.Quaternion{" +
                 "x=" + x +
                 ", y=" + y +

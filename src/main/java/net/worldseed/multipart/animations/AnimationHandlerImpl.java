@@ -227,7 +227,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
             if (callbacks.size() + repeating.size() == 0) return; //Return if no playOnce or repeating animation is playing
             this.model.draw(); 
 
-            this.animations.forEach((animation, animations) -> {
+            this.animations.forEach((_, animations) -> {
                 animations.tick(); //Play every tick (besides the first one) of the animation
             });
         } catch (Exception e) {

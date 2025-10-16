@@ -8,6 +8,7 @@ import net.worldseed.multipart.animations.AnimationHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.Objects;
 
 public class TuffGolemMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
@@ -30,6 +31,7 @@ public class TuffGolemMoveGoal extends GoalSelector {
         if (target == null) return false;
         if (entityCreature.getPassengers().contains(target)) return false;
 
+        //noinspection ConstantValue
         if (entityCreature.getNavigator().getPathPosition() != null)
             if (entityCreature.getNavigator().getPathPosition().samePoint(lastTargetPos)) return false;
 
@@ -45,6 +47,7 @@ public class TuffGolemMoveGoal extends GoalSelector {
 
         this.lastTargetPos = target.getPosition();
 
+        //noinspection ConstantValue
         if (navigator.getPathPosition() == null || !navigator.getPathPosition().samePoint(lastTargetPos)) {
             navigator.setPathTo(lastTargetPos);
         } else {
@@ -76,7 +79,7 @@ public class TuffGolemMoveGoal extends GoalSelector {
                 || entityCreature.getDistance(target) >= maxDistance
                 || entityCreature.getDistance(target) <= minDistance
                 || entityCreature.getPassengers().contains(target)
-                || !this.animationHandler.getPlaying().equals("walk");
+                || !Objects.equals(this.animationHandler.getPlaying(), "walk");
     }
 
     @Override

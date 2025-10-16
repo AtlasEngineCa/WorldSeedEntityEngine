@@ -8,7 +8,7 @@ public class SpawnCommand extends Command {
     public SpawnCommand() {
         super("spawn");
 
-        setDefaultExecutor((sender, context) -> {
+        setDefaultExecutor((sender, _) -> {
             final Player player = (Player) sender;
             try {
                 new BulbasaurMob(player.getInstance(), player.getPosition());

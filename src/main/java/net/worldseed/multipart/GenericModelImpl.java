@@ -36,6 +36,7 @@ import net.worldseed.multipart.model_bones.misc.ModelBoneVFX;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +49,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     private final Collection<ModelBone> additionalBones = new ArrayList<>();
     private final Set<Player> viewers = ConcurrentHashMap.newKeySet();
-    private final EventNode<ModelEvent> eventNode;
+    private final EventNode<@NonNull ModelEvent> eventNode;
     private final Map<Player, RGBLike> playerGlowColors = Collections.synchronizedMap(new WeakHashMap<>());
     protected Instance instance;
     private Pos position;
@@ -62,7 +63,7 @@ public abstract class GenericModelImpl implements GenericModel {
     protected final Map<Predicate<String>, Function<ModelBoneInfo, @Nullable ModelBone>> boneSuppliers = new LinkedHashMap<>();
     Function<ModelBoneInfo, ModelBone> defaultBoneSupplier = (info) -> new ModelBonePartDisplay(info.pivot, info.name, info.rotation, info.model, info.scale);
 
-    private static final EventFilter<ModelEvent, GenericModel> MODEL_FILTER = EventFilter.from(ModelEvent.class, GenericModel.class, ModelEvent::model);
+    private static final EventFilter<@NonNull ModelEvent, @NonNull GenericModel> MODEL_FILTER = EventFilter.from(ModelEvent.class, GenericModel.class, ModelEvent::model);
 
     public GenericModelImpl() {
         final ServerProcess process = MinecraftServer.process();
@@ -77,7 +78,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public @NotNull EventNode<ModelEvent> eventNode() {
+    public @NotNull EventNode<@NonNull ModelEvent> eventNode() {
         return eventNode;
     }
 
@@ -99,9 +100,9 @@ public abstract class GenericModelImpl implements GenericModel {
         this.globalRotation = yaw;
         this.pitch = pitch;
 
-        this.viewableBones.forEach(part -> {
-            part.setGlobalRotation(yaw, pitch);
-        });
+        this.viewableBones.forEach(part ->
+                part.setGlobalRotation(yaw, pitch)
+        );
     }
 
     @Override
@@ -192,7 +193,7 @@ public abstract class GenericModelImpl implements GenericModel {
                 if (predicate.test(name)) {
                     var modelBonePart = supplier.apply(new ModelBoneInfo(name, pivotPos, boneRotation, bone.getAsJsonObject().getAsJsonArray("cubes"), this, scale));
 
-                    additionalBones.addAll(modelBonePart.getChildren());
+                    additionalBones.addAll(Objects.requireNonNull(modelBonePart).getChildren());
                     parts.put(name, modelBonePart);
                     found = true;
 
@@ -316,7 +317,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public void sendPacketsToViewers(@NotNull SendablePacket... packets) {
+    public void sendPacketsToViewers(@NotNull SendablePacket @NonNull ... packets) {
         for (Player viewer : this.viewers) {
             for (SendablePacket packet : packets) {
                 viewer.sendPacket(packet);
@@ -354,6 +355,17 @@ public abstract class GenericModelImpl implements GenericModel {
     public boolean removeViewer(@NotNull Player player) {
         getParts().forEach(part -> part.removeViewer(player));
         return this.viewers.remove(player);
+    }
+
+    @Override
+    public void addPartsAsPassengers(Player player) {
+        getParts().forEach(part -> {
+            try {
+                player.addPassenger(part.getEntity());
+            } catch (IllegalStateException _) {
+
+            }
+        });
     }
 
     @Override

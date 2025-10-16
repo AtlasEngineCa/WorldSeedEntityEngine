@@ -15,4 +15,3 @@ zt-zip = { module = "org.zeroturnaround:zt-zip", version.ref = "zt-zip" }
 javax-json-api = { module = "javax.json:javax.json-api", version.ref = "javax-json" }
 javax-json = { module = "org.glassfish:javax.json", version.ref = "javax-json" }
 mql = { module = "dev.hollowcube:mql", version.ref = "mql" }
-
