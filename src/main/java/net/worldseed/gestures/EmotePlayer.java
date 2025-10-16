@@ -101,6 +101,7 @@ public abstract class EmotePlayer extends EntityCreature {
         this.model.addViewer(player);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void updateOldViewer(@NotNull Player player) {
         super.updateOldViewer(player);

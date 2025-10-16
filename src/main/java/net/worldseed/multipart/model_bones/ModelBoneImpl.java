@@ -90,11 +90,11 @@ public abstract class ModelBoneImpl implements ModelBone {
         Point endPos = p;
 
         if (this.diff != null) {
-            endPos = calculateScale(endPos, this.getPropogatedScale(), this.pivot.sub(this.diff));
-            endPos = calculateRotation(endPos, this.getPropogatedRotation(), this.pivot.sub(this.diff));
+            endPos = calculateScale(endPos, this.getPropagatedScale(), this.pivot.sub(this.diff));
+            endPos = calculateRotation(endPos, this.getPropagatedRotation(), this.pivot.sub(this.diff));
         } else {
-            endPos = calculateScale(endPos, this.getPropogatedScale(), this.pivot);
-            endPos = calculateRotation(endPos, this.getPropogatedRotation(), this.pivot);
+            endPos = calculateScale(endPos, this.getPropagatedScale(), this.pivot);
+            endPos = calculateRotation(endPos, this.getPropagatedRotation(), this.pivot);
         }
 
         for (BoneAnimation currentAnimation : this.allAnimations) {
@@ -113,7 +113,7 @@ public abstract class ModelBoneImpl implements ModelBone {
         return endPos;
     }
 
-    public Point getPropogatedRotation() {
+    public Point getPropagatedRotation() {
         Point netTransform = Vec.ZERO;
 
         for (BoneAnimation currentAnimation : this.allAnimations) {
@@ -129,7 +129,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     }
 
     @Override
-    public Point getPropogatedScale() {
+    public Point getPropagatedScale() {
         Point netTransform = Vec.ONE;
 
         for (BoneAnimation currentAnimation : this.allAnimations) {
@@ -147,7 +147,7 @@ public abstract class ModelBoneImpl implements ModelBone {
     @Override
     public Point calculateFinalScale(Point q) {
         if (this.parent != null) {
-            Point pq = parent.calculateFinalScale(parent.getPropogatedScale());
+            Point pq = parent.calculateFinalScale(parent.getPropagatedScale());
             q = pq.mul(q);
         }
 
@@ -156,7 +156,7 @@ public abstract class ModelBoneImpl implements ModelBone {
 
     public Quaternion calculateFinalAngle(Quaternion q) {
         if (this.parent != null) {
-            Quaternion pq = parent.calculateFinalAngle(new Quaternion(parent.getPropogatedRotation()));
+            Quaternion pq = parent.calculateFinalAngle(new Quaternion(parent.getPropagatedRotation()));
             q = pq.multiply(q);
         }
 

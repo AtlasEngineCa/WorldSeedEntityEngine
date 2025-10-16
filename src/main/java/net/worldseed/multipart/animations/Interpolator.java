@@ -71,8 +71,8 @@ public class Interpolator {
         double timePercent = (time - points.st) / timeDiff;
 
         if (points.s.lerp().equals("linear")) {
-            Vec ps = Vec.fromPoint(points.s.p().evaluate(time));
-            Vec pe = Vec.fromPoint(points.e.p().evaluate(time));
+            Vec ps = points.s.p().evaluate(time).asVec();
+            Vec pe = points.e.p().evaluate(time).asVec();
 
             return ps.lerp(pe, timePercent);
         } else {
@@ -86,28 +86,24 @@ public class Interpolator {
         StartEnd points = getStartEnd(time, transform, animationTime);
         if (points == null) return Vec.ZERO;
 
-        double timeDiff = points.et - points.st;
-
-        if (timeDiff == 0) return points.s.p().evaluate(time);
-        double timePercent = (time - points.st) / timeDiff;
-
-        Vec ps = Vec.fromPoint(points.s.p().evaluate(time));
-        Vec pe = Vec.fromPoint(points.e.p().evaluate(time));
-
-        return ps.lerp(pe, timePercent);
+        return getPoint(time, points);
     }
 
     public static Point interpolateScale(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
         StartEnd points = getStartEnd(time, transform, animationTime);
         if (points == null) return Vec.ONE;
 
+        return getPoint(time, points);
+    }
+
+    private static Point getPoint(double time, StartEnd points) {
         double timeDiff = points.et - points.st;
 
         if (timeDiff == 0) return points.s.p().evaluate(time);
         double timePercent = (time - points.st) / timeDiff;
 
-        Vec ps = Vec.fromPoint(points.s.p().evaluate(time));
-        Vec pe = Vec.fromPoint(points.e.p().evaluate(time));
+        Vec ps = points.s.p().evaluate(time).asVec();
+        Vec pe = points.e.p().evaluate(time).asVec();
 
         return ps.lerp(pe, timePercent);
     }

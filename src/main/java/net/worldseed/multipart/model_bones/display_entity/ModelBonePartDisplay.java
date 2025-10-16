@@ -174,13 +174,13 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public Point calculateRotation() {
-        Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
+        Quaternion q = calculateFinalAngle(new Quaternion(getPropagatedRotation()));
         return q.toEuler();
     }
 
     @Override
     public Point calculateScale() {
-        return calculateFinalScale(getPropogatedScale());
+        return calculateFinalScale(getPropagatedScale());
     }
 
     @Override
@@ -197,7 +197,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             var scale = calculateScale();
 
             if (this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
-                Quaternion q = calculateFinalAngle(new Quaternion(getPropogatedRotation()));
+                Quaternion q = calculateFinalAngle(new Quaternion(getPropagatedRotation()));
 
                 meta.setNotifyAboutChanges(false);
                 meta.setTransformationInterpolationStartDelta(0);
@@ -218,7 +218,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     @Override
     public CompletableFuture<Void> spawn(Instance instance, Pos position) {
         var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
-        return super.spawn(instance, new Pos(position).withYaw((float) correctLocation)).whenCompleteAsync((v, e) -> {
+        return super.spawn(instance, new Pos(position).withYaw((float) correctLocation)).whenCompleteAsync((_, e) -> {
             if (e != null) {
                 e.printStackTrace();
                 return;

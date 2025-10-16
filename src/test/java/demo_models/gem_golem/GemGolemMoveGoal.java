@@ -8,6 +8,7 @@ import net.worldseed.multipart.animations.AnimationHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.Objects;
 
 public class GemGolemMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
@@ -31,7 +32,7 @@ public class GemGolemMoveGoal extends GoalSelector {
         if (entityCreature.getPassengers().contains(target)) return false;
         if (((GemGolemMob) entityCreature).isSleeping()) return false;
 
-        if (!this.animationHandler.getPlaying().equals("idle_extended")) return false;
+        if (!Objects.equals(this.animationHandler.getPlaying(), "idle_extended")) return false;
 
         if (target.getPosition().samePoint(lastTargetPos)) return false;
 
@@ -47,6 +48,7 @@ public class GemGolemMoveGoal extends GoalSelector {
 
         this.lastTargetPos = target.getPosition();
 
+        //noinspection ConstantValue
         if (navigator.getPathPosition() == null || !navigator.getPathPosition().samePoint(lastTargetPos)) {
             navigator.setPathTo(lastTargetPos);
         } else {
@@ -78,7 +80,7 @@ public class GemGolemMoveGoal extends GoalSelector {
                 || entityCreature.getDistance(target) >= maxDistance
                 || entityCreature.getDistance(target) <= minDistance
                 || entityCreature.getPassengers().contains(target)
-                || !this.animationHandler.getPlaying().equals("walk");
+                || !Objects.equals(this.animationHandler.getPlaying(), "walk");
     }
 
     @Override

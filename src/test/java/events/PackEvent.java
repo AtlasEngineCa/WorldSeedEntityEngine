@@ -44,15 +44,15 @@ public class PackEvent {
         String hash = calculateMD5(zipFile);
         startHttpServer(zipFile, hash);
 
-        handler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
+        handler.addListener(AsyncPlayerConfigurationEvent.class, event ->
             MinecraftServer.getSchedulerManager().scheduleTask(() -> {
                 final ResourcePackInfo resourcePackInfo = ResourcePackInfo.resourcePackInfo()
-                        .uri(URI.create("http://127.0.0.1:8080/pack?hash=" + hash))
-                        .hash(hash)
-                        .build();
+                    .uri(URI.create("http://127.0.0.1:8080/pack?hash=" + hash))
+                    .hash(hash)
+                    .build();
                 event.getPlayer().sendResourcePacks(resourcePackInfo);
-            }, TaskSchedule.tick(20), TaskSchedule.stop());
-        });
+            }, TaskSchedule.tick(20), TaskSchedule.stop())
+        );
     }
 
     static class PackHandler implements HttpHandler {

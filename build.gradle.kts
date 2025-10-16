@@ -5,8 +5,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get())
+    targetCompatibility = JavaVersion.toVersion(libs.versions.java.get())
 
     withSourcesJar()
     withJavadocJar()
@@ -39,21 +39,21 @@ publishing {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.0-M2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.0-M2")
+    testImplementation(libs.junit.api)
+    testRuntimeOnly(libs.junit.engine)
 
-    compileOnly("net.minestom:minestom:2025.10.11-1.21.10")
-    testImplementation("net.minestom:minestom:2025.10.11-1.21.10")
+    compileOnly(libs.minestom)
+    testImplementation(libs.minestom)
 
-    implementation("commons-io:commons-io:2.20.0")
-    implementation("org.zeroturnaround:zt-zip:1.17")
+    implementation(libs.commons.io)
+    implementation(libs.zt.zip)
 
-    implementation("javax.json:javax.json-api:1.1.4")
-    implementation("org.glassfish:javax.json:1.1.4")
+    implementation(libs.javax.json.api)
+    implementation(libs.javax.json)
 
-    implementation("dev.hollowcube:mql:1.0.1")
+    implementation(libs.mql)
 }
 
-tasks.getByName<Test>("test") {
+tasks.test {
     useJUnitPlatform()
 }
