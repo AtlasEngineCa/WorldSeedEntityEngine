@@ -39,9 +39,9 @@ public interface ModelBone {
 
     void setParent(ModelBone parent);
 
-    Point getPropogatedRotation();
+    Point getPropagatedRotation();
 
-    Point getPropogatedScale();
+    Point getPropagatedScale();
 
     Point calculateScale();
 
@@ -87,5 +87,5 @@ public interface ModelBone {
 
     default @NotNull Collection<ModelBone> getChildren() {
         return List.of();
-    };
+    }
 }

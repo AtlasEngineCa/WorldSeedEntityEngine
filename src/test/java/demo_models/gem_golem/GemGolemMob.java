@@ -2,6 +2,7 @@ package demo_models.gem_golem;
 
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.component.DataComponents;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -16,7 +17,6 @@ import net.minestom.server.entity.metadata.water.fish.PufferfishMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.registry.RegistryKey;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
@@ -29,6 +29,7 @@ import net.worldseed.multipart.events.ModelDismountEvent;
 import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class GemGolemMob extends EntityCreature {
 
         BoneEntity nametag = new BoneEntity(EntityType.ARMOR_STAND, model, "nametag");
         nametag.setCustomNameVisible(true);
-        nametag.setCustomName(Component.text("Gem Golem"));
+        nametag.set(DataComponents.CUSTOM_NAME,  Component.text("Gem Golem"));
         nametag.setNoGravity(true);
         nametag.setInvisible(true);
         nametag.setInstance(instance, pos);
@@ -131,7 +132,7 @@ public class GemGolemMob extends EntityCreature {
     }
 
     @Override
-    public boolean damage(@NotNull RegistryKey<DamageType> type, float value) {
+    public boolean damage(@NotNull RegistryKey<@NonNull DamageType> type, float value) {
         this.model.setState("hit");
 
         if (stateTask != null && stateTask.isAlive()) stateTask.cancel();
@@ -170,6 +171,7 @@ public class GemGolemMob extends EntityCreature {
         this.model.addViewer(player);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void updateOldViewer(@NotNull Player player) {
         super.updateOldViewer(player);

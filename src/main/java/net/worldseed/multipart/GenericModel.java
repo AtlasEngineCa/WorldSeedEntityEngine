@@ -16,12 +16,13 @@ import net.worldseed.multipart.model_bones.ModelBone;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape {
+public interface GenericModel extends Viewable, EventHandler<@NonNull ModelEvent>, Shape {
     /**
      * Get the ID of the model
      *
@@ -159,4 +160,6 @@ public interface GenericModel extends Viewable, EventHandler<ModelEvent>, Shape 
     void unbindNametag(String name);
 
     @Nullable Entity getNametag(String name);
+
+    void addPartsAsPassengers(Player player);
 }

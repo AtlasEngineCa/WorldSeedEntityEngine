@@ -271,7 +271,7 @@ public class ModelParser {
         int textureHeight = 16;
         int textureWidth = 16;
 
-        JsonObject modelGeoFile = bbModel.geo().getJsonArray("minecraft:geometry").get(0).asJsonObject();
+        JsonObject modelGeoFile = bbModel.geo().getJsonArray("minecraft:geometry").getFirst().asJsonObject();
 
         JsonArray bonesJson = modelGeoFile.getJsonArray("bones");
         JsonObject description = modelGeoFile.getJsonObject("description");
