@@ -11,13 +11,7 @@ public class SpawnCommand extends Command {
         setDefaultExecutor((sender, _) -> {
             final Player player = (Player) sender;
             try {
-                new WeaponMob(player);
-//                MinecraftServer.getSchedulerManager().buildTask(() -> {
-//                            System.out.println("123");
-//                            entity.
-//                        })
-//                        .repeat(TaskSchedule.tick(1))
-//                        .schedule();
+                new BulbasaurMob(player.getInstance(), player.getPosition());
             } catch (Exception e) {
                 e.printStackTrace();
             }
