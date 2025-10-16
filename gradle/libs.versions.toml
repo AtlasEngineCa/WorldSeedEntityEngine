@@ -8,15 +8,11 @@ javax-json = "1.1.4"
 mql = "1.0.1"
 
 [libraries]
+minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
-
-minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
-
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 zt-zip = { module = "org.zeroturnaround:zt-zip", version.ref = "zt-zip" }
-
 javax-json-api = { module = "javax.json:javax.json-api", version.ref = "javax-json" }
 javax-json = { module = "org.glassfish:javax.json", version.ref = "javax-json" }
-
 mql = { module = "dev.hollowcube:mql", version.ref = "mql" }

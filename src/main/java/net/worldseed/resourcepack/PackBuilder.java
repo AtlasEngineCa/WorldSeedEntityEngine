@@ -68,7 +68,7 @@ public class PackBuilder {
                                 }
 
                                 String modelName = pathName.toString().replace("\\", "/");
-                                return new Model(Files.readString(entityModel, StandardCharsets.UTF_8), modelName, additionalStateFiles.get(entityModel));
+                                return new Model(Files.readString(entityModel, StandardCharsets.UTF_8), modelName, additionalStateFiles.get(pathName));
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
