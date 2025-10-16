@@ -1,6 +1,6 @@
 package commands;
 
-import demo_models.weapon.WeaponMob;
+import demo_models.bulbasaur.BulbasaurMob;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.entity.Player;
 
