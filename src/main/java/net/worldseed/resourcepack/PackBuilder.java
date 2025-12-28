@@ -35,7 +35,7 @@ public class PackBuilder {
 
         List<Model> entityModels = recursiveFileSearch(bbmodel, bbmodel, additionalStateFiles);
 
-        Path texturePathMobs = resourcepack.resolve("assets/worldseed/textures/mobs/");
+        Path texturePathMobs = resourcepack.resolve("assets/worldseed/textures/item/");
         Path modelPathMobs = resourcepack.resolve("assets/worldseed/models/mobs/");
         Path baseModelPath = resourcepack.resolve("assets/minecraft/items/");
 
