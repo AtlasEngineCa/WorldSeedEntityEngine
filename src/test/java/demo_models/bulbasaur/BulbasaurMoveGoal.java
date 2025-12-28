@@ -48,7 +48,8 @@ public class BulbasaurMoveGoal extends GoalSelector {
 
         this.lastTargetPos = target.getPosition();
 
-        if (!navigator.getPathPosition().samePoint(lastTargetPos)) {
+        //noinspection ConstantValue
+        if (navigator.getPathPosition() == null || !navigator.getPathPosition().samePoint(lastTargetPos)) {
             navigator.setPathTo(lastTargetPos);
         } else {
             forceEnd = true;

@@ -32,7 +32,7 @@ public class ModelGenerator {
         }
 
         Map<String, TextureGenerator.TextureData> textures = TextureGenerator.generate(model.getJsonArray("textures"), mcmetas, width, height);
-        JsonArray bones = GeoGenerator.generate(model.getJsonArray("elements"), model.getJsonArray("outliner"), textures);
+        JsonArray bones = GeoGenerator.generate(model.getJsonArray("elements"), model.getJsonArray("outliner"), model.getJsonArray("groups"), textures);
 
         JsonObject description = Json.createObjectBuilder()
                 .add("identifier", "geometry.unknown")
