@@ -175,43 +175,7 @@ public class ModelParser {
                     uvs.put(face, newUv);
                 }
 
-                double rotationAmount = 0;
-                String rotationAxis = "z";
-
-                if (cubeRotation.x() != 45 && cubeRotation.x() != -22.5 && cubeRotation.x() != 22.5 && cubeRotation.x() != -45 && cubeRotation.x() != 0) {
-                    throw new IllegalArgumentException("Invalid rotation: " + boneName + " X " + bbModel.id() + " " + cubeRotation.x());
-                }
-                if (cubeRotation.y() != 45 && cubeRotation.y() != -22.5 && cubeRotation.y() != 22.5 && cubeRotation.y() != -45 && cubeRotation.y() != 0) {
-                    throw new IllegalArgumentException("Invalid rotation: " + boneName + " Y " + bbModel.id() + " " + cubeRotation.y());
-                }
-                if (cubeRotation.z() != 45 && cubeRotation.z() != -22.5 && cubeRotation.z() != 22.5 && cubeRotation.z() != -45 && cubeRotation.z() != 0) {
-                    throw new IllegalArgumentException("Invalid rotation: " + boneName + " Z " + bbModel.id() + " " + cubeRotation.z());
-                }
-
-                if (cubeRotation.x() != 0) {
-                    rotationAmount = cubeRotation.x();
-                    rotationAxis = "x";
-                }
-
-                if (cubeRotation.y() != 0) {
-                    if (rotationAmount != 0) {
-                        throw new IllegalArgumentException("Cannot rotate on multiple axis: " + boneName + " Y");
-                    }
-
-                    rotationAmount = cubeRotation.y();
-                    rotationAxis = "y";
-                }
-
-                if (cubeRotation.z() != 0) {
-                    if (rotationAmount != 0) {
-                        throw new IllegalArgumentException("Cannot rotate on multiple axis: " + boneName + " Z");
-                    }
-
-                    rotationAmount = cubeRotation.z();
-                    rotationAxis = "z";
-                }
-
-                RotationInfo rotationInfo = new RotationInfo(rotationAmount, rotationAxis, cubePivot);
+                RotationInfo rotationInfo = new RotationInfo(cubeRotation, cubePivot);
                 Element newElement = new Element(cubeFrom, cubeTo, uvs, rotationInfo);
                 elements.add(newElement);
 
@@ -534,11 +498,12 @@ public class ModelParser {
         }
     }
 
-    record RotationInfo(double angle, String axis, Point origin) {
+    record RotationInfo(Point rotation, Point origin) {
         public JsonObject asJson() {
             JsonObjectBuilder res = Json.createObjectBuilder();
-            res.add("angle", angle);
-            res.add("axis", axis);
+            res.add("x", rotation.x());
+            res.add("y", rotation.y());
+            res.add("z", rotation.z());
             res.add("origin", pointAsJson(origin));
             return res.build();
         }
