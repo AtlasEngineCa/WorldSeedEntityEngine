@@ -91,7 +91,7 @@ public class ModelBoneNametag extends ModelBoneImpl implements NametagBone {
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
 
-        return Pos.fromPoint(p)
+        return new Pos(p)
                 .div(4, 4, 4).mul(scale)
                 .add(model.getPosition())
                 .add(model.getGlobalOffset());

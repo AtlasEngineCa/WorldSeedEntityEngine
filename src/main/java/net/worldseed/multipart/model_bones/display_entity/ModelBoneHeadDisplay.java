@@ -15,7 +15,7 @@ public class ModelBoneHeadDisplay extends ModelBonePartDisplay implements ModelB
     }
 
     @Override
-    public Point getPropogatedRotation() {
+    public Point getPropagatedRotation() {
         Point netTransform = Vec.ZERO;
 
         for (BoneAnimation currentAnimation : this.allAnimations) {

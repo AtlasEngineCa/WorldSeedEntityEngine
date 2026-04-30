@@ -2,7 +2,6 @@ package net.worldseed.multipart;
 
 import com.google.gson.*;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.component.DataComponent;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -22,6 +21,7 @@ import net.worldseed.multipart.events.ModelDamageEvent;
 import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.mql.MQLPoint;
+import org.jspecify.annotations.NonNull;
 
 import javax.json.JsonNumber;
 import java.io.Reader;
@@ -36,7 +36,7 @@ public class ModelEngine {
     public final static HashMap<String, Point> diffMappings = new HashMap<>();
     static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final static HashMap<String, HashMap<String, ItemStack>> blockMappings = new HashMap<>();
-    private static final EventListener<PlayerPacketEvent> playerListener = EventListener.of(PlayerPacketEvent.class, event -> {
+    private static final EventListener<@NonNull PlayerPacketEvent> playerListener = EventListener.of(PlayerPacketEvent.class, event -> {
         if (event.getPacket() instanceof ClientInputPacket packet) {
             Entity ridingEntity = event.getPlayer().getVehicle();
 
@@ -45,13 +45,13 @@ public class ModelEngine {
             }
         }
     });
-    private static final EventListener<PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
+    private static final EventListener<@NonNull PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
         if (event.getTarget() instanceof BoneEntity bone) {
             ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event, bone);
             EventDispatcher.call(modelInteractEvent);
         }
     });
-    private static final EventListener<EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
+    private static final EventListener<@NonNull EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
         if (event.getEntity() instanceof BoneEntity bone) {
             event.setCancelled(true);
             ModelDamageEvent modelDamageEvent = new ModelDamageEvent(bone.getModel(), event, bone);
@@ -126,14 +126,11 @@ public class ModelEngine {
     }
 
     public static Optional<MQLPoint> getMQLPos(JsonElement pivot) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        if (pivot == null) return Optional.empty();
-        else if (pivot instanceof JsonObject obj) {
-            return Optional.of(new MQLPoint(obj));
-        } else if (pivot instanceof JsonNumber num) {
-            return Optional.of(new MQLPoint(num.doubleValue(), num.doubleValue(), num.doubleValue()));
-        } else {
-            return Optional.empty();
-        }
+        return switch (pivot) {
+            case JsonObject obj -> Optional.of(new MQLPoint(obj));
+            case JsonNumber num -> Optional.of(new MQLPoint(num.doubleValue(), num.doubleValue(), num.doubleValue()));
+            case null, default -> Optional.empty();
+        };
     }
 
     public static Material getModelMaterial() {

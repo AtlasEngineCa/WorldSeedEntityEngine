@@ -13,12 +13,10 @@ import org.jetbrains.annotations.NotNull;
 public class GemGolemControlGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
     private boolean forceEnd;
-    private long lastUpdateTime;
     private boolean jumpCooldown;
     private long lastRotationTime;
 
     private float forward = 0f;
-    private float sideways = 0f;
 
     public GemGolemControlGoal(@NotNull GemGolemMob entityCreature, AnimationHandler handler) {
         super(entityCreature);
@@ -65,18 +63,15 @@ public class GemGolemControlGoal extends GoalSelector {
         this.forward = forward;
     }
 
-    public void setSideways(float sideways) {
-    }
-
     public void setJump(boolean jump) {
         if (jump && !jumpCooldown) {
             jumpCooldown = true;
             animationHandler.playOnce("attack", () -> {
             });
 
-            MinecraftServer.getSchedulerManager().scheduleTask(() -> {
-                jumpCooldown = false;
-            }, TaskSchedule.tick(30), TaskSchedule.stop());
+            MinecraftServer.getSchedulerManager().scheduleTask(() ->
+                jumpCooldown = false
+            , TaskSchedule.tick(30), TaskSchedule.stop());
         }
     }
 

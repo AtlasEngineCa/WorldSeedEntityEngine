@@ -9,11 +9,9 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
-import net.minestom.server.entity.damage.EntityDamage;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.registry.RegistryKey;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
@@ -22,6 +20,7 @@ import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import net.worldseed.multipart.events.ModelDamageEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -40,9 +39,9 @@ public class BulbasaurMob extends EntityCreature {
         this.model = new BulbasaurModel();
         model.init(instance, pos, 1f);
 
-        model.eventNode().addListener(ModelDamageEvent.class, (event) -> {
-            damage(event.getDamage().getType(), event.getDamage().getAmount());
-        });
+        model.eventNode().addListener(ModelDamageEvent.class, (event) ->
+                damage(event.getDamage().getType(), event.getDamage().getAmount())
+        );
 
         this.animationHandler = new AnimationHandlerImpl(model);
         this.animationHandler.playRepeat("animation.bulbasaur.ground_idle");
@@ -65,6 +64,7 @@ public class BulbasaurMob extends EntityCreature {
         this.model.addViewer(player);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void updateOldViewer(@NotNull Player player) {
         super.updateOldViewer(player);
@@ -93,7 +93,7 @@ public class BulbasaurMob extends EntityCreature {
     }
 
     @Override
-    public boolean damage(@NotNull RegistryKey<DamageType> type, float amount) {
+    public boolean damage(@NotNull RegistryKey<@NonNull DamageType> type, float amount) {
         if (this.dying) return false;
         this.animationHandler.playOnce("animation.bulbasaur.cry", () -> {
         });

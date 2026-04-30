@@ -8,6 +8,7 @@ import net.worldseed.multipart.animations.AnimationHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.Objects;
 
 public class BulbasaurMoveGoal extends GoalSelector {
     private final AnimationHandler animationHandler;
@@ -29,8 +30,9 @@ public class BulbasaurMoveGoal extends GoalSelector {
         target = findTarget();
         if (target == null) return false;
         if (entityCreature.getPassengers().contains(target)) return false;
-        if (!this.animationHandler.getPlaying().equals("animation.bulbasaur.ground_idle")) return false;
+        if (!Objects.equals(this.animationHandler.getPlaying(), "animation.bulbasaur.ground_idle")) return false;
 
+        //noinspection ConstantValue
         if (entityCreature.getNavigator().getPathPosition() != null)
             if (entityCreature.getNavigator().getPathPosition().samePoint(target.getPosition())) return false;
 
@@ -46,7 +48,7 @@ public class BulbasaurMoveGoal extends GoalSelector {
 
         this.lastTargetPos = target.getPosition();
 
-        if (navigator.getPathPosition() == null || !navigator.getPathPosition().samePoint(lastTargetPos)) {
+        if (!navigator.getPathPosition().samePoint(lastTargetPos)) {
             navigator.setPathTo(lastTargetPos);
         } else {
             forceEnd = true;
@@ -76,7 +78,7 @@ public class BulbasaurMoveGoal extends GoalSelector {
                 || entityCreature.getDistance(target) >= maxDistance
                 || entityCreature.getDistance(target) <= minDistance
                 || entityCreature.getPassengers().contains(target)
-                || !this.animationHandler.getPlaying().equals("animation.bulbasaur.ground_walk");
+                || !Objects.equals(this.animationHandler.getPlaying(), "animation.bulbasaur.ground_walk");
     }
 
     @Override

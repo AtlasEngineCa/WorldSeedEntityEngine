@@ -100,12 +100,10 @@ public class GeoGenerator {
             }
 
             String elType = el.getString("type", "cube");
-            if (elType.equals("cube")) {
-                readCube(el, blocks, scale, inflate, textures);
-            } else if (elType.equals("locator")) {
-                locators.put(el.getString("uuid"), el);
-            } else if (elType.equals("null_object")) {
-                nullObjects.put(el.getString("uuid"), el);
+            switch (elType) {
+                case "cube" -> readCube(el, blocks, scale, inflate, textures);
+                case "locator" -> locators.put(el.getString("uuid"), el);
+                case "null_object" -> nullObjects.put(el.getString("uuid"), el);
             }
         }
 
@@ -134,17 +132,9 @@ public class GeoGenerator {
         JsonArray from = PackBuilder.applyInflate(el.getJsonArray("from"), -inflate);
         JsonArray to = PackBuilder.applyInflate(el.getJsonArray("to"), inflate);
 
-        to = Json.createArrayBuilder()
-                .add(Math.round(to.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
-                .add(Math.round(to.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
-                .add(Math.round(to.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
-                .build();
+        to = getJsonValues(scale, to);
 
-        from = Json.createArrayBuilder()
-                .add(Math.round(from.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
-                .add(Math.round(from.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
-                .add(Math.round(from.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
-                .build();
+        from = getJsonValues(scale, from);
 
         JsonArray size = buildSize(from, to);
 
@@ -175,6 +165,15 @@ public class GeoGenerator {
                 .build();
 
         blocks.put("\"" + el.getString("uuid") + "\"", built);
+    }
+
+    private static JsonArray getJsonValues(float scale, JsonArray from) {
+        from = Json.createArrayBuilder()
+                .add(Math.round(from.getJsonNumber(0).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(from.getJsonNumber(1).doubleValue() * 10000 * scale) / 10000.0)
+                .add(Math.round(from.getJsonNumber(2).doubleValue() * 10000 * scale) / 10000.0)
+                .build();
+        return from;
     }
 
     private static JsonObject parseFaces(JsonObject obj, Map<String, TextureGenerator.TextureData> textures) {
@@ -217,7 +216,7 @@ public class GeoGenerator {
             var n = entry.getValue().asJsonObject().get("texture");
             if (n != null && n.getValueType() != JsonValue.ValueType.NULL) {
                 int nInt = ((JsonNumber) n).intValue();
-                if (textures.values().size() <= nInt) texture = "#" + nInt;
+                if (textures.size() <= nInt) texture = "#" + nInt;
                 else texture = textures.values().toArray(new TextureGenerator.TextureData[0])[nInt].id();
             }
 

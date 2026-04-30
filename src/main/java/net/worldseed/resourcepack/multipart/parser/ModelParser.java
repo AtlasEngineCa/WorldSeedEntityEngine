@@ -84,7 +84,7 @@ public class ModelParser {
         return Json.createObjectBuilder()
                 .add("head", builtHead)
                 .add("thirdperson_righthand", builtArm)
-                .add("thirdperson_lefthand", builtDisplay)
+                .add("fixed", builtDisplay)
                 .build();
     }
 
@@ -249,7 +249,7 @@ public class ModelParser {
 
         JsonObjectBuilder modelTextureJson = Json.createObjectBuilder();
         for (Map.Entry<String, TextureGenerator.TextureData> t : bbModel.textures().entrySet()) {
-            modelTextureJson.add(t.getKey(), "worldseed:mobs/" + bbModel.id() + "/" + state.name() + "/" + t.getKey());
+            modelTextureJson.add(t.getKey(), "worldseed:item/" + bbModel.id() + "/" + state.name() + "/" + t.getKey());
 
             byte[] textureByte = t.getValue().value();
             BufferedImage texture = ImageIO.read(new BufferedInputStream(new ByteArrayInputStream(textureByte)));
@@ -271,7 +271,7 @@ public class ModelParser {
         int textureHeight = 16;
         int textureWidth = 16;
 
-        JsonObject modelGeoFile = bbModel.geo().getJsonArray("minecraft:geometry").get(0).asJsonObject();
+        JsonObject modelGeoFile = bbModel.geo().getJsonArray("minecraft:geometry").getFirst().asJsonObject();
 
         JsonArray bonesJson = modelGeoFile.getJsonArray("bones");
         JsonObject description = modelGeoFile.getJsonObject("description");
@@ -328,7 +328,7 @@ public class ModelParser {
                     JsonObjectBuilder modelTextureJson = Json.createObjectBuilder();
 
                     for (var t : modelFile.textures.keySet()) {
-                        modelTextureJson.add(t, "worldseed:mobs/" + bbModel.id() + "/" + state.name + "/" + subBone.getValue());
+                        modelTextureJson.add(t, "worldseed:item/" + bbModel.id() + "/" + state.name + "/" + subBone.getValue());
                     }
 
                     var subbones = bones.stream()
