@@ -410,11 +410,11 @@ public abstract class GenericModelImpl implements GenericModel {
         for (var bone : this.parts.values()) {
             for (var part : bone.getChildren()) {
                 var entity = part.getEntity();
-                var absoluteStart = entity.relativeEnd().add(entity.getPosition());
+                var absoluteEnd = entity.relativeEnd().add(entity.getPosition());
 
-                if (p.x() < absoluteStart.x()) p = p.withX(absoluteStart.x());
-                if (p.y() < absoluteStart.y()) p = p.withY(absoluteStart.y());
-                if (p.z() < absoluteStart.z()) p = p.withZ(absoluteStart.z());
+                if (p.x() < absoluteEnd.x()) p = p.withX(absoluteEnd.x());
+                if (p.y() < absoluteEnd.y()) p = p.withY(absoluteEnd.y());
+                if (p.z() < absoluteEnd.z()) p = p.withZ(absoluteEnd.z());
             }
         }
 
