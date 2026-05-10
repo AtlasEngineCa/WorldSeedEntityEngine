@@ -37,6 +37,7 @@ public class AnimationGenerator {
                 List<Map.Entry<Double, JsonObject>> scale = new ArrayList<>();
 
                 JsonArray keyframes = animator.getJsonArray("keyframes");
+                if (keyframes == null) continue;
 
                 for (int k = 0; k < keyframes.size(); k++) {
                     JsonObject keyframe = keyframes.getJsonObject(k);
