@@ -6,11 +6,11 @@ import javax.json.*;
 import java.util.*;
 
 public class GeoGenerator {
-    private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, Map<String, JsonObject> locators, Map<String, JsonObject> nullObjects, String parent) {
+    private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, Map<String, JsonObject> locators, Map<String, JsonObject> nullObjects, Map<String, String> groupUuidToName, String parent) {
         List<JsonObject> res = new ArrayList<>();
         float scale = 0.25f;
 
-        String name = getOutlinerName(obj);
+        String name = getOutlinerName(obj, groupUuidToName);
         JsonArray pivot = obj.getJsonArray("origin");
         if (pivot == null) {
             pivot = Json.createArrayBuilder().add(0).add(0).add(0).build();
@@ -40,7 +40,7 @@ public class GeoGenerator {
 
         for (JsonValue child : children) {
             if (child.getValueType() == JsonValue.ValueType.OBJECT) {
-                res.addAll(parseRecursive(child.asJsonObject(), cubeMap, locators, nullObjects, name));
+                res.addAll(parseRecursive(child.asJsonObject(), cubeMap, locators, nullObjects, groupUuidToName, name));
             } else if (child.getValueType() == JsonValue.ValueType.STRING) {
                 JsonObject cube = cubeMap.get(child.toString());
                 if (cube == null) continue;
@@ -64,17 +64,47 @@ public class GeoGenerator {
         return res;
     }
 
-    private static String getOutlinerName(JsonObject obj) {
+    private static String getOutlinerName(JsonObject obj, Map<String, String> groupUuidToName) {
         JsonString name = obj.getJsonString("name");
         if (name != null) return name.getString();
 
         JsonString uuid = obj.getJsonString("uuid");
-        if (uuid != null) return uuid.getString();
+        if (uuid != null) {
+            String id = uuid.getString();
+            String mapped = groupUuidToName.get(id);
+            if (mapped != null) return mapped;
+            return id;
+        }
 
         return "bone_" + Integer.toUnsignedString(obj.hashCode());
     }
 
-    public static JsonArray generate(JsonArray elements, JsonArray outliner, Map<String, TextureGenerator.TextureData> textures) {
+    /** Maps Blockbench group UUID strings to human-readable bone names when outliner nodes omit {@code name}. */
+    static Map<String, String> collectGroupUuidToName(JsonArray groups) {
+        Map<String, String> map = new HashMap<>();
+        if (groups == null) return map;
+        for (JsonValue v : groups) {
+            if (v.getValueType() != JsonValue.ValueType.OBJECT) continue;
+            collectGroupUuidToNameRecursive(v.asJsonObject(), map);
+        }
+        return map;
+    }
+
+    private static void collectGroupUuidToNameRecursive(JsonObject group, Map<String, String> out) {
+        JsonString uuid = group.getJsonString("uuid");
+        JsonString name = group.getJsonString("name");
+        if (uuid != null && name != null) {
+            out.putIfAbsent(uuid.getString(), name.getString());
+        }
+        JsonArray children = group.getJsonArray("children");
+        if (children == null) return;
+        for (JsonValue c : children) {
+            if (c.getValueType() != JsonValue.ValueType.OBJECT) continue;
+            collectGroupUuidToNameRecursive(c.asJsonObject(), out);
+        }
+    }
+
+    public static JsonArray generate(JsonArray elements, JsonArray outliner, Map<String, TextureGenerator.TextureData> textures, Map<String, String> groupUuidToName) {
         Map<String, JsonObject> blocks = new HashMap<>();
         Map<String, JsonObject> locators = new HashMap<>();
         Map<String, JsonObject> nullObjects = new HashMap<>();
@@ -100,7 +130,7 @@ public class GeoGenerator {
         for (var outline : outliner) {
             if (outline instanceof JsonObject) {
                 JsonObject el = outline.asJsonObject();
-                bonesList.addAll(parseRecursive(el, blocks, locators, nullObjects, null));
+                bonesList.addAll(parseRecursive(el, blocks, locators, nullObjects, groupUuidToName, null));
             }
         }
 
