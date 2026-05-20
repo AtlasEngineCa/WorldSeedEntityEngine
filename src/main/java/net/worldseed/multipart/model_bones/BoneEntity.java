@@ -29,7 +29,7 @@ public class BoneEntity extends LivingEntity {
     }
 
     @Override
-    public @NotNull Set<Player> getViewers() {
+    public @NotNull Set<? extends Player> getViewers() {
         return model.getViewers();
     }
 

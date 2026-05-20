@@ -221,7 +221,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
 
-        return Pos.fromPoint(p).div(4).mul(scale);
+        return p.asPos().div(4).mul(scale);
     }
 
     @Override

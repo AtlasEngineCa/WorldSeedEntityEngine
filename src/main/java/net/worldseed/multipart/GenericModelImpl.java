@@ -308,7 +308,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public void sendPacketsToViewers(@NotNull Collection<SendablePacket> packets) {
+    public void sendPacketsToViewers(@NotNull Collection<? extends SendablePacket> packets) {
         for (Player viewer : this.viewers) {
             for (SendablePacket packet : packets) {
                 viewer.sendPacket(packet);

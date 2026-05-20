@@ -317,9 +317,14 @@ public class ModelParser {
         double ex = uv.x2 * (16.0 / width);
         double ey = uv.y2 * (16.0 / height);
 
-        if (inverse)
-            return new UV(ex + sx, ey + sy, sx, sy, uv.texture, uv.rotation);
-        return new UV(sx, sy, ex + sx, ey + sy, uv.texture, uv.rotation);
+        if (inverse) {
+            return new UV(clampUV(ex + sx), clampUV(ey + sy), clampUV(sx), clampUV(sy), uv.texture, uv.rotation);
+        }
+        return new UV(clampUV(sx), clampUV(sy), clampUV(ex + sx), clampUV(ey + sy), uv.texture, uv.rotation);
+    }
+
+    private static double clampUV(double v) {
+        return Math.clamp(v, 0.0, 16.0);
     }
 
     private static JsonObject mappingsToJson() {

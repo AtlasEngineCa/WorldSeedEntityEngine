@@ -10,6 +10,12 @@
           "base": "minecraft:custom/entities/player/head",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       },
@@ -20,6 +26,12 @@
           "base": "minecraft:custom/entities/player/right_arm",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       },
@@ -30,6 +42,12 @@
           "base": "minecraft:custom/entities/player/left_arm",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       },
@@ -40,6 +58,12 @@
           "base": "minecraft:custom/entities/player/torso",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       },
@@ -50,6 +74,12 @@
           "base": "minecraft:custom/entities/player/right_leg",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       },
@@ -60,6 +90,12 @@
           "base": "minecraft:custom/entities/player/left_leg",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       },
@@ -70,6 +106,12 @@
           "base": "minecraft:custom/entities/player/slim_right",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       },
@@ -80,6 +122,12 @@
           "base": "minecraft:custom/entities/player/slim_left",
           "model": {
             "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [1.0, 0.0, 0.0, -0.0],
+            "right_rotation": [0.0, 0.0, 0.0, 1.0],
+            "scale": [1.0, 1.0, 1.0],
+            "translation": [0.5, 0.0, 0.5]
           }
         }
       }

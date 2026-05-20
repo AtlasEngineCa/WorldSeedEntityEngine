@@ -29,6 +29,7 @@ import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.MathUtils;
 import net.minestom.server.world.DimensionType;
+import net.minestom.server.world.clock.WorldClock;
 import net.worldseed.multipart.ModelEngine;
 import net.worldseed.resourcepack.PackBuilder;
 import org.apache.commons.io.FileUtils;
@@ -63,7 +64,7 @@ void main() throws Exception {
     lobby.setChunkSupplier(LightingChunk::new);
     lobby.enableAutoChunkLoad(true);
     lobby.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.STONE));
-    lobby.setTimeRate(0);
+    lobby.clock(WorldClock.OVERWORLD).pause();
     instanceManager.registerInstance(lobby);
 
     // Commands
