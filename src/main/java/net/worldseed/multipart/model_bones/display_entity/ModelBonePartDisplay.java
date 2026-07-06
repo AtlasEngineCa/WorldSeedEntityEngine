@@ -29,6 +29,12 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     private final List<GenericModel> attached = new ArrayList<>();
     private Entity baseStand;
 
+    // last transform sent to the client — used to skip re-sending an unchanged bone every tick
+    private Point lastTranslation;
+    private Vec lastScale;
+    private float[] lastRotation;
+    private boolean visible = true;
+
     public ModelBonePartDisplay(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         super(pivot, name, rotation, model, scale);
 
@@ -47,9 +53,27 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public void addViewer(Player player) {
-        if (this.stand != null) this.stand.addViewer(player);
+        if (this.stand != null && this.visible) this.stand.addViewer(player);
         if (this.baseStand != null) this.baseStand.addViewer(player);
         this.attached.forEach(model -> model.addViewer(player));
+    }
+
+    @Override
+    public boolean isVisible() {
+        return this.visible;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        if (this.visible == visible || this.stand == null) {
+            this.visible = visible;
+            return;
+        }
+        this.visible = visible;
+        for (Player viewer : this.model.getViewers()) {
+            if (visible) this.stand.addViewer(viewer);
+            else this.stand.removeViewer(viewer);
+        }
     }
 
     @Override
@@ -194,17 +218,28 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
         if (this.stand != null) {
             var position = calculatePositionInternal();
-            var scale = calculateScale();
+            var scale = worldScale(); // memoized; == calculateScale()
 
             if (this.stand.getEntityMeta() instanceof ItemDisplayMeta meta) {
-                Quaternion q = calculateFinalAngle(new Quaternion(getPropagatedRotation()));
+                Quaternion q = worldRotation(); // memoized; == calculateFinalAngle(new Quaternion(getPropagatedRotation()))
+                Vec scaleVec = new Vec(scale.x() * this.scale, scale.y() * this.scale, scale.z() * this.scale);
+                float[] rotation = {(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()};
 
-                meta.setNotifyAboutChanges(false);
-                meta.setTransformationInterpolationStartDelta(0);
-                meta.setScale(new Vec(scale.x() * this.scale, scale.y() * this.scale, scale.z() * this.scale));
-                meta.setRightRotation(new float[]{(float) q.x(), (float) q.y(), (float) q.z(), (float) q.w()});
-                meta.setTranslation(position);
-                meta.setNotifyAboutChanges(true);
+                // Only send a metadata packet when this bone's transform actually changed. A static
+                // bone (or one holding a keyframe) otherwise re-sends an identical packet to every
+                // viewer every tick; the client already holds the last transform.
+                if (!position.equals(this.lastTranslation) || !scaleVec.equals(this.lastScale)
+                        || !java.util.Arrays.equals(rotation, this.lastRotation)) {
+                    meta.setNotifyAboutChanges(false);
+                    meta.setTransformationInterpolationStartDelta(0);
+                    meta.setScale(scaleVec);
+                    meta.setRightRotation(rotation);
+                    meta.setTranslation(position);
+                    meta.setNotifyAboutChanges(true);
+                    this.lastTranslation = position;
+                    this.lastScale = scaleVec;
+                    this.lastRotation = rotation;
+                }
 
                 attached.forEach(model -> {
                     model.setPosition(this.model.getPosition().add(calculateGlobalRotation(position)));
