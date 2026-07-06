@@ -185,6 +185,11 @@ public abstract class GenericModelImpl implements GenericModel {
             Point boneRotation = ModelEngine.getPos(bone.getAsJsonObject().get("rotation")).orElse(Pos.ZERO).mul(-1, -1, 1);
             Point pivotPos = ModelEngine.getPos(pivot).orElse(Pos.ZERO).mul(-1, 1, 1);
 
+            if (bone.getAsJsonObject().has("locator")) { // position-only locator bone (see getLocator)
+                parts.put(name, new ModelBoneVFX(pivotPos, name, boneRotation, this, scale));
+                continue;
+            }
+
             boolean found = false;
             for (Map.Entry<Predicate<String>, Function<ModelBoneInfo, @Nullable ModelBone>> entry : this.boneSuppliers.entrySet()) {
                 var predicate = entry.getKey();
@@ -231,6 +236,18 @@ public abstract class GenericModelImpl implements GenericModel {
         return instance;
     }
 
+    private Entity owner;
+
+    @Override
+    public Entity getOwner() {
+        return owner;
+    }
+
+    @Override
+    public void setOwner(Entity owner) {
+        this.owner = owner;
+    }
+
     public void setState(String state) {
         for (ModelBoneImpl part : viewableBones) {
             part.setState(state);
@@ -242,6 +259,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     public void draw() {
+        net.worldseed.multipart.model_bones.ModelBoneImpl.beginDrawFrame();
         for (ModelBone modelBonePart : this.parts.values()) {
             if (modelBonePart.getParent() == null)
                 modelBonePart.draw();
@@ -262,6 +280,18 @@ public abstract class GenericModelImpl implements GenericModel {
         ModelBone found = this.parts.get(name);
         if (found == null) return null;
         return found.getPosition();
+    }
+
+    @Override
+    public void setBoneVisible(String boneName, boolean visible) {
+        ModelBone bone = this.parts.get(boneName);
+        if (bone != null) bone.setVisible(visible);
+    }
+
+    @Override
+    public Point getLocator(String name) {
+        ModelBone found = this.parts.get(name);
+        return found == null ? null : found.getPosition();
     }
 
     @Override
@@ -308,7 +338,7 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public void sendPacketsToViewers(@NotNull Collection<SendablePacket> packets) {
+    public void sendPacketsToViewers(@NotNull Collection<? extends SendablePacket> packets) {
         for (Player viewer : this.viewers) {
             for (SendablePacket packet : packets) {
                 viewer.sendPacket(packet);
@@ -370,7 +400,9 @@ public abstract class GenericModelImpl implements GenericModel {
 
     @Override
     public @NotNull Set<@NotNull Player> getViewers() {
-        return Set.copyOf(this.viewers);
+        // live unmodifiable view (viewers is a concurrent key-set, safe to iterate) instead of a fresh
+        // Set.copyOf on every call — the per-tick metadata flush of every bone reads this.
+        return java.util.Collections.unmodifiableSet(this.viewers);
     }
 
     @Override
@@ -501,6 +533,18 @@ public abstract class GenericModelImpl implements GenericModel {
     @Override
     public void bindNametag(String name, Entity nametag) {
         if (this.parts.get(name) instanceof ModelBoneNametag nametagBone) nametagBone.bind(nametag);
+    }
+
+    @Override
+    public Entity setNametag(String name, net.kyori.adventure.text.Component text) {
+        Entity display = new Entity(net.minestom.server.entity.EntityType.TEXT_DISPLAY);
+        var meta = (net.minestom.server.entity.metadata.display.TextDisplayMeta) display.getEntityMeta();
+        meta.setText(text);
+        meta.setBillboardRenderConstraints(net.minestom.server.entity.metadata.display.AbstractDisplayMeta.BillboardConstraints.CENTER);
+        display.setNoGravity(true);
+        if (getInstance() != null) display.setInstance(getInstance(), getPosition());
+        bindNametag(name, display);
+        return display;
     }
 
     @Override

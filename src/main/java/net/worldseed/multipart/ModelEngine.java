@@ -7,6 +7,7 @@ import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.EventListener;
 import net.minestom.server.event.entity.EntityDamageEvent;
@@ -17,8 +18,6 @@ import net.minestom.server.item.Material;
 import net.minestom.server.item.component.CustomModelData;
 import net.minestom.server.network.packet.client.play.ClientInputPacket;
 import net.worldseed.multipart.events.ModelControlEvent;
-import net.worldseed.multipart.events.ModelDamageEvent;
-import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import net.worldseed.multipart.mql.MQLPoint;
 import org.jspecify.annotations.NonNull;
@@ -45,17 +44,23 @@ public class ModelEngine {
             }
         }
     });
+    // A hit on a model hitbox (an INTERACTION/BoneEntity) is surfaced as a NORMAL Minestom event on the
+    // model's owner entity (see GenericModel#getOwner / ModelEntity) — no custom WSEE events to hook.
     private static final EventListener<@NonNull PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
         if (event.getTarget() instanceof BoneEntity bone) {
-            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(bone.getModel(), event, bone);
-            EventDispatcher.call(modelInteractEvent);
+            Entity owner = bone.getModel().getOwner();
+            if (owner != null && owner != event.getTarget()) {
+                EventDispatcher.call(new PlayerEntityInteractEvent(event.getPlayer(), owner, event.getHand(), event.getInteractPosition()));
+            }
         }
     });
     private static final EventListener<@NonNull EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
         if (event.getEntity() instanceof BoneEntity bone) {
-            event.setCancelled(true);
-            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(bone.getModel(), event, bone);
-            MinecraftServer.getGlobalEventHandler().call(modelDamageEvent);
+            event.setCancelled(true); // the hitbox entity itself never takes damage
+            Entity owner = bone.getModel().getOwner();
+            if (owner instanceof LivingEntity living && owner != bone) {
+                living.damage(event.getDamage()); // re-raises a normal EntityDamageEvent on the owner
+            }
         }
     });
     private static Path modelPath;

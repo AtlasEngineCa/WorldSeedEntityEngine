@@ -5,7 +5,6 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
-import net.minestom.server.network.packet.server.LazyPacket;
 import net.minestom.server.network.packet.server.play.SpawnEntityPacket;
 import net.minestom.server.tag.Tag;
 import net.worldseed.multipart.GenericModel;
@@ -29,7 +28,7 @@ public class BoneEntity extends LivingEntity {
     }
 
     @Override
-    public @NotNull Set<Player> getViewers() {
+    public @NotNull Set<? extends Player> getViewers() {
         return model.getViewers();
     }
 
@@ -51,7 +50,7 @@ public class BoneEntity extends LivingEntity {
         var spawnPacket = new SpawnEntityPacket(this.getEntityId(), this.getUuid(), this.getEntityType(), model.getPosition().withView(position.yaw(), 0), position.yaw(), 0, Vec.ZERO);
 
         player.sendPacket(spawnPacket);
-        player.sendPacket(new LazyPacket(this::getMetadataPacket));
+        player.sendPacket(getMetadataPacket());
 
         if (this.getEntityType() == EntityType.ZOMBIE || this.getEntityType() == EntityType.ARMOR_STAND)
             player.sendPacket(getEquipmentsPacket());

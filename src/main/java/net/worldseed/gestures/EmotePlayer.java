@@ -10,8 +10,6 @@ import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
-import net.worldseed.multipart.events.ModelDamageEvent;
-import net.worldseed.multipart.events.ModelInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -47,14 +45,8 @@ public abstract class EmotePlayer extends EntityCreature {
             }
         };
 
-        this.eventNode().addListener(EntityDamageEvent.class, (event) -> {
-            event.setCancelled(true);
-            ModelDamageEvent modelDamageEvent = new ModelDamageEvent(model, event);
-            EventDispatcher.call(modelDamageEvent);
-        }).addListener(PlayerEntityInteractEvent.class, (event) -> {
-            ModelInteractEvent modelInteractEvent = new ModelInteractEvent(model, event);
-            EventDispatcher.call(modelInteractEvent);
-        });
+        // Hits on the emote model surface as normal Minestom events; keep the emote itself invulnerable.
+        this.eventNode().addListener(EntityDamageEvent.class, event -> event.setCancelled(true));
 
         this.model.draw();
         this.model.draw();
