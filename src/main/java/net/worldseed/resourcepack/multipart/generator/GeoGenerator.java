@@ -43,9 +43,13 @@ public class GeoGenerator {
                 res.addAll(parseRecursive(child.asJsonObject(), cubeMap, locators, nullObjects, name));
             } else if (child.getValueType() == JsonValue.ValueType.STRING) {
                 JsonObject cube = cubeMap.get(child.toString());
-                if (cube == null) continue;
-
-                cubes.add(cube);
+                if (cube != null) {
+                    cubes.add(cube);
+                    continue;
+                }
+                // a locator: emit a cube-less, position-only bone so it can be queried at runtime (getLocator)
+                JsonObject locator = locators.get(((JsonString) child).getString());
+                if (locator != null) res.add(buildLocator(locator, ((JsonString) child).getString(), name, scale));
             }
         }
 
@@ -62,6 +66,25 @@ public class GeoGenerator {
         res.add(thisEl.build());
 
         return res;
+    }
+
+    /** Build a cube-less, position-only geo bone for a Blockbench locator so it becomes a queryable part. */
+    private static JsonObject buildLocator(JsonObject locator, String id, String parent, float scale) {
+        JsonArray pos = locator.getJsonArray("position");
+        if (pos == null) pos = locator.getJsonArray("origin");
+        JsonArrayBuilder pivot = Json.createArrayBuilder();
+        if (pos == null) pivot.add(0).add(0).add(0);
+        else pivot.add(-pos.getJsonNumber(0).doubleValue() * scale)
+                .add(pos.getJsonNumber(1).doubleValue() * scale)
+                .add(pos.getJsonNumber(2).doubleValue() * scale);
+        return Json.createObjectBuilder()
+                .add("name", locator.getString("name", id))
+                .add("pivot", pivot)
+                .add("rotation", Json.createArrayBuilder().add(0).add(0).add(0))
+                .add("cubes", Json.createArrayBuilder())
+                .add("locator", true)
+                .add("parent", parent)
+                .build();
     }
 
     private static String getOutlinerName(JsonObject obj) {

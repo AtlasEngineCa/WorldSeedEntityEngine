@@ -34,8 +34,19 @@ public class TextureGenerator {
     public static Map.Entry<String, TextureData> parseLayer(String id, JsonValue texture, Map<String, JsonObject> mcmetas, int height, int width) {
         JsonObject textureObj = texture.asJsonObject();
 
-        String source = textureObj.getString("source", textureObj.getString("data_url", "data:image/png;base64,"));
-        byte[] data = Base64.getDecoder().decode(source.substring("data:image/png;base64,".length()));
+        String source = textureObj.getString("source", textureObj.getString("data_url", ""));
+        // Robustly extract embedded PNG bytes: split at the data-URL comma instead of assuming an exact
+        // "data:image/png;base64," prefix (a different mime, or a linked/relative texture, otherwise
+        // corrupts the decode or throws — see issue #65). Non-embedded textures can't be baked in.
+        int comma = source.indexOf(',');
+        byte[] data;
+        if (source.startsWith("data:") && comma >= 0) {
+            data = Base64.getDecoder().decode(source.substring(comma + 1));
+        } else {
+            System.err.println("[WSEE] texture '" + textureObj.getString("name", "?")
+                    + "' has no embedded base64 data (source not a data URL); it will be blank in the pack.");
+            data = new byte[0];
+        }
         String name = textureObj.getString("name");
 
         JsonValue uuid = textureObj.get("uuid");

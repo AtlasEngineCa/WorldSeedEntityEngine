@@ -201,7 +201,7 @@ public class ModelParser {
                 boneInfo.add("elements", elementsToJson(elements));
                 boneInfo.add("texture_size", textureSize);
                 boneInfo.add("display", display(midOffset));
-                modelInfo.put(boneName + ".json", boneInfo.build());
+                modelInfo.put(sanitizeBone(boneName) + ".json", boneInfo.build());
             }
         }
 
@@ -400,12 +400,21 @@ public class ModelParser {
         return res;
     }
 
+    /** Sanitize a bone name into a valid Minecraft ResourceLocation path segment ([a-z0-9._-]).
+     *  Blockbench allows arbitrary bone names (uppercase, spaces, etc.); an unsanitized name such as
+     *  "VERH2" makes the generated item model an illegal location and the client drops the whole model
+     *  (issue #36 — masked by Iris/Sodium, broken on vanilla). Must be applied identically wherever the
+     *  bone becomes a resource ref (here) AND the on-disk model filename, so the two stay consistent. */
+    public static String sanitizeBone(String bone) {
+        return bone.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9._-]", "_");
+    }
+
     private static JsonObject createEntry(int threshold, String name, String state, String bone) {
         final JsonObjectBuilder entry = Json.createObjectBuilder();
 
         final JsonObjectBuilder model = Json.createObjectBuilder();
         model.add("type", "model");
-        model.add("model", "worldseed:mobs/" + name + "/" + state + "/" + bone);
+        model.add("model", "worldseed:mobs/" + name + "/" + state + "/" + sanitizeBone(bone));
 
         entry.add("threshold", threshold);
         entry.add("model", model);
