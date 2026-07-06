@@ -20,6 +20,17 @@ public interface AnimationHandler {
     void playRepeat(String animation, AnimationDirection direction) throws IllegalArgumentException;
 
     /**
+     * Crossfade to a repeating animation over {@code blendTicks} ticks: it blends in while whatever is
+     * currently playing blends out (weighted blend). {@code blendTicks <= 0} is a hard swap.
+     *
+     * @param animation name of the animation to blend to
+     * @param blendTicks blend duration in ticks
+     */
+    void playRepeat(String animation, int blendTicks) throws IllegalArgumentException;
+
+    void playRepeat(String animation, AnimationDirection direction, int blendTicks) throws IllegalArgumentException;
+
+    /**
      * Stop a repeating animation
      *
      * @param animation name of animation to stop
@@ -74,6 +85,18 @@ public interface AnimationHandler {
     @Nullable ModelAnimation getAnimation(String animation);
 
     Map<String, Integer> animationPriorities();
+
+    /** The built-in effect handler: plays the sound / particle whose id is a valid Minecraft key at the
+     *  effect's locator (or model origin) for the model's viewers. Timeline effects are ignored. */
+    AnimationEffectHandler DEFAULT_EFFECT_HANDLER = AnimationHandlerImpl::playDefaultEffect;
+
+    /**
+     * Set how Blockbench animation effects (sound / particle / timeline) are handled when they fire.
+     * Replace the {@link #DEFAULT_EFFECT_HANDLER} to map effect ids to your own sounds/particles/logic.
+     *
+     * @param handler the handler, or null to ignore all effects
+     */
+    void setEffectHandler(AnimationEffectHandler handler);
 
     enum AnimationDirection {
         FORWARD,

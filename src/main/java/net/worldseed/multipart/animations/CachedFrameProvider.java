@@ -19,11 +19,17 @@ public class CachedFrameProvider implements FrameProvider {
 
     private Map<Short, Point> calculateAllTransforms(double animationTime, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> t, ModelLoader.AnimationType type) {
         Map<Short, Point> transform = new HashMap<>();
-        int ticks = (int) (animationTime * 20);
+        // animationTime is already in ticks (BoneAnimationImpl.length = length_seconds*20). The old
+        // (animationTime*20) precomputed ~20x too many frames (and could overflow the short tick key
+        // for long animations). We only ever read ticks 0..length, so cache exactly that range.
+        int ticks = (int) animationTime;
 
         for (int i = 0; i <= ticks; i++) {
             var p = calculateTransform(i, t, type, animationTime);
-            if (type == ModelLoader.AnimationType.TRANSLATION) p = p.div(4);
+            // NOTE: translation stays in model (16-unit) space here, same as the static bone geometry.
+            // The single div(4) in ModelBonePartDisplay#calculatePositionInternal converts the whole
+            // accumulated position to display space. A div(4) here too would divide translation twice
+            // (=> 4x too little movement); see the animated-transform oracle diff vs Blockbench.
             transform.put((short) i, p);
         }
 

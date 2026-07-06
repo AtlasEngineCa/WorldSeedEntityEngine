@@ -31,6 +31,21 @@ public abstract class ModelBoneImpl implements ModelBone {
     protected BoneEntity stand;
     private ModelBone parent;
 
+    // Per-draw memoization of the propagated (local) rotation/scale. These are pure functions of the
+    // current animation tick, but were recomputed once per descendant while walking parent chains
+    // (O(N*depth) per tick). A monotonic draw-frame counter (bumped once per model draw) means a cache
+    // entry can never be falsely reused across ticks; every transform reader runs inside a draw.
+    private static volatile long globalDrawFrame = 0;
+    public static void beginDrawFrame() { globalDrawFrame++; }
+    private long propFrame = -1;
+    private Point cachedPropagatedRotation;
+    private Point cachedPropagatedScale;
+    // per-draw memoized WORLD rotation/scale so draw() doesn't re-walk the parent chain (equivalent to
+    // calculateFinalAngle/calculateFinalScale, computed once per bone per draw -> O(N) instead of O(N*depth)).
+    private long worldFrame = -1;
+    private Quaternion cachedWorldRotation;
+    private Point cachedWorldScale;
+
     public ModelBoneImpl(Point pivot, String name, Point rotation, GenericModel model, float scale) {
         this.name = name;
         this.rotation = rotation;
@@ -101,7 +116,7 @@ public abstract class ModelBoneImpl implements ModelBone {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
                 if (currentAnimation.getType() == AnimationType.TRANSLATION) {
                     var calculatedTransform = currentAnimation.getTransform();
-                    endPos = endPos.add(calculatedTransform);
+                    endPos = endPos.add(calculatedTransform.mul(currentAnimation.weight())); // blend weight
                 }
             }
         }
@@ -113,35 +128,37 @@ public abstract class ModelBoneImpl implements ModelBone {
         return endPos;
     }
 
-    public Point getPropagatedRotation() {
-        Point netTransform = Vec.ZERO;
-
+    /** Compute propagated rotation AND scale once per draw frame (single pass over allAnimations). */
+    private void computePropagated() {
+        if (this.propFrame == globalDrawFrame) return;
+        Point rot = Vec.ZERO;
+        Point scale = Vec.ONE;
         for (BoneAnimation currentAnimation : this.allAnimations) {
             if (currentAnimation != null && currentAnimation.isPlaying()) {
-                if (currentAnimation.getType() == AnimationType.ROTATION) {
-                    Point calculatedTransform = currentAnimation.getTransform();
-                    netTransform = netTransform.add(calculatedTransform);
+                AnimationType type = currentAnimation.getType();
+                double w = currentAnimation.weight(); // blend weight
+                if (type == AnimationType.ROTATION) {
+                    rot = rot.add(currentAnimation.getTransform().mul(w));
+                } else if (type == AnimationType.SCALE) {
+                    Point t = currentAnimation.getTransform();
+                    scale = scale.mul(Vec.ONE.add(t.sub(Vec.ONE).mul(w))); // lerp(ONE, t, w)
                 }
             }
         }
+        this.cachedPropagatedRotation = this.rotation.add(rot);
+        this.cachedPropagatedScale = scale;
+        this.propFrame = globalDrawFrame;
+    }
 
-        return this.rotation.add(netTransform);
+    public Point getPropagatedRotation() {
+        computePropagated();
+        return this.cachedPropagatedRotation;
     }
 
     @Override
     public Point getPropagatedScale() {
-        Point netTransform = Vec.ONE;
-
-        for (BoneAnimation currentAnimation : this.allAnimations) {
-            if (currentAnimation != null && currentAnimation.isPlaying()) {
-                if (currentAnimation.getType() == AnimationType.SCALE) {
-                    Point calculatedTransform = currentAnimation.getTransform();
-                    netTransform = netTransform.mul(calculatedTransform);
-                }
-            }
-        }
-
-        return netTransform;
+        computePropagated();
+        return this.cachedPropagatedScale;
     }
 
     @Override
@@ -161,6 +178,31 @@ public abstract class ModelBoneImpl implements ModelBone {
         }
 
         return q;
+    }
+
+    private void computeWorld() {
+        Quaternion localRotation = new Quaternion(getPropagatedRotation());
+        Point localScale = getPropagatedScale();
+        if (this.parent instanceof ModelBoneImpl p) {
+            this.cachedWorldRotation = p.worldRotation().multiply(localRotation);
+            this.cachedWorldScale = p.worldScale().mul(localScale);
+        } else {
+            this.cachedWorldRotation = localRotation;
+            this.cachedWorldScale = localScale;
+        }
+        this.worldFrame = globalDrawFrame;
+    }
+
+    /** Memoized world rotation — equals {@code calculateFinalAngle(new Quaternion(getPropagatedRotation()))}. */
+    public Quaternion worldRotation() {
+        if (this.worldFrame != globalDrawFrame) computeWorld();
+        return this.cachedWorldRotation;
+    }
+
+    /** Memoized world scale — equals {@code calculateFinalScale(getPropagatedScale())}. */
+    public Point worldScale() {
+        if (this.worldFrame != globalDrawFrame) computeWorld();
+        return this.cachedWorldScale;
     }
 
     public void addAnimation(BoneAnimation animation) {
