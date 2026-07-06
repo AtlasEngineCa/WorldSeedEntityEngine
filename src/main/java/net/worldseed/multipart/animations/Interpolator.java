@@ -2,113 +2,94 @@ package net.worldseed.multipart.animations;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
-import net.worldseed.multipart.Quaternion;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
+/**
+ * Blockbench-faithful keyframe interpolation for a single animation channel (rotation / translation /
+ * scale), evaluated per component. Supports:
+ * <ul>
+ *   <li><b>step</b> – hold the start keyframe value until the next keyframe,</li>
+ *   <li><b>linear</b> – straight lerp between the two bracketing keyframes,</li>
+ *   <li><b>catmullrom</b> ("smooth") – uniform Catmull-Rom through the 4-keyframe neighbourhood,
+ *       clamped at the ends. A segment is smooth if <i>either</i> of its endpoint keyframes is
+ *       catmullrom (matches Blockbench and the reference renderer).</li>
+ * </ul>
+ * Bezier keyframes are approximated as linear (their tangent handles are not carried through the
+ * generated animation JSON). Rotations are interpolated on their Euler components exactly like
+ * Blockbench – no quaternion slerp – so multi-turn spins and eased rotations match the editor.
+ */
 public class Interpolator {
-    private static @Nullable StartEnd getStartEnd(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
-        if (transform.isEmpty()) return null;
-        BoneAnimationImpl.PointInterpolation lastPoint = transform.get(transform.keySet().iterator().next());
-        double lastTime = 0;
-
-        for (Double keyTime : transform.keySet()) {
-            if (keyTime > time) {
-                return new StartEnd(lastPoint, transform.get(keyTime), lastTime, keyTime);
-            }
-
-            lastPoint = transform.get(keyTime);
-            lastTime = keyTime;
-        }
-
-        return new StartEnd(lastPoint, lastPoint, lastTime, animationTime);
-    }
-
-    static Quaternion slerp(Quaternion qa, Quaternion qb, double t) {
-        // quaternion to return
-        // Calculate angle between them.
-        double cosHalfTheta = qa.w() * qb.w() + qa.x() * qb.x() + qa.y() * qb.y() + qa.z() * qb.z();
-        // if qa=qb or qa=-qb then theta = 0 and we can return qa
-        if (Math.abs(cosHalfTheta) >= 1.0) {
-            double qmw = qa.w();
-            double qmx = qa.x();
-            double qmy = qa.y();
-            double qmz = qa.z();
-            return new Quaternion(qmx, qmy, qmz, qmw);
-        }
-        // Calculate temporary values.
-        double halfTheta = Math.acos(cosHalfTheta);
-        double sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);
-        // if theta = 180 degrees then result is not fully defined
-        // we could rotate around any axis normal to qa or qb
-        if (Math.abs(sinHalfTheta) < 0.001) { // fabs is floating point absolute
-            double qmw = (qa.w() * 0.5 + qb.w() * 0.5);
-            double qmx = (qa.x() * 0.5 + qb.x() * 0.5);
-            double qmy = (qa.y() * 0.5 + qb.y() * 0.5);
-            double qmz = (qa.z() * 0.5 + qb.z() * 0.5);
-            return new Quaternion(qmx, qmy, qmz, qmw);
-        }
-        double ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
-        double ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
-        //calculate Quaternion.
-        double qmw = (qa.w() * ratioA + qb.w() * ratioB);
-        double qmx = (qa.x() * ratioA + qb.x() * ratioB);
-        double qmy = (qa.y() * ratioA + qb.y() * ratioB);
-        double qmz = (qa.z() * ratioA + qb.z() * ratioB);
-        return new Quaternion(qmx, qmy, qmz, qmw);
-    }
 
     static Point interpolateRotation(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
-        StartEnd points = getStartEnd(time, transform, animationTime);
-        if (points == null) return Vec.ZERO;
-
-        double timeDiff = points.et - points.st;
-
-        if (timeDiff == 0)
-            return points.s.p().evaluate(time);
-
-        double timePercent = (time - points.st) / timeDiff;
-
-        if (points.s.lerp().equals("linear")) {
-            Vec ps = points.s.p().evaluate(time).asVec();
-            Vec pe = points.e.p().evaluate(time).asVec();
-
-            return ps.lerp(pe, timePercent);
-        } else {
-            Quaternion qa = new Quaternion(points.s.p().evaluate(time).div(5));
-            Quaternion qb = new Quaternion(points.e.p().evaluate(time).div(5));
-            return slerp(qa, qb, timePercent).toEuler().mul(5);
-        }
+        return interpolate(time, transform, Vec.ZERO);
     }
 
     static Point interpolateTranslation(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
-        StartEnd points = getStartEnd(time, transform, animationTime);
-        if (points == null) return Vec.ZERO;
-
-        return getPoint(time, points);
+        return interpolate(time, transform, Vec.ZERO);
     }
 
     public static Point interpolateScale(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double animationTime) {
-        StartEnd points = getStartEnd(time, transform, animationTime);
-        if (points == null) return Vec.ONE;
-
-        return getPoint(time, points);
+        return interpolate(time, transform, Vec.ONE);
     }
 
-    private static Point getPoint(double time, StartEnd points) {
-        double timeDiff = points.et - points.st;
+    private static Point interpolate(double time, LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, Point fallback) {
+        if (transform.isEmpty()) return fallback;
+        List<Double> times = new ArrayList<>(transform.keySet());   // insertion order == ascending keyframe time
+        int n = times.size();
 
-        if (timeDiff == 0) return points.s.p().evaluate(time);
-        double timePercent = (time - points.st) / timeDiff;
+        // find segment [i, i+1] with times[i] <= time < times[i+1]
+        int i = 0;
+        while (i + 1 < n && times.get(i + 1) <= time) i++;
 
-        Vec ps = points.s.p().evaluate(time).asVec();
-        Vec pe = points.e.p().evaluate(time).asVec();
+        if (time <= times.get(0) || i >= n - 1) return pre(transform, times.get(i), time); // before first / past last -> hold
 
-        return ps.lerp(pe, timePercent);
+        BoneAnimationImpl.PointInterpolation a = transform.get(times.get(i));
+        BoneAnimationImpl.PointInterpolation b = transform.get(times.get(i + 1));
+        double ta = times.get(i), tb = times.get(i + 1);
+        double alpha = tb == ta ? 0 : (time - ta) / (tb - ta);
+
+        Vec start = post(transform, times.get(i), time);            // value leaving keyframe i
+        if ("step".equals(a.lerp())) return start;                  // hold the leaving value until next keyframe
+
+        Vec end = pre(transform, times.get(i + 1), time);           // value approaching keyframe i+1
+        if (isSmooth(a.lerp()) || isSmooth(b.lerp())) {             // catmullrom or bezier -> smooth spline
+            Vec before = post(transform, times.get(Math.max(0, i - 1)), time);
+            Vec after = pre(transform, times.get(Math.min(n - 1, i + 2)), time);
+            return catmullRom(before, start, end, after, alpha);
+        }
+        return start.lerp(end, alpha);                              // linear
     }
 
-    record StartEnd(BoneAnimationImpl.PointInterpolation s, BoneAnimationImpl.PointInterpolation e, double st,
-                    double et) {
+    private static boolean isSmooth(String lerp) {
+        // bezier is approximated as a Catmull-Rom smooth spline (its custom handles aren't exported)
+        return "catmullrom".equals(lerp) || "bezier".equals(lerp);
+    }
+
+    // value approaching a keyframe (its primary / "pre" data point)
+    private static Vec pre(LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double key, double time) {
+        return transform.get(key).p().evaluate(time).asVec();
+    }
+
+    // value leaving a keyframe (its second "post" data point on a discontinuity, else same as pre)
+    private static Vec post(LinkedHashMap<Double, BoneAnimationImpl.PointInterpolation> transform, double key, double time) {
+        return transform.get(key).post().evaluate(time).asVec();
+    }
+
+    /** Uniform Catmull-Rom through p1..p2 with neighbours p0,p3 (matches Blockbench / bbrender). */
+    static Vec catmullRom(Vec p0, Vec p1, Vec p2, Vec p3, double t) {
+        return new Vec(cr(p0.x(), p1.x(), p2.x(), p3.x(), t),
+                       cr(p0.y(), p1.y(), p2.y(), p3.y(), t),
+                       cr(p0.z(), p1.z(), p2.z(), p3.z(), t));
+    }
+
+    private static double cr(double p0, double p1, double p2, double p3, double t) {
+        double t2 = t * t, t3 = t2 * t;
+        return 0.5 * ((2 * p1)
+                + (-p0 + p2) * t
+                + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2
+                + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
     }
 }

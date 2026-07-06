@@ -2,7 +2,13 @@ package net.worldseed.multipart.animations;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Vec;
+import net.minestom.server.network.packet.server.play.ParticlePacket;
+import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.ExecutionType;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
@@ -24,6 +30,10 @@ public class AnimationHandlerImpl implements AnimationHandler {
     private final Map<String, Runnable> callbacks = new ConcurrentHashMap<>();
     private final Map<String, Integer> callbackTimers = new ConcurrentHashMap<>();
 
+    private final Map<String, List<AnimationEffect>> effectsByAnimation = new ConcurrentHashMap<>();
+    private final Map<String, Integer> lastEffectTick = new ConcurrentHashMap<>();
+    private volatile AnimationEffectHandler effectHandler = AnimationHandler.DEFAULT_EFFECT_HANDLER;
+
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
         loadDefaultAnimations();
@@ -44,6 +54,8 @@ public class AnimationHandlerImpl implements AnimationHandler {
     public void registerAnimation(String name, JsonElement animation, int priority) {
         final JsonElement animationLength = animation.getAsJsonObject().get("animation_length");
         final double length = animationLength == null ? 0 : animationLength.getAsDouble();
+        final JsonElement loopElement = animation.getAsJsonObject().get("loop");
+        final boolean looping = loopElement != null && loopElement.getAsBoolean();
 
         HashSet<BoneAnimation> animationSet = new HashSet<>();
         HashSet<String> animatedBones = new HashSet<>();
@@ -61,17 +73,17 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
             if (animationRotation != null) {
                 animated = true;
-                BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationRotation, ModelLoader.AnimationType.ROTATION, length);
+                BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationRotation, ModelLoader.AnimationType.ROTATION, length, looping);
                 animationSet.add(boneAnimation);
             }
             if (animationPosition != null) {
                 animated = true;
-                BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationPosition, ModelLoader.AnimationType.TRANSLATION, length);
+                BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationPosition, ModelLoader.AnimationType.TRANSLATION, length, looping);
                 animationSet.add(boneAnimation);
             }
             if (animationScale != null) {
                 animated = true;
-                BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationScale, ModelLoader.AnimationType.SCALE, length);
+                BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationScale, ModelLoader.AnimationType.SCALE, length, looping);
                 animationSet.add(boneAnimation);
             }
 
@@ -80,7 +92,34 @@ public class AnimationHandlerImpl implements AnimationHandler {
             }
         }
 
-        animations.put(name, new ModelAnimationClassic(name, (int) (length * 20), priority, animationSet, animatedBones));
+        animations.put(name, new ModelAnimationClassic(name, (int) (length * 20), priority, animationSet, animatedBones, looping));
+
+        // parse Blockbench sound/particle/timeline effects for this animation
+        List<AnimationEffect> effects = new ArrayList<>();
+        JsonElement effectsJson = animation.getAsJsonObject().get("effects");
+        if (effectsJson != null && effectsJson.isJsonArray()) {
+            for (JsonElement el : effectsJson.getAsJsonArray()) {
+                JsonObject o = el.getAsJsonObject();
+                String channel = o.has("channel") ? o.get("channel").getAsString() : "";
+                AnimationEffect.Type type = switch (channel) {
+                    case "sound" -> AnimationEffect.Type.SOUND;
+                    case "particle" -> AnimationEffect.Type.PARTICLE;
+                    default -> AnimationEffect.Type.TIMELINE;
+                };
+                int tick = (int) Math.round(o.get("time").getAsDouble() * 20);
+                effects.add(new AnimationEffect(name, type, tick,
+                        o.has("effect") ? o.get("effect").getAsString() : null,
+                        o.has("locator") ? o.get("locator").getAsString() : null,
+                        o.has("script") ? o.get("script").getAsString() : null));
+            }
+            effects.sort(Comparator.comparingInt(AnimationEffect::tick));
+        }
+        effectsByAnimation.put(name, effects);
+    }
+
+    @Override
+    public void setEffectHandler(AnimationEffectHandler handler) {
+        this.effectHandler = handler;
     }
 
     @Override
@@ -90,6 +129,35 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
     public void playRepeat(String animation) throws IllegalArgumentException {
         playRepeat(animation, AnimationDirection.FORWARD);
+    }
+
+    @Override
+    public void playRepeat(String animation, int blendTicks) throws IllegalArgumentException {
+        playRepeat(animation, AnimationDirection.FORWARD, blendTicks);
+    }
+
+    @Override
+    public void playRepeat(String animation, AnimationDirection direction, int blendTicks) throws IllegalArgumentException {
+        if (blendTicks <= 0) {
+            playRepeat(animation, direction);
+            return;
+        }
+        Integer priority = this.animationPriorities().get(animation);
+        if (priority == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
+        ModelAnimation modelAnimation = this.animations.get(animation);
+
+        // fade out whatever is currently repeating (except the target)
+        for (ModelAnimation other : this.repeating.values()) {
+            if (!other.name().equals(animation)) other.blendTo(0, blendTicks);
+        }
+
+        modelAnimation.setDirection(direction);
+        this.repeating.put(priority, modelAnimation);
+        if (playingOnce == null) {
+            modelAnimation.setWeight(0);
+            modelAnimation.play(false);
+            modelAnimation.blendTo(1, blendTicks); // fade in
+        }
     }
 
     @Override
@@ -230,9 +298,103 @@ public class AnimationHandlerImpl implements AnimationHandler {
             this.animations.forEach((_, animations) -> {
                 animations.tick(); //Play every tick (besides the first one) of the animation
             });
+
+            fireEffects();
+
+            // drop animations that have finished blending out
+            this.repeating.entrySet().removeIf(entry -> {
+                if (entry.getValue().fadedOut()) {
+                    entry.getValue().stop();
+                    return true;
+                }
+                return false;
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /** Fire any sound/particle/timeline effects the currently-playing animations crossed this tick. */
+    private void fireEffects() {
+        AnimationEffectHandler handler = this.effectHandler;
+        if (handler == null) return;
+
+        Set<ModelAnimation> playing = new HashSet<>(repeating.values());
+        if (playingOnce != null) {
+            ModelAnimation once = animations.get(playingOnce);
+            if (once != null) playing.add(once);
+        }
+
+        for (ModelAnimation anim : playing) {
+            List<AnimationEffect> effects = effectsByAnimation.get(anim.name());
+            if (effects == null || effects.isEmpty()) continue;
+
+            int cur = anim.currentTick();
+            if (cur < 0) { // not actually playing this tick
+                lastEffectTick.remove(anim.name());
+                continue;
+            }
+            int last = lastEffectTick.getOrDefault(anim.name(), -1);
+            if (cur != last) {
+                for (AnimationEffect effect : effects) {
+                    int t = effect.tick();
+                    // fire effects whose tick falls in (last, cur], wrapping when the animation looped
+                    boolean crossed = (last < cur) ? (t > last && t <= cur) : (t > last || t <= cur);
+                    if (crossed) {
+                        try {
+                            handler.onEffect(model, effect);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                lastEffectTick.put(anim.name(), cur);
+            }
+        }
+    }
+
+    /** Built-in effect handler (see {@link AnimationHandler#DEFAULT_EFFECT_HANDLER}). */
+    public static void playDefaultEffect(GenericModel model, AnimationEffect effect) {
+        switch (effect.type()) {
+            case SOUND -> {
+                if (effect.effect() == null || effect.effect().isBlank()) return;
+                Key key;
+                try {
+                    key = Key.key(effect.effect());
+                } catch (Exception invalidKey) {
+                    return; // effect id isn't a Minecraft sound key — a custom handler should map it
+                }
+                Point pos = effectPosition(model, effect);
+                Sound sound = Sound.sound(key, Sound.Source.NEUTRAL, 1f, 1f);
+                model.getViewers().forEach(viewer -> viewer.playSound(sound, pos.x(), pos.y(), pos.z()));
+            }
+            case PARTICLE -> {
+                if (effect.effect() == null || effect.effect().isBlank()) return;
+                Particle particle;
+                try {
+                    particle = Particle.fromKey(effect.effect());
+                } catch (Exception invalidKey) {
+                    return;
+                }
+                if (particle == null) return; // not a vanilla particle — a custom handler should map it
+                Point pos = effectPosition(model, effect);
+                ParticlePacket packet = new ParticlePacket(particle, pos, Vec.ZERO, 0f, 1);
+                model.getViewers().forEach(viewer -> viewer.sendPacket(packet));
+            }
+            case TIMELINE -> { /* script instruction — no built-in behaviour; set a custom handler */ }
+        }
+    }
+
+    private static Point effectPosition(GenericModel model, AnimationEffect effect) {
+        if (effect.locator() != null && !effect.locator().isBlank()) {
+            try {
+                Point p = model.getVFX(effect.locator());
+                if (p != null) return p;
+            } catch (Exception ignored) {
+                // no such locator/VFX bone — fall back to the model origin
+            }
+        }
+        return model.getPosition();
     }
 
     public void destroy() {

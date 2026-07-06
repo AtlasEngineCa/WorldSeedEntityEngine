@@ -21,15 +21,18 @@ public class BoneAnimationImpl implements BoneAnimation {
     private final int length;
     private final String name;
     private final String boneName;
+    private final boolean looping;
+    private volatile double weight = 1.0;
     private boolean playing = false;
     private short tick = 0;
     private AnimationHandlerImpl.AnimationDirection direction = AnimationHandlerImpl.AnimationDirection.FORWARD;
 
-    BoneAnimationImpl(String modelName, String animationName, String boneName, ModelBone bone, JsonElement keyframes, ModelLoader.AnimationType animationType, double length) {
+    BoneAnimationImpl(String modelName, String animationName, String boneName, ModelBone bone, JsonElement keyframes, ModelLoader.AnimationType animationType, double length, boolean looping) {
         this.type = animationType;
         this.length = (int) (length * 20);
         this.name = animationName;
         this.boneName = boneName;
+        this.looping = looping;
 
         FrameProvider found;
         if (this.type == ModelLoader.AnimationType.ROTATION) {
@@ -71,14 +74,24 @@ public class BoneAnimationImpl implements BoneAnimation {
         return playing;
     }
 
+    @Override
+    public double weight() {
+        return weight;
+    }
+
+    @Override
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
     public void tick() {
         if (playing) {
             if (direction == AnimationHandlerImpl.AnimationDirection.FORWARD) {
                 tick++;
-                if (tick > length && length != 0) tick = 0;
+                if (tick > length && length != 0) tick = looping ? 0 : (short) length; // loop, or hold last frame
             } else if (direction == AnimationHandlerImpl.AnimationDirection.BACKWARD) {
                 tick--;
-                if (tick < 0 && length != 0) tick = (short) length;
+                if (tick < 0 && length != 0) tick = looping ? (short) length : 0; // loop, or hold first frame
             }
         }
     }
@@ -133,10 +146,12 @@ public class BoneAnimationImpl implements BoneAnimation {
                 if (entry.getValue() instanceof JsonObject obj) {
                     if (obj.get("post") instanceof JsonArray arr) {
                         if (arr.get(0) instanceof JsonObject) {
-                            MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray().get(0)).orElse(MQLPoint.ZERO);
+                            MQLPoint pre = ModelEngine.getMQLPos(arr.get(0)).orElse(MQLPoint.ZERO);
+                            // a discontinuous keyframe carries a second data point = the value leaving it
+                            MQLPoint post = arr.size() > 1 ? ModelEngine.getMQLPos(arr.get(1)).orElse(pre) : pre;
                             String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
                             if (lerp == null) lerp = "linear";
-                            transform.put(time, new PointInterpolation(point, lerp));
+                            transform.put(time, new PointInterpolation(pre, post, lerp));
                         } else {
                             MQLPoint point = ModelEngine.getMQLPos(obj.get("post").getAsJsonArray()).orElse(MQLPoint.ZERO);
                             String lerp = entry.getValue().getAsJsonObject().get("lerp_mode").getAsString();
@@ -192,6 +207,14 @@ public class BoneAnimationImpl implements BoneAnimation {
         return tick;
     }
 
-    public record PointInterpolation(MQLPoint p, String lerp) {
+    /**
+     * A keyframe's interpolation data. {@code p} is the primary ("pre") value approached from the left;
+     * {@code post} is the value leaving to the right — different from {@code p} only on a discontinuous
+     * keyframe (two data points), otherwise the same instance.
+     */
+    public record PointInterpolation(MQLPoint p, MQLPoint post, String lerp) {
+        public PointInterpolation(MQLPoint p, String lerp) {
+            this(p, p, lerp); // continuous keyframe: leaving value == approaching value
+        }
     }
 }
