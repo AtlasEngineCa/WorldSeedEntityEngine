@@ -18,7 +18,6 @@ import net.worldseed.multipart.model_bones.ModelBoneImpl;
 import net.worldseed.multipart.model_bones.bone_types.RideableBone;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
@@ -156,7 +155,7 @@ public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
     }
 
     @Override
-    public Set<Entity> getPassengers() {
+    public List<Entity> getPassengers() {
         return this.stand.getPassengers();
     }
 }
