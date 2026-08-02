@@ -29,9 +29,9 @@ public class ComputedFrameProvider implements FrameProvider {
         var point = first.p().evaluate(toInterpolate);
 
         if (type == ModelLoader.AnimationType.ROTATION) return point.mul(RotationMul);
-        // translation stays in model (16-unit) space; the single div(4) in the display bone converts it.
-        // (Removed a second .mul(0.25) that divided translation twice -> 4x too little movement.)
-        if (type == ModelLoader.AnimationType.TRANSLATION) return point.mul(TranslationMul);
+        // Match GeoGenerator's 1/4 geometry space. ModelBonePartDisplay performs the remaining /4
+        // block conversion, yielding the standard 16 Blockbench units per Minecraft block.
+        if (type == ModelLoader.AnimationType.TRANSLATION) return point.mul(TranslationMul).mul(0.25);
         return point;
     }
 }
