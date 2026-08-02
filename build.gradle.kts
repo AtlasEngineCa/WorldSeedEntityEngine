@@ -21,7 +21,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "11.6.1"
+        version = "12.0.0"
 
         from(components["java"])
     }
@@ -39,8 +39,10 @@ publishing {
 }
 
 dependencies {
+    testImplementation(platform("org.junit:junit-bom:6.0.0-M2"))
     testImplementation(libs.junit.api)
     testRuntimeOnly(libs.junit.engine)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     compileOnly(libs.minestom)
     testImplementation(libs.minestom)
@@ -50,8 +52,6 @@ dependencies {
 
     implementation(libs.javax.json.api)
     implementation(libs.javax.json)
-
-    implementation(libs.mql)
 }
 
 tasks.test {

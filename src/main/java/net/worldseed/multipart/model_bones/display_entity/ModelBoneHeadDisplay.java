@@ -22,7 +22,7 @@ public class ModelBoneHeadDisplay extends ModelBonePartDisplay implements ModelB
             if (currentAnimation != null && currentAnimation.isPlaying()) {
                 if (currentAnimation.getType() == ModelLoader.AnimationType.ROTATION) {
                     Point calculatedTransform = currentAnimation.getTransform();
-                    netTransform = netTransform.add(calculatedTransform);
+                    netTransform = netTransform.add(calculatedTransform.mul(currentAnimation.weight())); // blend weight
                 }
             }
         }

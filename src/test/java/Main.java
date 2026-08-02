@@ -63,7 +63,6 @@ void main() throws Exception {
     lobby.setChunkSupplier(LightingChunk::new);
     lobby.enableAutoChunkLoad(true);
     lobby.setGenerator(unit -> unit.modifier().fillHeight(0, 1, Block.STONE));
-    lobby.setTimeRate(0);
     instanceManager.registerInstance(lobby);
 
     // Commands

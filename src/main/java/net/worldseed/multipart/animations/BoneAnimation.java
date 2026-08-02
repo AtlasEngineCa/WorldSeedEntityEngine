@@ -25,4 +25,8 @@ public interface BoneAnimation {
     void tick();
     void resume(short tick);
     short getTick();
+
+    /** Blend weight in [0,1] applied to this animation's contribution (set by the owning ModelAnimation). */
+    default double weight() { return 1.0; }
+    default void setWeight(double weight) {}
 }

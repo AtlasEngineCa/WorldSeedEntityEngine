@@ -23,10 +23,9 @@ import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
+import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.worldseed.multipart.events.ModelControlEvent;
-import net.worldseed.multipart.events.ModelDamageEvent;
 import net.worldseed.multipart.events.ModelDismountEvent;
-import net.worldseed.multipart.events.ModelInteractEvent;
 import net.worldseed.multipart.model_bones.BoneEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
@@ -65,15 +64,8 @@ public class GemGolemMob extends EntityCreature {
 
         this.controlGoal = new GemGolemControlGoal(this, animationHandler);
 
+        model.setOwner(this);
         model.eventNode()
-                .addListener(ModelDamageEvent.class, event -> {
-                    if (event.getDamage() instanceof EntityDamage entityDamage) {
-                        if (model.getPassengers(SEAT).contains(entityDamage.getSource())) return;
-                    }
-
-                    damage(event.getDamage().getType(), event.getDamage().getAmount());
-                })
-                .addListener(ModelInteractEvent.class, event -> model.mountEntity(SEAT, event.getInteracted()))
                 .addListener(ModelDismountEvent.class, event -> model.dismountEntity(SEAT, event.rider()))
                 .addListener(ModelControlEvent.class, event -> {
                     var forward = 0;
@@ -84,6 +76,12 @@ public class GemGolemMob extends EntityCreature {
                     controlGoal.setForward(forward);
                     controlGoal.setJump(event.packet().jump());
                 });
+
+        // Hits are now normal Minestom events on this entity: damage auto-applies via the damage()
+        // override below; a right-click to mount the seat arrives as a PlayerEntityInteractEvent.
+        MinecraftServer.getGlobalEventHandler().addListener(PlayerEntityInteractEvent.class, event -> {
+            if (event.getTarget() == this) model.mountEntity(SEAT, event.getPlayer());
+        });
 
         addAIGroup(
                 List.of(
@@ -187,7 +185,7 @@ public class GemGolemMob extends EntityCreature {
     }
 
     @Override
-    public @NotNull Set<Entity> getPassengers() {
-        return model.getPassengers(SEAT);
+    public @NotNull List<Entity> getPassengers() {
+        return List.copyOf(model.getPassengers(SEAT));
     }
 }
