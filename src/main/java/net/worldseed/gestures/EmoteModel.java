@@ -9,6 +9,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemStack;
 import net.worldseed.multipart.GenericModelImpl;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
@@ -124,6 +125,28 @@ public class EmoteModel extends GenericModelImpl {
 
     public void init(@Nullable Instance instance, @NotNull Pos position) {
         this.init_(instance, position);
+    }
+
+    public void setMainHandItem(@NotNull ItemStack item) {
+        arm("RightArm").setHeldItem(item);
+    }
+
+    public @NotNull ItemStack getMainHandItem() {
+        return arm("RightArm").getHeldItem();
+    }
+
+    public void setOffHandItem(@NotNull ItemStack item) {
+        arm("LeftArm").setHeldItem(item);
+    }
+
+    public @NotNull ItemStack getOffHandItem() {
+        return arm("LeftArm").getHeldItem();
+    }
+
+    private ModelBoneEmote arm(String name) {
+        ModelBone bone = this.parts.get(name);
+        if (bone instanceof ModelBoneEmote emoteBone) return emoteBone;
+        throw new IllegalStateException("Emote model is not initialized: missing " + name);
     }
 
     @Override

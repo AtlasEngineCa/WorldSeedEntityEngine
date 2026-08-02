@@ -8,6 +8,7 @@ import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemStack;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +86,42 @@ public abstract class EmotePlayer extends EntityCreature {
 
     public void setRotation(float yaw) {
         this.model.setGlobalRotation(yaw);
+    }
+
+    /**
+     * Set the item rendered in this emote player's right (main) hand. The item follows all
+     * translations and rotations applied to the right arm.
+     *
+     * @param item item to render, or {@link ItemStack#AIR} to clear the hand
+     */
+    public void setMainHandItem(@NotNull ItemStack item) {
+        this.model.setMainHandItem(item);
+    }
+
+    /** @return the item currently rendered in the right (main) hand */
+    public @NotNull ItemStack getMainHandItem() {
+        return this.model.getMainHandItem();
+    }
+
+    /**
+     * Set the item rendered in this emote player's left (off) hand. The item follows all
+     * translations and rotations applied to the left arm.
+     *
+     * @param item item to render, or {@link ItemStack#AIR} to clear the hand
+     */
+    public void setOffHandItem(@NotNull ItemStack item) {
+        this.model.setOffHandItem(item);
+    }
+
+    /** @return the item currently rendered in the left (off) hand */
+    public @NotNull ItemStack getOffHandItem() {
+        return this.model.getOffHandItem();
+    }
+
+    /** Clear both rendered hand items. */
+    public void clearHandItems() {
+        this.model.setMainHandItem(ItemStack.AIR);
+        this.model.setOffHandItem(ItemStack.AIR);
     }
 
     @Override
