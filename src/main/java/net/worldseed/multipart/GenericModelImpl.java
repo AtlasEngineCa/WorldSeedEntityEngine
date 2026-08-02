@@ -540,9 +540,9 @@ public abstract class GenericModelImpl implements GenericModel {
     }
 
     @Override
-    public Set<Entity> getPassengers(String name) {
+    public List<Entity> getPassengers(String name) {
         if (this.parts.get(name) instanceof RideableBone rideable) return rideable.getPassengers();
-        return Collections.emptySet();
+        return Collections.emptyList();
     }
 
     @Override

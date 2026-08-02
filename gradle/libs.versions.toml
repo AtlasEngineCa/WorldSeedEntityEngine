@@ -1,7 +1,7 @@
 [versions]
 java = "25"
 junit = "6.0.0-M2"
-minestom = "2026.07.01-26.1.2"
+minestom = "2026.07.22-26.2"
 commons-io = "2.20.0"
 zt-zip = "1.17"
 javax-json = "1.1.4"

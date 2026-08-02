@@ -185,7 +185,7 @@ public class GemGolemMob extends EntityCreature {
     }
 
     @Override
-    public @NotNull Set<Entity> getPassengers() {
-        return model.getPassengers(SEAT);
+    public @NotNull List<Entity> getPassengers() {
+        return List.copyOf(model.getPassengers(SEAT));
     }
 }
