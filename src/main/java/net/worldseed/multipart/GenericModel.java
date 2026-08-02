@@ -131,6 +131,10 @@ public interface GenericModel extends Viewable, EventHandler<@NonNull ModelEvent
      */
     Point getLocator(String name);
 
+    /** Transform a point authored in generated Blockbench geometry space through a bone's
+     * current animation hierarchy into world space. */
+    Point getBonePoint(String boneName, Point geometryPoint);
+
     @ApiStatus.Internal
     ModelBone getPart(String boneName);
 

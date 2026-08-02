@@ -55,6 +55,13 @@ public interface AnimationHandler {
      */
     void playOnce(String animation, Runnable cb) throws IllegalArgumentException;
 
+    /**
+     * Crossfade from the current repeat into a one-shot, then crossfade back over the final
+     * {@code blendTicks}. This is the only supported overlap: weights are complementary and no
+     * unrelated full-strength animations can run concurrently.
+     */
+    void playOnce(String animation, int blendTicks, Runnable cb) throws IllegalArgumentException;
+
     void playOnce(String animation, AnimationHandlerImpl.AnimationDirection direction, boolean override, Runnable cb) throws IllegalArgumentException;
 
     /**

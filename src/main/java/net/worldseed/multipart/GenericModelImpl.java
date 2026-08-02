@@ -55,6 +55,7 @@ public abstract class GenericModelImpl implements GenericModel {
     private Pos position;
     private double globalRotation;
     private double pitch;
+    private float globalScale = 1;
 
     protected record ModelBoneInfo(String name, Point pivot, Point rotation, JsonArray cubes, GenericModel model,
                                    float scale) {
@@ -131,6 +132,7 @@ public abstract class GenericModelImpl implements GenericModel {
     public void init(@Nullable Instance instance, @NotNull Pos position, float scale) {
         this.instance = instance;
         this.position = position;
+        this.globalScale = scale;
 
         JsonObject loadedModel = ModelLoader.loadModel(getId());
         this.setGlobalRotation(position.yaw());
@@ -151,6 +153,7 @@ public abstract class GenericModelImpl implements GenericModel {
 
     @Override
     public void setGlobalScale(float scale) {
+        this.globalScale = scale;
         for (ModelBone modelBonePart : this.parts.values()) {
             modelBonePart.setGlobalScale(scale);
         }
@@ -292,6 +295,18 @@ public abstract class GenericModelImpl implements GenericModel {
     public Point getLocator(String name) {
         ModelBone found = this.parts.get(name);
         return found == null ? null : found.getPosition();
+    }
+
+    @Override
+    public Point getBonePoint(String boneName, Point geometryPoint) {
+        ModelBone found = this.parts.get(boneName);
+        if (found == null || geometryPoint == null) return null;
+        // Generated geometry is quarter-scale and mirrors Blockbench X when bones load.
+        Point local = new Vec(-geometryPoint.x(), geometryPoint.y(), geometryPoint.z());
+        Point animated = found.applyTransform(local).div(4).mul(globalScale);
+        Point world = ModelMath.rotate(animated,
+                new Vec(0, 180 - getGlobalRotation(), 0));
+        return world.add(getPosition());
     }
 
     @Override

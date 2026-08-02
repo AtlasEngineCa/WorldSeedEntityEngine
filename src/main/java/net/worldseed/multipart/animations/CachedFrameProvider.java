@@ -26,10 +26,11 @@ public class CachedFrameProvider implements FrameProvider {
 
         for (int i = 0; i <= ticks; i++) {
             var p = calculateTransform(i, t, type, animationTime);
-            // NOTE: translation stays in model (16-unit) space here, same as the static bone geometry.
-            // The single div(4) in ModelBonePartDisplay#calculatePositionInternal converts the whole
-            // accumulated position to display space. A div(4) here too would divide translation twice
-            // (=> 4x too little movement); see the animated-transform oracle diff vs Blockbench.
+            // GeoGenerator stores bones at 1/4 of the source Blockbench coordinates, then the
+            // generated item model's display transform scales them back by 4. Animation keyframes
+            // are still raw Blockbench coordinates, so convert them to that same 1/4 geometry
+            // space here. ModelBonePartDisplay's /4 then converts both to Minecraft blocks:
+            // source units * 1/4 / 4 = source units / 16.
             transform.put((short) i, p);
         }
 
@@ -44,7 +45,9 @@ public class CachedFrameProvider implements FrameProvider {
         } else if (type == ModelLoader.AnimationType.SCALE) {
             return Interpolator.interpolateScale(toInterpolate, transform, length);
         } else if (type == ModelLoader.AnimationType.TRANSLATION) {
-            return Interpolator.interpolateTranslation(toInterpolate, transform, length).mul(TranslationMul);
+            return Interpolator.interpolateTranslation(toInterpolate, transform, length)
+                    .mul(TranslationMul)
+                    .mul(0.25);
         }
 
         return Vec.ZERO;

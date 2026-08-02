@@ -48,6 +48,11 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
             itemMeta.setTransformationInterpolationDuration(2);
             itemMeta.setPosRotInterpolationDuration(2);
             itemMeta.setViewRange(1000);
+            // Large multipart models often shade nearly black because every display samples light
+            // only at its tiny carrier/root position, even when the visible bone is many blocks
+            // away. Full display brightness preserves the authored texture instead of turning the
+            // entire model into a silhouette.
+            itemMeta.setBrightness(15, 15);
         }
     }
 
@@ -209,7 +214,10 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public void teleport(Point position) {
-        if (this.baseStand != null) this.baseStand.teleport(new Pos(position));
+        // Model roots move every tick. A teleport emits an absolute position sync, which makes
+        // passenger displays visibly snap between server ticks. Let Minestom choose relative
+        // movement packets instead so the vanilla client's entity interpolation can do its job.
+        if (this.baseStand != null) this.baseStand.refreshPosition(new Pos(position), true);
     }
 
     public void draw() {
@@ -284,6 +292,9 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public Point getPosition() {
-        return calculatePositionInternal().add(model.getPosition());
+        // Item-display passengers inherit the root stand's global yaw. Locator consumers
+        // (projectiles, particles, bone hit detection) need the same world-space rotation;
+        // returning the unrotated local translation made gameplay bones disagree with visuals.
+        return calculateGlobalRotation(calculatePositionInternal()).add(model.getPosition());
     }
 }

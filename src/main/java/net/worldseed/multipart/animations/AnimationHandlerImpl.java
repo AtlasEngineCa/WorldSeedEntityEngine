@@ -25,7 +25,10 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
     private final Map<String, ModelAnimation> animations = new ConcurrentHashMap<>();
     private final TreeMap<Integer, ModelAnimation> repeating = new TreeMap<>();
+    /** The loop requested most recently by the caller; map priority must never pick locomotion state. */
+    private ModelAnimation activeRepeating;
     private String playingOnce = null;
+    private int playingOnceBlendTicks = 0;
 
     private final Map<String, Runnable> callbacks = new ConcurrentHashMap<>();
     private final Map<String, Integer> callbackTimers = new ConcurrentHashMap<>();
@@ -36,6 +39,11 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
     public AnimationHandlerImpl(GenericModel model) {
         this.model = model;
+        if (model.getParts().isEmpty()) {
+            throw new IllegalStateException(
+                    "The model must be initialized before creating its AnimationHandler; " +
+                            "otherwise animation channels cannot bind to bones.");
+        }
         loadDefaultAnimations();
         this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.TICK_START);
     }
@@ -71,17 +79,17 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
             boolean animated = false;
 
-            if (animationRotation != null) {
+            if (hasKeyframes(animationRotation)) {
                 animated = true;
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationRotation, ModelLoader.AnimationType.ROTATION, length, looping);
                 animationSet.add(boneAnimation);
             }
-            if (animationPosition != null) {
+            if (hasKeyframes(animationPosition)) {
                 animated = true;
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationPosition, ModelLoader.AnimationType.TRANSLATION, length, looping);
                 animationSet.add(boneAnimation);
             }
-            if (animationScale != null) {
+            if (hasKeyframes(animationScale)) {
                 animated = true;
                 BoneAnimationImpl boneAnimation = new BoneAnimationImpl(model.getId(), name, boneName, bone, animationScale, ModelLoader.AnimationType.SCALE, length, looping);
                 animationSet.add(boneAnimation);
@@ -117,6 +125,10 @@ public class AnimationHandlerImpl implements AnimationHandler {
         effectsByAnimation.put(name, effects);
     }
 
+    private static boolean hasKeyframes(JsonElement channel) {
+        return channel != null && channel.isJsonObject() && !channel.getAsJsonObject().isEmpty();
+    }
+
     @Override
     public void setEffectHandler(AnimationEffectHandler handler) {
         this.effectHandler = handler;
@@ -145,6 +157,8 @@ public class AnimationHandlerImpl implements AnimationHandler {
         Integer priority = this.animationPriorities().get(animation);
         if (priority == null) throw new IllegalArgumentException("Animation " + animation + " does not exist");
         ModelAnimation modelAnimation = this.animations.get(animation);
+        ModelAnimation existing = this.activeRepeating;
+        if (existing == modelAnimation && modelAnimation.weight() >= 0.999) return;
 
         // fade out whatever is currently repeating (except the target)
         for (ModelAnimation other : this.repeating.values()) {
@@ -153,6 +167,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
         modelAnimation.setDirection(direction);
         this.repeating.put(priority, modelAnimation);
+        this.activeRepeating = modelAnimation;
         if (playingOnce == null) {
             modelAnimation.setWeight(0);
             modelAnimation.play(false);
@@ -166,23 +181,17 @@ public class AnimationHandlerImpl implements AnimationHandler {
             throw new IllegalArgumentException("Animation " + animation + " does not exist");
         var modelAnimation = this.animations.get(animation);
 
-        if (this.repeating.containsKey(this.animationPriorities().get(animation))
-                && modelAnimation.direction() == direction) return;
+        if (this.activeRepeating == modelAnimation && modelAnimation.direction() == direction) return;
 
         modelAnimation.setDirection(direction);
 
         this.repeating.put(this.animationPriorities().get(animation), modelAnimation);
-        var top = this.repeating.firstEntry();
-
-        if (top != null && animation.equals(top.getValue().name())) { //The animation you want to play is the highest priority
-            this.repeating.values().forEach(v -> {
-                if (!v.name().equals(animation)) { //Stop all lower priority animations to ensure the correct one is playing
-                    v.stop(); //The extra loop seemed redundant, please let me know if this breaks something
-                }
-            });
-            if (playingOnce == null) {
-                modelAnimation.play(false); //Start the repeating animation if no playOnce animation is currently playing
-            }
+        this.activeRepeating = modelAnimation;
+        this.repeating.values().forEach(v -> {
+            if (v != modelAnimation) v.stop();
+        });
+        if (playingOnce == null) {
+            modelAnimation.play(false);
         }
     }
 
@@ -194,15 +203,9 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
         modelAnimation.stop(); //Stop the highest priority repeating animation
         int priority = this.animationPriorities().get(animation);
-
-        Map.Entry<Integer, ModelAnimation> currentTop = this.repeating.firstEntry();
-
         this.repeating.remove(priority);
-
-        Map.Entry<Integer, ModelAnimation> firstEntry = this.repeating.firstEntry();
-
-        if (this.playingOnce == null && firstEntry != null && currentTop != null && !firstEntry.getKey().equals(currentTop.getKey())) {
-            firstEntry.getValue().play(false); //Restart the new highest priority repeating animation
+        if (activeRepeating == modelAnimation) {
+            activeRepeating = null;
         }
     }
 
@@ -211,12 +214,26 @@ public class AnimationHandlerImpl implements AnimationHandler {
         this.playOnce(animation, true, cb);
     }
 
+    @Override
+    public void playOnce(String animation, int blendTicks, Runnable cb) throws IllegalArgumentException {
+        if (blendTicks <= 0) {
+            playOnce(animation, cb);
+            return;
+        }
+        playOnceInternal(animation, AnimationDirection.FORWARD, true, blendTicks, cb);
+    }
+
     public void playOnce(String animation, boolean override, Runnable cb) throws IllegalArgumentException {
         this.playOnce(animation, AnimationDirection.FORWARD, override, cb);
     }
 
     @Override
     public void playOnce(String animation, AnimationDirection direction, boolean override, Runnable cb) throws IllegalArgumentException {
+        playOnceInternal(animation, direction, override, 0, cb);
+    }
+
+    private void playOnceInternal(String animation, AnimationDirection direction, boolean override,
+                                  int blendTicks, Runnable cb) throws IllegalArgumentException {
         if (this.animationPriorities().get(animation) == null)
             throw new IllegalArgumentException("Animation " + animation + " does not exist");
 
@@ -246,15 +263,25 @@ public class AnimationHandlerImpl implements AnimationHandler {
                 modelAnimation.stop();
             }
             playingOnce = animation;
+            playingOnceBlendTicks = Math.min(blendTicks, Math.max(0, modelAnimation.animationTime() / 3));
 
             this.callbacks.put(animation, cb);
             this.callbackTimers.put(animation, modelAnimation.animationTime());
-            modelAnimation.play(false);
+            if (playingOnceBlendTicks > 0) {
+                modelAnimation.setWeight(0);
+                modelAnimation.play(false);
+                modelAnimation.blendTo(1, playingOnceBlendTicks);
+            } else {
+                modelAnimation.setWeight(1);
+                modelAnimation.play(false);
+            }
 
             Set<String> animatedBones = modelAnimation.getAnimatedBones();
             this.repeating.values().forEach(v -> {
                 if (!v.name().equals(animation)) {
-                    if (override) {
+                    if (playingOnceBlendTicks > 0 && override) {
+                        v.blendTo(0, playingOnceBlendTicks);
+                    } else if (override) {
                         v.stop(); //Stop all repeating animations
                     } else {
                         v.stop(animatedBones); //Stop all 'animatedBones' for all repeating animations
@@ -271,9 +298,11 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
                 if (entry.getValue() <= 0) { //All ticks were removed so playOnce should end
                     if (this.playingOnce != null && this.playingOnce.equals(entry.getKey())) {
-                        Map.Entry<Integer, ModelAnimation> firstEntry = this.repeating.firstEntry();
-                        if (firstEntry != null) {
-                            firstEntry.getValue().play(true); //Restart or resume the highest priority repeating animation
+                        ModelAnimation repeat = this.activeRepeating;
+                        if (repeat != null) {
+                            if (playingOnceBlendTicks <= 0) {
+                                repeat.play(true);
+                            }
                         }
                         this.playingOnce = null;
                     }
@@ -287,6 +316,15 @@ public class AnimationHandlerImpl implements AnimationHandler {
                     if (cb != null) cb.run(); //Run 'callback' runnable
                 } else {
                     if (modelAnimation.direction() != AnimationDirection.PAUSE) {
+                        if (playingOnceBlendTicks > 0 && entry.getValue() == playingOnceBlendTicks) {
+                            modelAnimation.blendTo(0, playingOnceBlendTicks);
+                            ModelAnimation repeat = this.activeRepeating;
+                            if (repeat != null) {
+                                repeat.setWeight(0);
+                                repeat.play(true);
+                                repeat.blendTo(1, playingOnceBlendTicks);
+                            }
+                        }
                         callbackTimers.put(entry.getKey(), entry.getValue() - 1); //Countdown 1 tick until it reaches 0 during playOnce animation
                     }
                 }
@@ -303,6 +341,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
 
             // drop animations that have finished blending out
             this.repeating.entrySet().removeIf(entry -> {
+                if (playingOnce != null && playingOnceBlendTicks > 0) return false;
                 if (entry.getValue().fadedOut()) {
                     entry.getValue().stop();
                     return true;
