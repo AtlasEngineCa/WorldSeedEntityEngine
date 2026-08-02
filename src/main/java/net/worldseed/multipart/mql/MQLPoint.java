@@ -3,7 +3,6 @@ package net.worldseed.multipart.mql;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.hollowcube.mql.jit.MqlCompiler;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 
@@ -93,15 +92,19 @@ public class MQLPoint {
         return fromString(Double.toString(value));
     }
 
+    // Compile each expression once into a reusable, pure Molang evaluator (case handled inside Molang) and
+    // cache by source so identical keyframe expressions across a model share one compiled tree.
+    private static final java.util.Map<String, MQLEvaluator> COMPILE_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
     static MQLEvaluator fromString(String s) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        if (s == null || s.isBlank()) return fromDouble(0);
-        MqlCompiler<MQLEvaluator> compiler = new MqlCompiler<>(MQLEvaluator.class);
-        Class<MQLEvaluator> scriptClass = compiler.compile(s.trim().replace("Math", "math"));
-        return scriptClass.getDeclaredConstructor().newInstance();
+        if (s == null || s.isBlank()) return env -> 0;
+        // key by the lower-cased source so case-only variants (Math./math., Query./query.) share one compiled tree
+        return COMPILE_CACHE.computeIfAbsent(s.trim().toLowerCase(java.util.Locale.ROOT), Molang::compile);
     }
 
     public Point evaluate(double time) {
         data.setTime(time);
+        data.setLifeTime(time); // approximated by anim_time until a real life time is threaded through
 
         double evaluatedX = x;
         if (molangX != null) {

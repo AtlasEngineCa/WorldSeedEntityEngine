@@ -85,6 +85,13 @@ public interface ModelBone {
 
     default void teleport(Point position) {}
 
+    /** Show or hide this bone at runtime (removes/re-adds its display entity for the model's viewers). */
+    default void setVisible(boolean visible) {}
+
+    default boolean isVisible() {
+        return true;
+    }
+
     default @NotNull Collection<ModelBone> getChildren() {
         return List.of();
     }

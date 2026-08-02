@@ -14,10 +14,13 @@ public class AnimationGenerator {
         for (int i = 0; i < animationRaw.size(); i++) {
             JsonObject animation = animationRaw.getJsonObject(i);
 
-            String name = animation.getString("name");
-            double length = animation.getJsonNumber("length").doubleValue();
+            String name = animation.getString("name", null);
+            if (name == null) continue;
+            JsonNumber lengthNumber = animation.getJsonNumber("length");
+            double length = lengthNumber == null ? 0 : lengthNumber.doubleValue();
 
             JsonObjectBuilder bones = Json.createObjectBuilder();
+            JsonArrayBuilder effects = Json.createArrayBuilder();
 
             var foundAnimations = animation.getJsonObject("animators");
             if (foundAnimations == null) continue;
@@ -29,25 +32,52 @@ public class AnimationGenerator {
 
                 String type = animator.getString("type", "bone");
 
+                if (type.equals("effect")) {
+                    JsonArray effectKeyframes = animator.getJsonArray("keyframes");
+                    if (effectKeyframes != null) {
+                        for (int k = 0; k < effectKeyframes.size(); k++) {
+                            JsonObject keyframe = effectKeyframes.getJsonObject(k);
+                            String channel = keyframe.getString("channel", "");
+                            if (!channel.equals("sound") && !channel.equals("particle") && !channel.equals("timeline")) continue;
+                            JsonNumber effectTime = keyframe.getJsonNumber("time");
+                            if (effectTime == null) continue;
+                            JsonArray dataPoints = keyframe.getJsonArray("data_points");
+                            JsonObject data = (dataPoints != null && !dataPoints.isEmpty()) ? dataPoints.getJsonObject(0) : JsonValue.EMPTY_JSON_OBJECT;
+                            JsonObjectBuilder effect = Json.createObjectBuilder()
+                                    .add("time", effectTime.doubleValue())
+                                    .add("channel", channel);
+                            if (data.containsKey("effect")) effect.add("effect", data.getString("effect", ""));
+                            if (data.containsKey("locator")) effect.add("locator", data.getString("locator", ""));
+                            if (data.containsKey("script")) effect.add("script", data.getString("script", ""));
+                            effects.add(effect.build());
+                        }
+                    }
+                    continue;
+                }
+
                 if (!type.equals("bone")) continue;
-                String boneName = animator.getString("name");
+                String boneName = animator.getString("name", null);
+                if (boneName == null) continue; // malformed animator without a bone name
 
                 List<Map.Entry<Double, JsonObject>> rotation = new ArrayList<>();
                 List<Map.Entry<Double, JsonObject>> position = new ArrayList<>();
                 List<Map.Entry<Double, JsonObject>> scale = new ArrayList<>();
 
                 JsonArray keyframes = animator.getJsonArray("keyframes");
+                if (keyframes == null) continue;
 
                 for (int k = 0; k < keyframes.size(); k++) {
                     JsonObject keyframe = keyframes.getJsonObject(k);
-                    String channel = keyframe.getString("channel");
+                    String channel = keyframe.getString("channel", null);
+                    JsonNumber timeNumber = keyframe.getJsonNumber("time");
+                    JsonArray dataPoints = keyframe.getJsonArray("data_points");
+                    if (channel == null || timeNumber == null || dataPoints == null) continue; // skip malformed keyframe
 
-                    double time = keyframe.getJsonNumber("time").doubleValue();
-
-                    String interpolation = keyframe.getString("interpolation");
+                    double time = timeNumber.doubleValue();
+                    String interpolation = keyframe.getString("interpolation", "linear");
 
                     JsonObject built = Json.createObjectBuilder()
-                            .add("post", keyframe.getJsonArray("data_points"))
+                            .add("post", dataPoints)
                             .add("lerp_mode", interpolation)
                             .build();
 
@@ -88,9 +118,10 @@ public class AnimationGenerator {
             }
 
             JsonObject built = Json.createObjectBuilder()
-                    .add("loop", animation.getString("loop").equals("loop"))
+                    .add("loop", animation.getString("loop", "once").equals("loop"))
                     .add("animation_length", length)
                     .add("bones", bones)
+                    .add("effects", effects)
                     .build();
 
             animations.add(name, built);

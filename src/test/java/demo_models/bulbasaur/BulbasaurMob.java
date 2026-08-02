@@ -18,7 +18,6 @@ import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
-import net.worldseed.multipart.events.ModelDamageEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
@@ -38,10 +37,7 @@ public class BulbasaurMob extends EntityCreature {
 
         this.model = new BulbasaurModel();
         model.init(instance, pos, 1f);
-
-        model.eventNode().addListener(ModelDamageEvent.class, (event) ->
-                damage(event.getDamage().getType(), event.getDamage().getAmount())
-        );
+        model.setOwner(this); // hits on the model's hitboxes now arrive as a normal EntityDamageEvent on this entity
 
         this.animationHandler = new AnimationHandlerImpl(model);
         this.animationHandler.playRepeat("animation.bulbasaur.ground_idle");
