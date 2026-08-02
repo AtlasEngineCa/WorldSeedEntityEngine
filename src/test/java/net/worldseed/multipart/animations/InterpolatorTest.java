@@ -58,9 +58,8 @@ class InterpolatorTest {
     }
 
     @Test
-    void bezierInterpolatesAsSmoothSpline() {
-        // bezier is approximated as Catmull-Rom, so it matches the smooth-spline midpoint (5.0), not linear
-        var t = map(0.0, kf(0, "bezier"), 1.0, kf(0, "bezier"), 2.0, kf(10, "bezier"), 3.0, kf(10, "bezier"));
+    void bezierFallsBackToLinearWithoutExportedHandles() {
+        var t = map(0.0, kf(0, "bezier"), 1.0, kf(0, "bezier"), 2.0, kf(10, "bezier"), 3.0, kf(20, "bezier"));
         assertEquals(5.0, Interpolator.interpolateTranslation(1.5, t, 3.0).x(), 1e-9);
     }
 

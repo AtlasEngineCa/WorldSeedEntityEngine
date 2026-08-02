@@ -55,7 +55,7 @@ public class Interpolator {
         if ("step".equals(a.lerp())) return start;                  // hold the leaving value until next keyframe
 
         Vec end = pre(transform, times.get(i + 1), time);           // value approaching keyframe i+1
-        if (isSmooth(a.lerp()) || isSmooth(b.lerp())) {             // catmullrom or bezier -> smooth spline
+        if (isSmooth(a.lerp()) || isSmooth(b.lerp())) {
             Vec before = post(transform, times.get(Math.max(0, i - 1)), time);
             Vec after = pre(transform, times.get(Math.min(n - 1, i + 2)), time);
             return catmullRom(before, start, end, after, alpha);
@@ -64,8 +64,7 @@ public class Interpolator {
     }
 
     private static boolean isSmooth(String lerp) {
-        // bezier is approximated as a Catmull-Rom smooth spline (its custom handles aren't exported)
-        return "catmullrom".equals(lerp) || "bezier".equals(lerp);
+        return "catmullrom".equals(lerp);
     }
 
     // value approaching a keyframe (its primary / "pre" data point)

@@ -14,7 +14,10 @@ public class ModelGenerator {
     public static BBEntityModel generate(PackBuilder.Model modelObj) {
         JsonObject model = Json.createReader(new StringReader(modelObj.data())).readObject();
 
-        JsonObject animations = AnimationGenerator.generate(model.getJsonArray("animations"));
+        JsonObject meta = model.getJsonObject("meta");
+        String formatVersion = meta == null ? "" : meta.getString("format_version", "");
+        JsonObject animations = AnimationGenerator.generate(
+                model.getJsonArray("animations"), usesLegacyAnimationCoordinates(formatVersion));
 
         int width = 16;
         int height = 16;
@@ -64,5 +67,14 @@ public class ModelGenerator {
     public record BBEntityModel(JsonObject geo, JsonObject animations,
                                 Map<String, TextureGenerator.TextureData> textures, String id,
                                 AdditionalStates additionalStates) {
+    }
+
+    static boolean usesLegacyAnimationCoordinates(String formatVersion) {
+        try {
+            String major = formatVersion.split("\\.", 2)[0];
+            return Integer.parseInt(major) < 5;
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
     }
 }

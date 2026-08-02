@@ -8,6 +8,16 @@ import java.util.Map;
 
 public class AnimationGenerator {
     public static JsonObject generate(JsonArray animationRaw) {
+        return generate(animationRaw, true);
+    }
+
+    /**
+     * Convert Blockbench animations to the runtime animation format.
+     *
+     * @param legacyCoordinates {@code true} for pre-5.0 bbmodels, whose animation values use the
+     *                          legacy Bedrock coordinate convention
+     */
+    public static JsonObject generate(JsonArray animationRaw, boolean legacyCoordinates) {
         JsonObjectBuilder animations = Json.createObjectBuilder();
         if (animationRaw == null) return animations.build();
 
@@ -77,7 +87,7 @@ public class AnimationGenerator {
                     String interpolation = keyframe.getString("interpolation", "linear");
 
                     JsonObject built = Json.createObjectBuilder()
-                            .add("post", dataPoints)
+                            .add("post", legacyCoordinates ? dataPoints : mirrorForRuntime(dataPoints, channel))
                             .add("lerp_mode", interpolation)
                             .build();
 
@@ -128,5 +138,34 @@ public class AnimationGenerator {
         }
 
         return animations.build();
+    }
+
+    private static JsonArray mirrorForRuntime(JsonArray points, String channel) {
+        boolean mirrorX = channel.equals("rotation") || channel.equals("position");
+        boolean mirrorY = channel.equals("rotation");
+        if (!mirrorX && !mirrorY) return points;
+
+        JsonArrayBuilder result = Json.createArrayBuilder();
+        for (JsonValue value : points) {
+            if (!(value instanceof JsonObject point)) {
+                result.add(value);
+                continue;
+            }
+            JsonObjectBuilder mirrored = Json.createObjectBuilder(point);
+            if (mirrorX && point.containsKey("x")) mirrored.add("x", negate(point.get("x")));
+            if (mirrorY && point.containsKey("y")) mirrored.add("y", negate(point.get("y")));
+            result.add(mirrored);
+        }
+        return result.build();
+    }
+
+    private static JsonValue negate(JsonValue value) {
+        if (value instanceof JsonNumber number) {
+            return Json.createValue(-number.doubleValue());
+        }
+        if (value instanceof JsonString string) {
+            return Json.createValue("-(" + string.getString() + ")");
+        }
+        return value;
     }
 }
