@@ -17,7 +17,11 @@ public class EmoteExample extends EmotePlayer {
         // playRepeat expects the source animation to opt into wrapping its bone timelines.
         ANIMATIONS = ModelLoader.parseAnimations(ANIMATION_STRING.replace(
                 "\"dab\":{\"animation_length\"",
-                "\"dab\":{\"loop\":true,\"animation_length\""));
+                "\"dab\":{\"loop\":true,\"animation_length\"")
+                .replace("[-47.5,0,-100]", "[-47.5,0,-125]")
+                .replace("[0,0,-100]", "[0,0,-125]")
+                .replace("[0,0,100]", "[0,0,125]")
+                .replace("[-47.5,0,100]", "[-47.5,0,125]"));
     }
 
     public EmoteExample(Instance instance, Pos pos, PlayerSkin skin) {
