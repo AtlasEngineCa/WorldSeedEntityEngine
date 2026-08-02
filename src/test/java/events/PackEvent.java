@@ -7,6 +7,7 @@ import net.kyori.adventure.resource.ResourcePackInfo;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
+import net.minestom.server.event.player.PlayerResourcePackStatusEvent;
 import net.minestom.server.timer.TaskSchedule;
 
 import java.io.*;
@@ -26,8 +27,8 @@ public class PackEvent {
         server.start();
     }
 
-    private static String calculateMD5(File file) throws NoSuchAlgorithmException, IOException {
-        MessageDigest digest = MessageDigest.getInstance("MD5");
+    private static String calculateSha1(File file) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
         try (InputStream is = new FileInputStream(file)) {
             byte[] buffer = new byte[8192];
             int read;
@@ -35,13 +36,13 @@ public class PackEvent {
                 digest.update(buffer, 0, read);
             }
         }
-        byte[] md5sum = digest.digest();
-        BigInteger bigInt = new BigInteger(1, md5sum);
-        return String.format("%032x", bigInt);
+        byte[] sha1sum = digest.digest();
+        BigInteger bigInt = new BigInteger(1, sha1sum);
+        return String.format("%040x", bigInt);
     }
 
     public static void hook(GlobalEventHandler handler, File zipFile) throws IOException, NoSuchAlgorithmException {
-        String hash = calculateMD5(zipFile);
+        String hash = calculateSha1(zipFile);
         startHttpServer(zipFile, hash);
 
         handler.addListener(AsyncPlayerConfigurationEvent.class, event ->
@@ -53,6 +54,8 @@ public class PackEvent {
                 event.getPlayer().sendResourcePacks(resourcePackInfo);
             }, TaskSchedule.tick(20), TaskSchedule.stop())
         );
+        handler.addListener(PlayerResourcePackStatusEvent.class, event ->
+                IO.println("Resource pack status for " + event.getPlayer().getUsername() + ": " + event.getStatus()));
     }
 
     static class PackHandler implements HttpHandler {
