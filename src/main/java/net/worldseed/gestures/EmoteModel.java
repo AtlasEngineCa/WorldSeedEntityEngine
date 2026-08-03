@@ -9,6 +9,7 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemStack;
 import net.worldseed.multipart.GenericModelImpl;
 import net.worldseed.multipart.model_bones.ModelBone;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.StringReader;
 import java.util.Map;
+import java.util.HashMap;
 
 public class EmoteModel extends GenericModelImpl {
     protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -38,11 +40,11 @@ public class EmoteModel extends GenericModelImpl {
 
     private static final Map<String, Point> BONE_OFFSETS = Map.ofEntries(
             Map.entry("Head", new Vec(0, 0, 0)),
-            Map.entry("RightArm", new Vec(1.17, 0, 0)),
-            Map.entry("LeftArm", new Vec(-1.17, 0, 0)),
+            Map.entry("RightArm", new Vec(75.0 / 64.0, 0, 0)),
+            Map.entry("LeftArm", new Vec(-75.0 / 64.0, 0, 0)),
             Map.entry("Body", new Vec(0, 0, 0)),
-            Map.entry("RightLeg", new Vec(0.4446, 0, 0)),
-            Map.entry("LeftLeg", new Vec(-0.4446, 0, 0))
+            Map.entry("RightLeg", new Vec(57.0 / 128.0, 0, 0)),
+            Map.entry("LeftLeg", new Vec(-57.0 / 128.0, 0, 0))
     );
 
     private static final Map<String, Double> VERTICAL_OFFSETS = Map.of(
@@ -73,6 +75,8 @@ public class EmoteModel extends GenericModelImpl {
     }
 
     private final PlayerSkin skin;
+    private final Map<String, ProceduralBoneAnimation> vanillaRotations = new HashMap<>();
+    private final Map<String, ProceduralBoneAnimation> vanillaTranslations = new HashMap<>();
 
     public EmoteModel(PlayerSkin skin) {
         this.skin = skin;
@@ -112,6 +116,18 @@ public class EmoteModel extends GenericModelImpl {
             e.printStackTrace();
         }
 
+        for (String boneName : BONE_OFFSETS.keySet()) {
+            ModelBone bone = this.parts.get(boneName);
+            if (bone instanceof ModelBoneImpl impl) {
+                ProceduralBoneAnimation animation = new ProceduralBoneAnimation(boneName, net.worldseed.multipart.ModelLoader.AnimationType.ROTATION);
+                impl.addAnimation(animation);
+                vanillaRotations.put(boneName, animation);
+                ProceduralBoneAnimation translation = new ProceduralBoneAnimation(boneName, net.worldseed.multipart.ModelLoader.AnimationType.TRANSLATION);
+                impl.addAnimation(translation);
+                vanillaTranslations.put(boneName, translation);
+            }
+        }
+
         for (ModelBone modelBonePart : this.parts.values()) {
             if (modelBonePart instanceof ModelBoneViewable)
                 viewableBones.add((ModelBoneImpl) modelBonePart);
@@ -124,6 +140,41 @@ public class EmoteModel extends GenericModelImpl {
 
     public void init(@Nullable Instance instance, @NotNull Pos position) {
         this.init_(instance, position);
+    }
+
+    public void setMainHandItem(@NotNull ItemStack item) {
+        arm("RightArm").setHeldItem(item);
+    }
+
+    public @NotNull ItemStack getMainHandItem() {
+        return arm("RightArm").getHeldItem();
+    }
+
+    public void setOffHandItem(@NotNull ItemStack item) {
+        arm("LeftArm").setHeldItem(item);
+    }
+
+    void applyVanillaPose(VanillaPlayerAnimationState state) {
+        VanillaPlayerPose.Pose pose = VanillaPlayerPose.pose(state);
+        pose.rotations().forEach((bone, rotation) -> {
+            ProceduralBoneAnimation animation = vanillaRotations.get(bone);
+            if (animation != null) animation.setTransform(rotation);
+        });
+        pose.translations().forEach((bone, translation) -> {
+            ProceduralBoneAnimation animation = vanillaTranslations.get(bone);
+            if (animation != null) animation.setTransform(translation);
+        });
+        draw();
+    }
+
+    public @NotNull ItemStack getOffHandItem() {
+        return arm("LeftArm").getHeldItem();
+    }
+
+    private ModelBoneEmote arm(String name) {
+        ModelBone bone = this.parts.get(name);
+        if (bone instanceof ModelBoneEmote emoteBone) return emoteBone;
+        throw new IllegalStateException("Emote model is not initialized: missing " + name);
     }
 
     @Override
