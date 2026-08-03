@@ -68,7 +68,7 @@ repositories {
 Add the library as a dependency
 ```
 dependencies {
-    implementation("net.worldseed.multipart:WorldSeedEntityEngine:<version>")
+    implementation("net.worldseed.multipart:WorldSeedEntityEngine:13.0.0")
 }
 ```
 
@@ -83,6 +83,39 @@ Add the following VM arguments to your run configuration
 ```
 
 This is required for the molang compiler library.
+
+### Transparent player entities
+
+`EmotePlayer` is a WSEE model with an invisible Minestom entity as its carrier. It can be moved,
+rotated, viewed, and equipped through the normal Minestom entity APIs while rendering as a player
+skin. Vanilla idle, walking, looking, and hand-swing animations are applied automatically.
+
+```java
+PlayerSkin skin = new PlayerSkin(textureValue, textureSignature);
+EmotePlayer actor = new EmotePlayer(instance, new Pos(0, 42, 0), skin);
+
+actor.addViewer(player);
+actor.setVelocity(new Vec(0.1, 0, 0));
+actor.setItemInMainHand(ItemStack.of(Material.DIAMOND_SWORD));
+actor.setItemInOffHand(ItemStack.of(Material.SHIELD));
+actor.swingMainHand();
+```
+
+The standard `setItemInMainHand`, `setItemInOffHand`, `getItemInMainHand`, and
+`getItemInOffHand` methods control the visible held items. `ItemStack.AIR` clears a hand. Items
+remain attached to their arm through idle, walking, attack, and loaded emote animations.
+
+Blockbench animations can be loaded and played through the WSEE animation interface:
+
+```java
+actor.loadEmotes(emotes);
+actor.getAnimationHandler().playOnce("wave", () -> {});
+actor.getAnimationHandler().playRepeat("dance");
+```
+
+Use `actor.setVanillaAnimationsEnabled(false)` when a custom animation should have complete
+control over the player bones, and re-enable it to return to the automatic vanilla pose system.
+Removing the `EmotePlayer` also removes its model bones and held-item displays.
 
 ## Restrictions
 

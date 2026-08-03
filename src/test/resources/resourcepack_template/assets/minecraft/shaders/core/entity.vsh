@@ -40,10 +40,13 @@ out vec4 overlayColor;
 out vec2 texCoord0;
 out vec2 texCoord1;
 flat out int playerPart;
+flat out int playerSlim;
 
 #define SPACING 1024.0
 #define MAXRANGE (0.5 * SPACING)
 
+// Target rectangles relative to each player-part skin origin, ordered as the
+// player-head source UVs identify them: UP, DOWN, WEST, NORTH, EAST, SOUTH.
 const vec4[] subuvs = vec4[](
     vec4(4,0,8,4), vec4(8,0,12,4), vec4(0,4,4,16), vec4(4,4,8,16), vec4(8,4,12,16), vec4(12,4,16,16),
     vec4(4,0,7,4), vec4(7,0,10,4), vec4(0,4,4,16), vec4(4,4,7,16), vec4(7,4,11,16), vec4(11,4,14,16),
@@ -59,31 +62,21 @@ void main() {
     texCoord0 = UV0;
     texCoord1 = vec2(0);
     playerPart = 0;
+    playerSlim = 0;
 
     ivec2 dim = textureSize(Sampler0, 0);
     if (ProjMat[2][3] != 0.0 && dim == ivec2(64)) {
         int partId = -int((Position.y - MAXRANGE) / SPACING);
         playerPart = partId;
         if (partId > 0 && partId <= 5) {
-            vec4 samp1 = texture(Sampler0, vec2(54.0/64.0, 20.0/64.0));
-            vec4 samp2 = texture(Sampler0, vec2(55.0/64.0, 20.0/64.0));
-            bool slim = samp1.a == 0.0 || (all(equal(samp1.rgb, vec3(0))) && all(equal(samp2.rgb, vec3(0))) && samp1.a == 1.0 && samp2.a == 1.0);
-            int outerLayer = (gl_VertexID / 24) % 2;
-            int faceId = (gl_VertexID % 24) / 4;
-            int vertexId = gl_VertexID % 4;
-            int subuvIndex = faceId + ((slim && partId <= 2) ? 6 : (partId == 3 ? 12 : 0));
             position.y += SPACING * partId;
-            vec2 uv = origins[2 * (partId - 1) + outerLayer];
-            vec2 uv2 = origins[2 * (partId - 1)];
-            vec4 s = subuvs[subuvIndex];
-            vec2 offset;
-            if (faceId == 1) {
-                offset = vertexId == 0 ? s.zw : vertexId == 1 ? s.xw : vertexId == 2 ? s.xy : s.zy;
-            } else {
-                offset = vertexId == 0 ? s.zy : vertexId == 1 ? s.xy : vertexId == 2 ? s.xw : s.zw;
-            }
-            texCoord0 = (uv + offset) / 64.0;
-            texCoord1 = (uv2 + offset) / 64.0;
+
+            vec4 slimProbe1 = texture(Sampler0, vec2(54.0/64.0, 20.0/64.0));
+            vec4 slimProbe2 = texture(Sampler0, vec2(55.0/64.0, 20.0/64.0));
+            bool slim = slimProbe1.a == 0.0
+                || (all(equal(slimProbe1.rgb, vec3(0))) && all(equal(slimProbe2.rgb, vec3(0)))
+                    && slimProbe1.a == 1.0 && slimProbe2.a == 1.0);
+            playerSlim = slim ? 1 : 0;
         }
     }
 
