@@ -38,6 +38,10 @@ public class AnimationHandlerImpl implements AnimationHandler {
     private volatile AnimationEffectHandler effectHandler = AnimationHandler.DEFAULT_EFFECT_HANDLER;
 
     public AnimationHandlerImpl(GenericModel model) {
+        this(model, true);
+    }
+
+    AnimationHandlerImpl(GenericModel model, boolean scheduleTask) {
         this.model = model;
         if (model.getParts().isEmpty()) {
             throw new IllegalStateException(
@@ -45,7 +49,9 @@ public class AnimationHandlerImpl implements AnimationHandler {
                             "otherwise animation channels cannot bind to bones.");
         }
         loadDefaultAnimations();
-        this.task = MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.TICK_START);
+        this.task = scheduleTask
+                ? MinecraftServer.getSchedulerManager().scheduleTask(this::tick, TaskSchedule.immediate(), TaskSchedule.tick(1), ExecutionType.TICK_START)
+                : null;
     }
 
     protected void loadDefaultAnimations() {
@@ -205,7 +211,12 @@ public class AnimationHandlerImpl implements AnimationHandler {
         int priority = this.animationPriorities().get(animation);
         this.repeating.remove(priority);
         if (activeRepeating == modelAnimation) {
-            activeRepeating = null;
+            Map.Entry<Integer, ModelAnimation> fallback = this.repeating.firstEntry();
+            activeRepeating = fallback == null ? null : fallback.getValue();
+            if (activeRepeating != null && playingOnce == null) {
+                activeRepeating.setDirection(AnimationDirection.FORWARD);
+                activeRepeating.play(true);
+            }
         }
     }
 
@@ -437,7 +448,7 @@ public class AnimationHandlerImpl implements AnimationHandler {
     }
 
     public void destroy() {
-        this.task.cancel();
+        if (this.task != null) this.task.cancel();
     }
 
     @Override

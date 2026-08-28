@@ -17,7 +17,8 @@ import org.jetbrains.annotations.NotNull;
  *   <li><b>position</b> — the model follows this entity every tick,</li>
  *   <li><b>lifecycle</b> — the model is destroyed with this entity,</li>
  *   <li><b>hits</b> — a hit on any of the model's hitboxes arrives as a <i>normal</i> Minestom
- *       {@link net.minestom.server.event.entity.EntityDamageEvent} /
+ *       {@link net.minestom.server.event.entity.EntityAttackEvent} (and the resulting
+ *       {@link net.minestom.server.event.entity.EntityDamageEvent}) /
  *       {@link net.minestom.server.event.player.PlayerEntityInteractEvent} on <b>this</b> entity
  *       (WSEE routes it via {@link GenericModel#getOwner()}); no custom events to hook.</li>
  * </ul>

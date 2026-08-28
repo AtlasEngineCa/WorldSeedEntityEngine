@@ -10,6 +10,7 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.event.EventDispatcher;
 import net.minestom.server.event.EventListener;
+import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.event.player.PlayerEntityInteractEvent;
 import net.minestom.server.event.player.PlayerPacketEvent;
@@ -47,13 +48,28 @@ public class ModelEngine {
     // A hit on a model hitbox (an INTERACTION/BoneEntity) is surfaced as a NORMAL Minestom event on the
     // model's owner entity (see GenericModel#getOwner / ModelEntity) — no custom WSEE events to hook.
     private static final EventListener<@NonNull PlayerEntityInteractEvent> playerInteractListener = EventListener.of(PlayerEntityInteractEvent.class, event -> {
-        if (event.getTarget() instanceof BoneEntity bone) {
-            Entity owner = bone.getModel().getOwner();
-            if (owner != null && owner != event.getTarget()) {
-                EventDispatcher.call(new PlayerEntityInteractEvent(event.getPlayer(), owner, event.getHand(), event.getInteractPosition()));
-            }
-        }
+        PlayerEntityInteractEvent ownerInteraction = ownerInteraction(event);
+        if (ownerInteraction != null) EventDispatcher.call(ownerInteraction);
     });
+
+    static PlayerEntityInteractEvent ownerInteraction(PlayerEntityInteractEvent event) {
+        if (!(event.getTarget() instanceof BoneEntity bone)) return null;
+        Entity owner = bone.getModel().getOwner();
+        if (owner == null || owner == event.getTarget()) return null;
+        return new PlayerEntityInteractEvent(event.getPlayer(), owner, event.getHand(), event.getInteractPosition());
+    }
+    private static final EventListener<@NonNull EntityAttackEvent> entityAttackListener = EventListener.of(EntityAttackEvent.class, event -> {
+        EntityAttackEvent ownerAttack = ownerAttack(event);
+        if (ownerAttack != null) EventDispatcher.call(ownerAttack);
+    });
+
+    static EntityAttackEvent ownerAttack(EntityAttackEvent event) {
+        if (!(event.getTarget() instanceof BoneEntity bone)) return null;
+        Entity owner = bone.getModel().getOwner();
+        if (owner == null || owner == event.getTarget()) return null;
+        return new EntityAttackEvent(event.getEntity(), owner);
+    }
+
     private static final EventListener<@NonNull EntityDamageEvent> entityDamageListener = EventListener.of(EntityDamageEvent.class, event -> {
         if (event.getEntity() instanceof BoneEntity bone) {
             event.setCancelled(true); // the hitbox entity itself never takes damage
@@ -76,6 +92,7 @@ public class ModelEngine {
         MinecraftServer.getGlobalEventHandler()
                 .addListener(playerListener)
                 .addListener(playerInteractListener)
+                .addListener(entityAttackListener)
                 .addListener(entityDamageListener);
 
         JsonObject map = GSON.fromJson(mappingsData, JsonObject.class);

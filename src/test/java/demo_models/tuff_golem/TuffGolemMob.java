@@ -7,17 +7,15 @@ import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
-import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.registry.RegistryKey;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -65,7 +63,7 @@ public class TuffGolemMob extends EntityCreature {
     }
 
     @Override
-    public boolean damage(@NotNull RegistryKey<@NonNull DamageType> type, float value) {
+    public boolean damage(@NotNull Damage damage) {
         this.model.setState("animated_head");
 
         if (stateTask != null && stateTask.isAlive()) stateTask.cancel();
@@ -73,7 +71,7 @@ public class TuffGolemMob extends EntityCreature {
                 .buildTask(() -> this.model.setState("normal")).delay(7, TimeUnit.CLIENT_TICK)
                 .schedule();
 
-        return super.damage(type, value);
+        return super.damage(damage);
     }
 
     @Override

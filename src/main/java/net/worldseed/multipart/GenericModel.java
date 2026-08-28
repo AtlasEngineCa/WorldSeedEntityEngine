@@ -164,7 +164,7 @@ public interface GenericModel extends Viewable, EventHandler<@NonNull ModelEvent
 
     /**
      * The entity that owns/drives this model — the source of its position and viewers, and the entity
-     * that receives hits landed on the model's hitboxes (as normal Minestom events). Set automatically
+     * that receives hits landed on the model's hitboxes (as normal Minestom attack events). Set automatically
      * when the model is bound to a {@link ModelEntity}; null if the model is driven manually.
      *
      * @return the owning entity, or null
