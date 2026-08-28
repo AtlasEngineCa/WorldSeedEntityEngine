@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class PackEvent {
     private static void startHttpServer(File zipFile, String hash) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
         server.createContext("/pack", new PackHandler(zipFile, hash));
         server.start();
     }
@@ -48,7 +48,7 @@ public class PackEvent {
         handler.addListener(AsyncPlayerConfigurationEvent.class, event ->
             MinecraftServer.getSchedulerManager().scheduleTask(() -> {
                 final ResourcePackInfo resourcePackInfo = ResourcePackInfo.resourcePackInfo()
-                    .uri(URI.create("http://127.0.0.1:8080/pack?hash=" + hash))
+                    .uri(URI.create("http://127.0.0.1:8081/pack?hash=" + hash))
                     .hash(hash)
                     .build();
                 event.getPlayer().sendResourcePacks(resourcePackInfo);

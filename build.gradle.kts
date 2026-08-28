@@ -21,7 +21,7 @@ publishing {
     publications.create<MavenPublication>("maven") {
         groupId = "net.worldseed.multipart"
         artifactId = "WorldSeedEntityEngine"
-        version = "13.0.1"
+        version = "13.0.2"
 
         from(components["java"])
     }
@@ -56,4 +56,12 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.register<JavaExec>("demoServer") {
+    group = "demo"
+    description = "Runs the example Minestom demo server (src/test/java/Main.java)"
+    mainClass.set("Main")
+    classpath = sourceSets["test"].runtimeClasspath
+    jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
 }

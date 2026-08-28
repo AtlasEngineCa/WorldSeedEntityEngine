@@ -6,12 +6,22 @@ import javax.json.*;
 import java.util.*;
 
 public class GeoGenerator {
-    private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, Map<String, JsonObject> locators, Map<String, JsonObject> nullObjects, String parent) {
+    private static List<JsonObject> parseRecursive(JsonObject obj, Map<String, JsonObject> cubeMap, Map<String, JsonObject> locators, Map<String, JsonObject> nullObjects, Map<String, JsonObject> groupMap, String parent) {
         List<JsonObject> res = new ArrayList<>();
         float scale = 0.25f;
 
-        String name = getOutlinerName(obj);
-        JsonArray pivot = obj.getJsonArray("origin");
+        // bbmodel format 5.0 splits bone data (name/origin/rotation) into a top-level "groups"
+        // array, leaving only {uuid, isOpen, children} stubs in the outliner. When the stub has
+        // no name of its own, resolve the real bone data from the group that shares its uuid.
+        JsonObject boneData = obj;
+        JsonString uuid = obj.getJsonString("uuid");
+        if (uuid != null && obj.getJsonString("name") == null) {
+            JsonObject group = groupMap.get(uuid.getString());
+            if (group != null) boneData = group;
+        }
+
+        String name = getOutlinerName(boneData);
+        JsonArray pivot = boneData.getJsonArray("origin");
         if (pivot == null) {
             pivot = Json.createArrayBuilder().add(0).add(0).add(0).build();
         } else {
@@ -24,7 +34,7 @@ public class GeoGenerator {
 
         JsonArrayBuilder cubes = Json.createArrayBuilder();
 
-        JsonArray rotation = obj.getJsonArray("rotation");
+        JsonArray rotation = boneData.getJsonArray("rotation");
         if (rotation == null) {
             rotation = Json.createArrayBuilder().add(0).add(0).add(0).build();
         } else {
@@ -40,7 +50,7 @@ public class GeoGenerator {
 
         for (JsonValue child : children) {
             if (child.getValueType() == JsonValue.ValueType.OBJECT) {
-                res.addAll(parseRecursive(child.asJsonObject(), cubeMap, locators, nullObjects, name));
+                res.addAll(parseRecursive(child.asJsonObject(), cubeMap, locators, nullObjects, groupMap, name));
             } else if (child.getValueType() == JsonValue.ValueType.STRING) {
                 JsonObject cube = cubeMap.get(child.toString());
                 if (cube != null) {
@@ -98,9 +108,22 @@ public class GeoGenerator {
     }
 
     public static JsonArray generate(JsonArray elements, JsonArray outliner, Map<String, TextureGenerator.TextureData> textures) {
+        return generate(elements, outliner, null, textures);
+    }
+
+    public static JsonArray generate(JsonArray elements, JsonArray outliner, JsonArray groups, Map<String, TextureGenerator.TextureData> textures) {
         Map<String, JsonObject> blocks = new HashMap<>();
         Map<String, JsonObject> locators = new HashMap<>();
         Map<String, JsonObject> nullObjects = new HashMap<>();
+
+        Map<String, JsonObject> groupMap = new HashMap<>();
+        if (groups != null) {
+            for (var group : groups) {
+                JsonObject g = group.asJsonObject();
+                JsonString uuid = g.getJsonString("uuid");
+                if (uuid != null) groupMap.put(uuid.getString(), g);
+            }
+        }
 
         for (var element : elements) {
             JsonObject el = element.asJsonObject();
@@ -123,7 +146,7 @@ public class GeoGenerator {
         for (var outline : outliner) {
             if (outline instanceof JsonObject) {
                 JsonObject el = outline.asJsonObject();
-                bonesList.addAll(parseRecursive(el, blocks, locators, nullObjects, null));
+                bonesList.addAll(parseRecursive(el, blocks, locators, nullObjects, groupMap, null));
             }
         }
 

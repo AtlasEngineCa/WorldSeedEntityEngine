@@ -68,6 +68,7 @@ public class ModelBoneHitbox extends ModelBoneImpl implements HitboxBone {
                 InteractionMeta meta = (InteractionMeta) this.stand.getEntityMeta();
                 meta.setHeight((float) (sizeY / 4f) * scale);
                 meta.setWidth((float) (sizeX / 4f) * scale);
+                meta.setResponse(true);
 
                 this.stand.setBoundingBox(sizeX / 4f * scale, sizeY / 4f * scale, sizeX / 4f * scale);
             }

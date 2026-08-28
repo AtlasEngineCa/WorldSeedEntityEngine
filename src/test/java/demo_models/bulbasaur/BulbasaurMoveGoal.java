@@ -48,7 +48,8 @@ public class BulbasaurMoveGoal extends GoalSelector {
 
         this.lastTargetPos = target.getPosition();
 
-        if (!navigator.getPathPosition().samePoint(lastTargetPos)) {
+        var pathPosition = navigator.getPathPosition();
+        if (pathPosition == null || !pathPosition.samePoint(lastTargetPos)) {
             navigator.setPathTo(lastTargetPos);
         } else {
             forceEnd = true;
@@ -85,6 +86,7 @@ public class BulbasaurMoveGoal extends GoalSelector {
     public void end() {
         this.entityCreature.getNavigator().setPathTo(null);
         this.animationHandler.stopRepeat("animation.bulbasaur.ground_walk");
+        this.animationHandler.playRepeat("animation.bulbasaur.ground_idle");
         this.forceEnd = false;
     }
 }

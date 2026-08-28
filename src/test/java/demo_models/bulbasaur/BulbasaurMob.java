@@ -8,18 +8,16 @@ import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
-import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
-import net.minestom.server.registry.RegistryKey;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.position.PositionUtils;
 import net.minestom.server.utils.time.TimeUnit;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.AnimationHandlerImpl;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Set;
@@ -89,7 +87,7 @@ public class BulbasaurMob extends EntityCreature {
     }
 
     @Override
-    public boolean damage(@NotNull RegistryKey<@NonNull DamageType> type, float amount) {
+    public boolean damage(@NotNull Damage damage) {
         if (this.dying) return false;
         this.animationHandler.playOnce("animation.bulbasaur.cry", () -> {
         });
@@ -100,7 +98,28 @@ public class BulbasaurMob extends EntityCreature {
                 .buildTask(() -> this.model.setState("normal")).delay(7, TimeUnit.CLIENT_TICK)
                 .schedule();
 
-        return super.damage(type, amount);
+        return super.damage(damage);
+    }
+
+    /** Visible demo response for a right-click routed through the model hitbox. */
+    public void interact() {
+        if (this.dying) return;
+
+        this.animationHandler.playOnce("animation.bulbasaur.cry", () -> {
+        });
+
+        ParticlePacket packet = new ParticlePacket(
+                Particle.HEART,
+                this.position.x(),
+                this.position.y() + 1,
+                this.position.z(),
+                0.35f,
+                0.35f,
+                0.35f,
+                0.05f,
+                4
+        );
+        this.getViewers().forEach(viewer -> viewer.sendPacket(packet));
     }
 
     @Override

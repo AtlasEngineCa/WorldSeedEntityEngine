@@ -101,6 +101,12 @@ void main() throws Exception {
             ));
 
             player.sendMessage(Component.text("Run /spawn or /emote", NamedTextColor.YELLOW));
+
+            try {
+                new demo_models.bulbasaur.BulbasaurMob(lobby, new Pos(4.5, 1, 4.5));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         // Logout
@@ -144,6 +150,6 @@ void main() throws Exception {
         }, TaskSchedule.tick(10), TaskSchedule.tick(10));
     }
 
-    minecraftServer.start("0.0.0.0", 25565);
+    minecraftServer.start("0.0.0.0", 25599);
     IO.println("Server startup done!");
 }
