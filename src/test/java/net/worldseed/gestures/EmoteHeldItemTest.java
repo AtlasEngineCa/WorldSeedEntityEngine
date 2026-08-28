@@ -7,12 +7,16 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.entity.EquipmentSlot;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.network.packet.server.SendablePacket;
+import net.minestom.server.network.player.GameProfile;
+import net.minestom.server.network.player.PlayerConnection;
 import net.worldseed.multipart.ModelLoader;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.BoneAnimation;
@@ -22,10 +26,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -73,6 +81,25 @@ class EmoteHeldItemTest {
         assertEquals(ItemStack.AIR, player.getItemInMainHand());
         assertEquals(ItemStack.AIR, player.getItemInOffHand());
         player.remove();
+    }
+
+    @Test
+    void emotePlayerCanSpawnWhileAViewerIsAlreadyInRange() {
+        PlayerConnection connection = new PlayerConnection() {
+            @Override public void sendPacket(SendablePacket packet) { }
+            @Override public SocketAddress getRemoteAddress() {
+                return new InetSocketAddress("127.0.0.1", 25565);
+            }
+        };
+        Player viewer = new Player(connection, new GameProfile(UUID.randomUUID(), "viewer"));
+        viewer.setInstance(instance, Pos.ZERO).join();
+
+        EmotePlayer emote = assertDoesNotThrow(() ->
+                new EmotePlayer(instance, new Pos(1, 0, 1), new PlayerSkin("", "")));
+
+        assertTrue(emote.getViewers().contains(viewer));
+        emote.remove();
+        viewer.remove();
     }
 
     @Test
