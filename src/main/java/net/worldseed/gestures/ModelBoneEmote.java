@@ -163,7 +163,7 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
         // The arm display is centred around the generated head-item model's origin.
         // Vanilla's ModelPart hand pivot is 0.11 blocks below that display origin.
         Quaternion entityFacing = new Quaternion(new Vec(0, -this.model.getGlobalRotation(), 0));
-        double armXDelta = Math.toRadians(getPropagatedRotation().x() - ITEM_POSE_ARM_X);
+        double armXDelta = Math.toRadians(nativeRotation().x() - ITEM_POSE_ARM_X);
         // The generated arm display and vanilla's hand matrix use different origins.
         // When the arm bobs around X, that origin separation becomes a depth arc.
         // Keep the correction in entity-local space so both arms and every yaw share
@@ -179,12 +179,12 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
     }
 
     private Quaternion calculateHeldItemGripRotation() {
-        Quaternion local = calculateFinalAngle(new Quaternion(getPropagatedRotation()));
+        Quaternion local = new Quaternion(nativeRotation());
         return new Quaternion(new Vec(0, 180, 0)).multiply(local);
     }
 
     private Quaternion calculateHeldItemRotation() {
-        Quaternion local = calculateFinalAngle(new Quaternion(getPropagatedRotation()));
+        Quaternion local = new Quaternion(nativeRotation());
         // DisplayRenderer applies the entity yaw as R_y(-yaw). Vanilla's player root
         // is R_y(180-yaw), so metadata must contribute the invariant R_y(180):
         // R_y(-yaw) * R_y(180) * arm == R_y(180-yaw) * arm.
@@ -225,18 +225,18 @@ public class ModelBoneEmote extends ModelBoneImpl implements ModelBoneViewable {
         return q.toEuler();
     }
 
-    /**
-     * PlayerModel rotations are expressed in Minecraft ModelPart coordinates (Y points
-     * down). The generated display cubes use the Blockbench basis (Y points up), so X/Y
-     * rotation components must be reflected for the visible cube. Held items retain the
-     * native ModelPart basis used by ItemInHandLayer.
-     */
     private Quaternion calculateVisibleRotation() {
-        Point rotation = getPropagatedRotation();
-        Quaternion q = calculateFinalAngle(new Quaternion(new Vec(
-                -rotation.x(), -rotation.y(), rotation.z())));
+        // Stored rotations are in the authored Blockbench/display basis. Vanilla
+        // ModelPart poses are converted when they enter EmoteModel.
+        Quaternion q = calculateFinalAngle(new Quaternion(getPropagatedRotation()));
         Quaternion global = new Quaternion(new Vec(0, 180 - this.model.getGlobalRotation(), 0));
         return global.multiply(q);
+    }
+
+    /** Convert the display/Blockbench arm basis back to ItemInHandLayer's native basis. */
+    private Point nativeRotation() {
+        Point rotation = getPropagatedRotation();
+        return new Vec(-rotation.x(), -rotation.y(), rotation.z());
     }
 
     @Override
