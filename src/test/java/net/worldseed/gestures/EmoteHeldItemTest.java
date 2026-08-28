@@ -18,6 +18,7 @@ import net.minestom.server.network.packet.server.SendablePacket;
 import net.minestom.server.network.player.GameProfile;
 import net.minestom.server.network.player.PlayerConnection;
 import net.worldseed.multipart.ModelLoader;
+import net.worldseed.multipart.Quaternion;
 import net.worldseed.multipart.animations.AnimationHandler;
 import net.worldseed.multipart.animations.BoneAnimation;
 import net.worldseed.multipart.model_bones.ModelBoneImpl;
@@ -170,6 +171,25 @@ class EmoteHeldItemTest {
         double expectedDepth = 0.585033 - 1.0546875 * Math.sin(Math.toRadians(18.0));
         assertEquals(arm.getEntity().getPosition().z() + expectedDepth,
                 arm.getHeldItemEntity().getPosition().z(), 1.0e-6);
+        model.destroy();
+    }
+
+    @Test
+    void authoredEmoteRotationKeepsItsBlockbenchFacing() {
+        EmoteModel model = model();
+        ModelBoneEmote arm = (ModelBoneEmote) model.getPart("RightArm");
+        Point authoredRotation = new Vec(30, 20, 10);
+        arm.addAnimation(rotation(authoredRotation));
+
+        ModelBoneImpl.beginDrawFrame();
+        model.draw();
+
+        Quaternion expected = new Quaternion(new Vec(0, 180, 0))
+                .multiply(new Quaternion(authoredRotation));
+        assertArrayEquals(new float[]{
+                        (float) expected.x(), (float) expected.y(),
+                        (float) expected.z(), (float) expected.w()},
+                visibleMeta(model, "RightArm").getRightRotation(), 1.0e-6f);
         model.destroy();
     }
 

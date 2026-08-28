@@ -158,7 +158,11 @@ public class EmoteModel extends GenericModelImpl {
         VanillaPlayerPose.Pose pose = VanillaPlayerPose.pose(state);
         pose.rotations().forEach((bone, rotation) -> {
             ProceduralBoneAnimation animation = vanillaRotations.get(bone);
-            if (animation != null) animation.setTransform(rotation);
+            // Vanilla ModelPart uses a Y-down basis. Emote and Blockbench animations
+            // use the generated display model's Y-up basis, so normalize vanilla input
+            // here instead of mirroring every animation at render time.
+            if (animation != null) animation.setTransform(new Vec(
+                    -rotation.x(), -rotation.y(), rotation.z()));
         });
         pose.translations().forEach((bone, translation) -> {
             ProceduralBoneAnimation animation = vanillaTranslations.get(bone);
