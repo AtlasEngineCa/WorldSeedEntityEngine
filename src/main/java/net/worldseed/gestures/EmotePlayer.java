@@ -191,7 +191,11 @@ public class EmotePlayer extends ModelEntity {
 
     @Override
     public @NotNull ItemStack getEquipment(@NotNull EquipmentSlot slot) {
-        return visualEquipment.getOrDefault(slot, ItemStack.AIR);
+        // ModelEntity attaches the carrier to its instance from its super constructor.
+        // That can make Minestom request an equipment packet before this subclass's
+        // field initializers have run. Treat that brief construction window as empty.
+        Map<EquipmentSlot, ItemStack> equipment = visualEquipment;
+        return equipment == null ? ItemStack.AIR : equipment.getOrDefault(slot, ItemStack.AIR);
     }
 
     @Override
