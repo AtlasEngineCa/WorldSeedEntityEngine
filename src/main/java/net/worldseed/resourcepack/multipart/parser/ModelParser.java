@@ -311,15 +311,29 @@ public class ModelParser {
         return res;
     }
 
-    private static UV convertUV(UV uv, int width, int height, boolean inverse) {
+    static UV convertUV(UV uv, int width, int height, boolean inverse) {
         double sx = uv.x1 * (16.0 / width);
         double sy = uv.y1 * (16.0 / height);
         double ex = uv.x2 * (16.0 / width);
         double ey = uv.y2 * (16.0 / height);
 
+        double minU = clampModelUv(sx);
+        double minV = clampModelUv(sy);
+        double maxU = clampModelUv(sx + ex);
+        double maxV = clampModelUv(sy + ey);
+
+        // Minecraft 26.2 inspects the pixels covered by every face while baking its
+        // translucency. UVs outside the texture now throw from NativeImage instead of
+        // being tolerated, which rejects the carrier item's entire range_dispatch model.
+        // Blockbench can emit slightly overflowing UVs (and much larger ones for helper
+        // cubes), so keep every generated endpoint inside the model texture.
         if (inverse)
-            return new UV(ex + sx, ey + sy, sx, sy, uv.texture, uv.rotation);
-        return new UV(sx, sy, ex + sx, ey + sy, uv.texture, uv.rotation);
+            return new UV(maxU, maxV, minU, minV, uv.texture, uv.rotation);
+        return new UV(minU, minV, maxU, maxV, uv.texture, uv.rotation);
+    }
+
+    private static double clampModelUv(double value) {
+        return Math.max(0.0, Math.min(16.0, value));
     }
 
     private static JsonObject mappingsToJson() {

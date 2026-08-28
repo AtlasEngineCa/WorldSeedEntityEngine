@@ -68,7 +68,7 @@ repositories {
 Add the library as a dependency
 ```
 dependencies {
-    implementation("net.worldseed.multipart:WorldSeedEntityEngine:13.0.0")
+    implementation("net.worldseed.multipart:WorldSeedEntityEngine:13.0.1")
 }
 ```
 
