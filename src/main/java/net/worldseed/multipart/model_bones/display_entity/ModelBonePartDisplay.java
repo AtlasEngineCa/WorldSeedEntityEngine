@@ -169,8 +169,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     public void setGlobalRotation(double yaw, double pitch) {
         if (this.stand != null) {
             var correctYaw = (180 + yaw + 360) % 360;
-            var correctPitch = (pitch + 360) % 360;
-            this.stand.setView((float) correctYaw, (float) correctPitch);
+            this.stand.setView((float) correctYaw, (float) pitch);
         }
     }
 
@@ -191,14 +190,14 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
 
     @Override
     public Pos calculatePosition() {
-        return new Pos(model.getPosition()).withView(0, 0);
+        return model.getPosition().withView(0, 0);
     }
 
     private Pos calculatePositionInternal() {
         if (this.offset == null) return Pos.ZERO;
         Point p = this.offset;
         p = applyTransform(p);
-        return new Pos(p).div(4).mul(scale).withView(0, 0);
+        return p.asPos().div(4).mul(scale).withView(0, 0);
     }
 
     @Override
@@ -217,7 +216,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
         // Model roots move every tick. A teleport emits an absolute position sync, which makes
         // passenger displays visibly snap between server ticks. Let Minestom choose relative
         // movement packets instead so the vanilla client's entity interpolation can do its job.
-        if (this.baseStand != null) this.baseStand.refreshPosition(new Pos(position), true);
+        if (this.baseStand != null) this.baseStand.refreshPosition(position.asPos(), true);
     }
 
     public void draw() {
@@ -261,7 +260,7 @@ public class ModelBonePartDisplay extends ModelBoneImpl implements ModelBoneView
     @Override
     public CompletableFuture<Void> spawn(Instance instance, Pos position) {
         var correctLocation = (180 + this.model.getGlobalRotation() + 360) % 360;
-        return super.spawn(instance, new Pos(position).withYaw((float) correctLocation)).whenCompleteAsync((_, e) -> {
+        return super.spawn(instance, position.withYaw((float) correctLocation)).whenCompleteAsync((_, e) -> {
             if (e != null) {
                 e.printStackTrace();
                 return;

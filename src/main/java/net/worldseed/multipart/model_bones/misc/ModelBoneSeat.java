@@ -113,7 +113,7 @@ public class ModelBoneSeat extends ModelBoneImpl implements RideableBone {
 
         var p = applyTransform(this.offset);
         p = calculateGlobalRotation(p);
-        Pos endPos = new Pos(p);
+        Pos endPos = p.asPos();
 
         return endPos
                 .div(4, 4, 4).mul(scale)

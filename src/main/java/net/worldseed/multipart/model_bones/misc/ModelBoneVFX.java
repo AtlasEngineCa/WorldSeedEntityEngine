@@ -64,7 +64,7 @@ public class ModelBoneVFX extends ModelBoneImpl implements VFXBone {
         p = applyTransform(p);
         p = calculateGlobalRotation(p);
 
-        Pos endPos = Pos.fromPoint(p);
+        Pos endPos = p.asPos();
 
         return endPos
                 .div(4, 4, 4).mul(scale)
